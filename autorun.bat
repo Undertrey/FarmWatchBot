@@ -9,7 +9,7 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.0.3.6
+SET Version=1.0.3.7
 :hardstart
 CLS
 COLOR 06
@@ -39,6 +39,7 @@ SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /
 SET CriticalErrorsList=/C:"ERROR: Cannot initialize NVML. Temperature monitor will not work"
 SET OtherErrorsList=/C:"ERROR:"
 SET ErrorEcho=+ Unknown error.                                                 +
+SET ServerQueue=0
 :checkconfig
 IF EXIST config.bat (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"REM Configuration file v." config.bat') DO (
@@ -78,7 +79,13 @@ ECHO SET UseBatOrExe=2 >> config.bat
 ECHO REM Name miner start .bat file (in English, without special symbols and spaces) >> config.bat
 ECHO SET MinerProcessBat=miner.bat>> config.bat
 ECHO REM Set %MinerProcessBat% command here to autocreate this file if it is missing >> config.bat
-ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 80 --eexit 3 --pec>> config.bat
+ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> config.bat
+ECHO REM =================================================== [Additional server] >> config.bat
+ECHO REM Enable additional server. When the main server is fail, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
+ECHO SET EnableAdditionalServer=0 >> config.bat
+ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and created new one with this values. >> config.bat
+ECHO REM #Additional server configuration >> config.bat
+ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> config.bat
 ECHO REM =================================================== [Timers] >> config.bat
 ECHO REM Restart miner every hour (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
 ECHO SET AutoRestartMinerEveryHour=0 >> config.bat
@@ -443,6 +450,14 @@ IF %UseBatOrExe% EQU 1 (
 		ECHO EXIT >> %MinerProcessBat%
 		ECHO %MinerProcessBat% created... Check it, please.
 		GOTO start
+	) ELSE (
+		IF %EnableAdditionalServer% EQU 1 (
+			IF %ServerQueue% EQU 0 (
+				ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
+				ECHO %MinerProcessBatText% >> %MinerProcessBat%
+				ECHO EXIT >> %MinerProcessBat%
+			)
+		)
 	)
 	START /MIN "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
 	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
@@ -456,12 +471,14 @@ timeout /T 5 /nobreak >NUL
 IF NOT EXIST %MinerProcessLog% (
 	ECHO Error. %MinerProcessLog% is missing. Check it, please.
 	IF %UseBatOrExe% EQU 2 (
+		ECHO Check permissions to create new files in %MinerPath% folder.
 		ECHO Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file.
 		ECHO Example:
 		ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --eexit 3
 		CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat%"
 		IF ERRORLEVEL ==2 (
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in %MinerPath% folder. >> %~n0.log
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file. >> %~n0.log
 		) ELSE (
 			ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
@@ -471,10 +488,12 @@ IF NOT EXIST %MinerProcessLog% (
 			GOTO start
 		)
 	) ELSE (
+		ECHO Check permissions to create new files in %MinerPath% folder.
 		ECHO Check "log 2" and "eexit 3" options in your miner.cfg file.
 		CHOICE /C yn /T 30 /D y /M "Create default miner.cfg"
 		IF ERRORLEVEL ==2 (
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in %MinerPath% folder. >> %~n0.log
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "log 2" and "eexit 3" options in your miner.cfg file. >> %~n0.log
 		) ELSE (
 			DEL /Q /F miner.cfg 2>NUL 1>&2
@@ -567,6 +586,20 @@ IF %AutoRestartComputerEveryHour% EQU 1 (
 		)
 	)
 )
+IF %EnableAdditionalServer% EQU 1 (
+	IF %ServerQueue% NEQ 0 (
+		IF "%X2%" == "00" (
+			ECHO Warning. Switching pool server to main.
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Switching pool server to main. >> %~n0.log
+			IF %EnableTelegramNotifications% EQU 1 (
+				IF EXIST "%CurlPath%" (
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Switching pool server to main." 2>NUL 1>&2
+				)
+			)
+			GOTO hardstart
+		)
+	)
+)
 IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Too many errors, need clear GPU cash. Miner works %t3% >> %~n0.log
 	COLOR 0C
@@ -639,13 +672,14 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 	)
 	timeout /T 10 /nobreak >NUL
 	ECHO %%F | findstr %ConfigErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Carefully configure config.bat, miner.cfg or/and %MinerProcessBat% >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%. Check your pool server, maybe it is offline. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		ECHO ==================================================================
 		ECHO +----------------------------------------------------------------+
 		ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 		ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
 		ECHO + Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%     +
+		ECHO + Check your pool server, maybe it is offline                    +
 		ECHO + Miner restarting with default values...                        +
 		ECHO +----------------------------------------------------------------+
 		ECHO ==================================================================
@@ -656,7 +690,31 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		SET UseBatOrExe=2
 		timeout /T 5 /nobreak >NUL
 		ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
-		ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 80 --eexit 3 --pec>> %MinerProcessBat%
+		IF %EnableAdditionalServer% EQU 1 (
+			IF %ServerQueue% EQU 1 (
+				ECHO Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+				IF %EnableTelegramNotifications% EQU 1 (
+					IF EXIST "%CurlPath%" (
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+					)
+				)
+				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+			)
+			IF %ServerQueue% EQU 0 (
+				ECHO Warning. Pool server is switched to additional. Probably your main pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to additional. Probably your main pool server are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+				IF %EnableTelegramNotifications% EQU 1 (
+					IF EXIST "%CurlPath%" (
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to additional. Probably your main pool server are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+					)
+				)
+				ECHO %MinerProcessBatText1% >> %MinerProcessBat%
+				SET ServerQueue=1
+			)
+		) ELSE (
+			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+		)
 		ECHO EXIT >> %MinerProcessBat%
 		ECHO Default %MinerProcessBat% created... Check it, please.
 		SET /A ErrorsCounter+=1
