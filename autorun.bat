@@ -660,21 +660,22 @@ IF %AverageHashrate% GTR 0 (
 timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerProcessLog%') DO (
 	COLOR 0C
+	timeout /T 10 /nobreak >NUL
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
-			IF %EnableInternetErrorsList% EQU 0 (
-				ECHO %%F | findstr /V %InternetErrorsList% 2>NUL 1>&2 && (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
-				)
-			) ELSE (
+			ECHO %%F | findstr /V %InternetErrorsList% %ConfigErrorsList% 2>NUL 1>&2 && (
 				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
 			)
 		)
 	)
-	timeout /T 10 /nobreak >NUL
 	IF %EnableInternetErrorsList% EQU 1 (
 		ping google.com | find /i "TTL=" 2>NUL 1>&2 || (
 			ECHO %%F | findstr %InternetErrorsList% 2>NUL && (
+				IF %EnableTelegramNotifications% EQU 1 (
+					IF EXIST "%CurlPath%" (
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
+					)
+				)
 				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3% >> %~n0.log
 				ECHO %%F >> %~n0.log
 				ECHO ==================================================================
@@ -701,6 +702,11 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		)
 	)
 	ECHO %%F | findstr %ConfigErrorsList% 2>NUL && (
+		IF %EnableTelegramNotifications% EQU 1 (
+			IF EXIST "%CurlPath%" (
+				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
+			)
+		)
 		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%. Check your pool server, maybe it is offline. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		ECHO ==================================================================
