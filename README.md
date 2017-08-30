@@ -27,7 +27,7 @@
 8. Do not forget add autorun.bat shortcut to autorun folder. (WIN+R shell:startup)
 
 
-# **Telegram instruction (for 1 user):**
+# **Telegram instruction (bot for one user):**
 1. [Add a bot to Telegram](https://t.me/ZcashMinerAutorunBot), this bot will send you notifications from your Zcash farm.
 2. [Add another bot](https://t.me/get_id_bot), it will tell you the Chat ID number, write this number in config.bat, in the ChatId field, instead of 000000000. This bot can be deleted, it is no longer needed.
 3. [Download "cURL"](https://goo.gl/b7N6qV). Else you can download from the [cURL site's](https://curl.haxx.se). You need the latest version of Win64 x86_64 7zip with Binary SSL SSH. [What is cURL?](https://en.wikipedia.org/wiki/CURL). Specifically in our case, it is needed to send messages to Telegram, without opening the browser tabs (in the background).
@@ -37,7 +37,7 @@
 7. The setup is complete, run autorun.bat, everything should work.
 
 
-# **Telegram instruction (for group chat):**
+# **Telegram instruction (bot for group chat):**
 0. Read instruction for one user first to understand how it works!
 1. Create group chat. Invite your friens into this group.
 2. Invite Telegram bot by the search, type @ZcashMinerAutorunBot or Zcash Miner Autorun, or add bot to Telegram and use “Add to group” button in bot profile. This bot will send you notifications from your Zcash farm.
