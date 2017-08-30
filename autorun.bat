@@ -379,7 +379,7 @@ taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcess
 timeout /T 5 /nobreak >NUL
 taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
 timeout /T 5 /nobreak >NUL
-IF EXIST %MinerProcessLog% MOVE /Y %MinerProcessLog% Logs\miner_%Y1%.%M1%.%D1%_%H1%.%X1%.%C1%.log 2>NUL 1>&2
+IF EXIST "%MinerProcessLog%" MOVE /Y %MinerProcessLog% Logs\miner_%Y1%.%M1%.%D1%_%H1%.%X1%.%C1%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
 	ECHO Error. Can't rename, move or open %MinerProcessLog%. Check it, please.
 	CHOICE /C yn /T 10 /D y /M "Try to delete %MinerProcessLog%"
@@ -431,12 +431,12 @@ IF %UseBatOrExe% EQU 1 (
 			ECHO miner.cfg created... Check it, please.
 		)
 	)
-	IF NOT EXIST %MinerProcessProgram% (
+	IF NOT EXIST "%MinerProcessProgram%" (
 		ECHO %MinerProcessProgram% is missing, mining is impossible.
 		PAUSE
 		EXIT
 	)
-	START %MinerProcessProgram% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	START "%MinerProcessProgram%" && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
 	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
@@ -444,7 +444,7 @@ IF %UseBatOrExe% EQU 1 (
 		)
 	)
 ) ELSE (
-	IF NOT EXIST %MinerProcessBat% (
+	IF NOT EXIST "%MinerProcessBat%" (
 		ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
 		ECHO %MinerProcessBatText% >> %MinerProcessBat%
 		ECHO EXIT >> %MinerProcessBat%
@@ -468,7 +468,7 @@ IF %UseBatOrExe% EQU 1 (
 	)
 )
 timeout /T 5 /nobreak >NUL
-IF NOT EXIST %MinerProcessLog% (
+IF NOT EXIST "%MinerProcessLog%" (
 	ECHO Error. %MinerProcessLog% is missing. Check it, please.
 	IF %UseBatOrExe% EQU 2 (
 		ECHO Check permissions to create new files in "%MinerPath%" folder.
