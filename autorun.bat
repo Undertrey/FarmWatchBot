@@ -49,7 +49,7 @@ IF EXIST config.bat (
 			GOTO prestart
 		) ELSE (
 			ECHO Your config.bat is out of date.
-			CHOICE /C yn /T 15 /D y /M "Delete outdated and create an updated (default) config.bat"
+			CHOICE /C yn /T 15 /D y /M "Backup outdated and create an updated (default) config.bat"
 			IF ERRORLEVEL ==2 EXIT
 			MOVE /Y config.bat config_backup_%%B.bat 2>NUL 1>&2 && ECHO Created backup of your v. %%B config.bat.
 		)
