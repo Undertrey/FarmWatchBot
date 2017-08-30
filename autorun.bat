@@ -33,8 +33,8 @@ SET FirstRun=0
 SET MinerPath=%~dp0
 SET ErrorsAmount=5
 SET ErrorsCounter=0
-SET ConfigErrorsList=/C:"Cannot connect to the pool" /C:"No properly configured pool"
-SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout"
+SET ConfigErrorsList=/C:"Cannot connect to the pool" /C:"No properly configured pool" /C:"Cannot resolve hostname"
+SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool"
 SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error"
 SET CriticalErrorsList=/C:"ERROR: Cannot initialize NVML. Temperature monitor will not work"
 SET OtherErrorsList=/C:"ERROR:"
@@ -83,8 +83,7 @@ ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --
 ECHO REM =================================================== [Additional server] >> config.bat
 ECHO REM Enable additional server. When the main server is fail, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
 ECHO SET EnableAdditionalServer=0 >> config.bat
-ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and created new one with this values. >> config.bat
-ECHO REM #Additional server configuration >> config.bat
+ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and created new one with this values. UseBatOrExe=2 required. >> config.bat
 ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> config.bat
 ECHO REM =================================================== [Timers] >> config.bat
 ECHO REM Restart miner every hour (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
@@ -588,15 +587,17 @@ IF %AutoRestartComputerEveryHour% EQU 1 (
 )
 IF %EnableAdditionalServer% EQU 1 (
 	IF %ServerQueue% NEQ 0 (
-		IF "%X2%" == "00" (
-			ECHO Warning. Switching pool server to main.
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Switching pool server to main. >> %~n0.log
-			IF %EnableTelegramNotifications% EQU 1 (
-				IF EXIST "%CurlPath%" (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Switching pool server to main." 2>NUL 1>&2
+		IF %UseBatOrExe% EQU 2 (
+			IF "%X2%" == "00" (
+				ECHO Warning. Switching pool server to main.
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Switching pool server to main. >> %~n0.log
+				IF %EnableTelegramNotifications% EQU 1 (
+					IF EXIST "%CurlPath%" (
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Switching pool server to main." 2>NUL 1>&2
+					)
 				)
+				GOTO hardstart
 			)
-			GOTO hardstart
 		)
 	)
 )
@@ -671,6 +672,34 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		)
 	)
 	timeout /T 10 /nobreak >NUL
+	IF %EnableInternetErrorsList% EQU 1 (
+		ping google.com | find /i "TTL=" 2>NUL 1>&2 || (
+			ECHO %%F | findstr %InternetErrorsList% 2>NUL && (
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3% >> %~n0.log
+				ECHO %%F >> %~n0.log
+				ECHO ==================================================================
+				ECHO +----------------------------------------------------------------+
+				ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
+				ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
+				ECHO + Miner works %t3%                                           +
+				ECHO + Something wrong with Internet...                               +
+				ECHO + Waiting 12 minutes...                                          +
+				ECHO +----------------------------------------------------------------+
+				ECHO ==================================================================
+				CHOICE /C yn /T 660 /D y /M "Restart miner"
+				IF ERRORLEVEL ==2 EXIT
+				IF EXIST "Logs\miner_*.log" (
+					CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
+					IF ERRORLEVEL ==2 (
+						SET /A ErrorsCounter+=1
+						GOTO start
+					)
+					DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
+				)
+				GOTO start
+			)
+		)
+	)
 	ECHO %%F | findstr %ConfigErrorsList% 2>NUL && (
 		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%. Check your pool server, maybe it is offline. >> %~n0.log
 		ECHO %%F >> %~n0.log
@@ -726,34 +755,6 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		ECHO Default %MinerProcessBat% created... Check it, please.
 		SET /A ErrorsCounter+=1
 		GOTO start
-	)
-	IF %EnableInternetErrorsList% EQU 1 (
-		ping google.com 2>NUL 1>&2 | find /i "TTL=" 2>NUL 1>&2 || (
-			ECHO %%F | findstr %InternetErrorsList% 2>NUL && (
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3% >> %~n0.log
-				ECHO %%F >> %~n0.log
-				ECHO ==================================================================
-				ECHO +----------------------------------------------------------------+
-				ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
-				ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-				ECHO + Miner works %t3%                                           +
-				ECHO + Something wrong with Internet...                               +
-				ECHO + Waiting 12 minutes...                                          +
-				ECHO +----------------------------------------------------------------+
-				ECHO ==================================================================
-				CHOICE /C yn /T 660 /D y /M "Restart miner"
-				IF ERRORLEVEL ==2 EXIT
-				IF EXIST "Logs\miner_*.log" (
-					CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
-					IF ERRORLEVEL ==2 (
-						SET /A ErrorsCounter+=1
-						GOTO start
-					)
-					DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
-				)
-				GOTO start
-			)
-		)
 	)
 	ECHO %%F | findstr %MinerErrorsList% 2>NUL && (
 		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, Voltage or OverClock. Miner works %t3% >> %~n0.log
