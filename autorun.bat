@@ -436,7 +436,7 @@ IF %UseBatOrExe% EQU 1 (
 		PAUSE
 		EXIT
 	)
-	START "%MinerProcessProgram%" && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	START %MinerProcessProgram% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
 	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
