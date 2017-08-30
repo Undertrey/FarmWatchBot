@@ -326,17 +326,17 @@ IF %EnableGPUOverClockControl% GEQ 0 (
 	SET EnableGPUOverClockControl=0
 )
 IF NOT EXIST "%MinerProcessProgram%" (
-	ECHO Error. %MinerPath%miner.exe is missing. Check it, please.
+	ECHO Error. "%MinerPath%miner.exe" is missing. Check it, please.
 	PAUSE
 	EXIT
 )
 IF NOT EXIST "cudart32_80.dll" (
-	ECHO Error. %MinerPath%cudart32_80.dll is missing. Check it, please.
+	ECHO Error. "%MinerPath%cudart32_80.dll" is missing. Check it, please.
 	PAUSE
 	EXIT
 )
 IF NOT EXIST "cudart64_80.dll" (
-	ECHO Error. %MinerPath%cudart64_80.dll is missing. Check it, please.
+	ECHO Error. "%MinerPath%cudart64_80.dll" is missing. Check it, please.
 	PAUSE
 	EXIT
 )
@@ -436,7 +436,7 @@ IF %UseBatOrExe% EQU 1 (
 		PAUSE
 		EXIT
 	)
-	START /MIN %MinerProcessProgram% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	START %MinerProcessProgram% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
 	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
@@ -459,7 +459,7 @@ IF %UseBatOrExe% EQU 1 (
 			)
 		)
 	)
-	START /MIN "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	START "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
 	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
@@ -471,14 +471,14 @@ timeout /T 5 /nobreak >NUL
 IF NOT EXIST %MinerProcessLog% (
 	ECHO Error. %MinerProcessLog% is missing. Check it, please.
 	IF %UseBatOrExe% EQU 2 (
-		ECHO Check permissions to create new files in %MinerPath% folder.
+		ECHO Check permissions to create new files in "%MinerPath%" folder.
 		ECHO Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file.
 		ECHO Example:
 		ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --eexit 3
 		CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat%"
 		IF ERRORLEVEL ==2 (
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in %MinerPath% folder. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in "%MinerPath%" folder. >> %~n0.log
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file. >> %~n0.log
 		) ELSE (
 			ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
@@ -488,12 +488,12 @@ IF NOT EXIST %MinerProcessLog% (
 			GOTO start
 		)
 	) ELSE (
-		ECHO Check permissions to create new files in %MinerPath% folder.
+		ECHO Check permissions to create new files in "%MinerPath%" folder.
 		ECHO Check "log 2" and "eexit 3" options in your miner.cfg file.
 		CHOICE /C yn /T 30 /D y /M "Create default miner.cfg"
 		IF ERRORLEVEL ==2 (
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in %MinerPath% folder. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in "%MinerPath%" folder. >> %~n0.log
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "log 2" and "eexit 3" options in your miner.cfg file. >> %~n0.log
 		) ELSE (
 			DEL /Q /F miner.cfg 2>NUL 1>&2
@@ -713,6 +713,13 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				SET ServerQueue=1
 			)
 		) ELSE (
+			ECHO Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+			IF %EnableTelegramNotifications% EQU 1 (
+				IF EXIST "%CurlPath%" (
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+				)
+			)
 			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
 		)
 		ECHO EXIT >> %MinerProcessBat%
@@ -742,7 +749,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 						SET /A ErrorsCounter+=1
 						GOTO start
 					)
-					DEL /F /Q "Logs\*" && ECHO Clean %MinerPath%Logs finished.
+					DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
 				)
 				GOTO start
 			)
@@ -890,7 +897,7 @@ IF %FirstRun% EQU 0 (
 			ECHO Now I will take care of your %RigName%, and you can take a rest.
 			GOTO check
 		) ELSE (
-			DEL /F /Q "Logs\*" && ECHO Clean %MinerPath%Logs finished.
+			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
 		)
 		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath% folder now"
 		IF ERRORLEVEL ==2 (
@@ -903,8 +910,8 @@ IF %FirstRun% EQU 0 (
 				GOTO check
 			) ELSE (
 				FOR %%H IN ("%MinerPath%*") DO (IF NOT "%%H" == "%MinerPath%%~n0.bat" IF NOT "%%H" == "%MinerPath%%~n0.log" IF NOT "%%H" == "%MinerPath%autorun.exe" IF NOT "%%H" == "%MinerPath%config.bat" IF NOT "%%H" == "%MinerPath%miner.cfg" IF NOT "%%H" == "%MinerPath%%MinerProcessBat%" IF NOT "%%H" == "%MinerPath%cudart32_80.dll" IF NOT "%%H" == "%MinerPath%cudart64_80.dll" IF NOT "%%H" == "%MinerPath%miner.exe" IF NOT "%%H" == "%MinerPath%%MinerProcessProgram%" IF NOT "%%H" == "%MinerPath%%MinerProcessLog%" DEL /Q /F "%%H")
-				FOR /F "tokens=*" %%I IN ('DIR %MinerPath% /A:D /B') DO (IF /I NOT "%%I" == "Logs" IF /I NOT "%%I" == "Profiles" IF /I NOT "%%I" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%I"))
-				ECHO Good. Folder %MinerPath% clean now.
+				FOR /F "tokens=*" %%I IN ('DIR "%MinerPath%" /A:D /B') DO (IF /I NOT "%%I" == "Logs" IF /I NOT "%%I" == "Profiles" IF /I NOT "%%I" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%I"))
+				ECHO Good. Folder "%MinerPath%" clean now.
 				ECHO Now I will take care of your %RigName%, and you can take a rest.
 				GOTO check
 			)
