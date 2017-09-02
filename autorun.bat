@@ -464,9 +464,11 @@ IF %UseBatOrExe% EQU 1 (
 	) ELSE (
 		IF %EnableAdditionalServer% EQU 1 (
 			IF %ServerQueue% EQU 0 (
-				ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
-				ECHO %MinerProcessBatText% >> %MinerProcessBat%
-				ECHO EXIT >> %MinerProcessBat%
+				IF %SwitchToDefault% EQU 0 (
+					ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
+					ECHO %MinerProcessBatText% >> %MinerProcessBat%
+					ECHO EXIT >> %MinerProcessBat%
+				)
 			)
 		)
 	)
@@ -763,6 +765,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				)
 			)
 			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+			SET SwitchToDefault=1
 		)
 		ECHO EXIT >> %MinerProcessBat%
 		ECHO Default %MinerProcessBat% created... Check it, please.
