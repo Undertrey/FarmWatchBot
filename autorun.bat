@@ -81,12 +81,12 @@ ECHO SET UseBatOrExe=2 >> config.bat
 ECHO REM Name miner start .bat file (in English, without special symbols and spaces) >> config.bat
 ECHO SET MinerProcessBat=miner.bat>> config.bat
 ECHO REM Set %MinerProcessBat% command here to autocreate this file if it is missing >> config.bat
-ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> config.bat
+ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> config.bat
 ECHO REM =================================================== [Additional server] >> config.bat
 ECHO REM Enable additional server. When the main server is fail, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
 ECHO SET EnableAdditionalServer=0 >> config.bat
 ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and created new one with this values. UseBatOrExe=2 required. >> config.bat
-ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> config.bat
+ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> config.bat
 ECHO REM =================================================== [Timers] >> config.bat
 ECHO REM Restart miner every hour (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
 ECHO SET AutoRestartMinerEveryHour=0 >> config.bat
@@ -462,9 +462,9 @@ IF %UseBatOrExe% EQU 1 (
 		ECHO %MinerProcessBat% created... Check it, please.
 		GOTO start
 	) ELSE (
-		IF %EnableAdditionalServer% EQU 1 (
-			IF %ServerQueue% EQU 0 (
-				IF %SwitchToDefault% EQU 0 (
+		IF %SwitchToDefault% EQU 0 (
+			FOR /F "delims=" %%F IN ('findstr /R /C:"miner .*" %MinerProcessBat%') DO (
+				IF NOT "%%F" == "%MinerProcessBatText%" (
 					ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
 					ECHO %MinerProcessBatText% >> %MinerProcessBat%
 					ECHO EXIT >> %MinerProcessBat%
@@ -740,7 +740,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
 					)
 				)
-				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> %MinerProcessBat%
 				SET ServerQueue=0
 				SET SwitchToDefault=1
 			)
@@ -764,7 +764,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
 				)
 			)
-			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> %MinerProcessBat%
 			SET SwitchToDefault=1
 		)
 		ECHO EXIT >> %MinerProcessBat%
