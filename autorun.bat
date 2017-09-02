@@ -32,6 +32,7 @@ REM Basic constant
 SET FirstRun=0
 SET MinerPath=%~dp0
 SET ErrorsAmount=5
+SET HashrateErrorsAmount=5
 SET ErrorsCounter=0
 SET ConfigErrorsList=/C:"Cannot connect to the pool" /C:"No properly configured pool" /C:"Cannot resolve hostname"
 SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool"
@@ -40,6 +41,7 @@ SET CriticalErrorsList=/C:"ERROR: Cannot initialize NVML. Temperature monitor wi
 SET OtherErrorsList=/C:"ERROR:"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET ServerQueue=0
+SET SwitchToDefault=0
 :checkconfig
 IF EXIST config.bat (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"REM Configuration file v." config.bat') DO (
@@ -195,6 +197,16 @@ IF %SkipBeginMining% EQU 0 (
 	timeout /T 5 /nobreak >NUL
 	GOTO start
 )
+:switch
+COLOR 06
+ECHO Warning. An attempt to switch to the main pool server.
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. An attempt to switch to the main pool server. >> %~n0.log
+IF %EnableTelegramNotifications% EQU 1 (
+	IF EXIST "%CurlPath%" (
+		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. An attempt to switch to the main pool server." 2>NUL 1>&2
+	)
+)
+GOTO hardstart
 :ctimer
 COLOR 06
 IF %EnableTelegramNotifications% EQU 1 (
@@ -202,7 +214,7 @@ IF %EnableTelegramNotifications% EQU 1 (
 		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Scheduled computer restart, please wait" 2>NUL 1>&2
 	)
 )
-ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled computer restart, please wait. Miner works %t3% >> %~n0.log
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled computer restart, please wait. Miner works %t3%. >> %~n0.log
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
@@ -219,7 +231,7 @@ IF %EnableTelegramNotifications% EQU 1 (
 		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Scheduled miner restart, please wait" 2>NUL 1>&2
 	)
 )
-ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled miner restart, please wait. Miner works %t3% >> %~n0.log
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled miner restart, please wait. Miner works %t3%. >> %~n0.log
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
@@ -503,7 +515,7 @@ IF NOT EXIST "%MinerProcessLog%" (
 	ECHO Connected to %MinerProcessLog%. Start reading...
 )
 SET FirstRun=0
-SET HashrateErrorsAmount=0
+SET HashrateErrorsCount=0
 SET OldHashrate=0
 :check
 SET Hashcount=0
@@ -585,24 +597,16 @@ IF %AutoRestartComputerEveryHour% EQU 1 (
 		)
 	)
 )
-IF %EnableAdditionalServer% EQU 1 (
-	IF %ServerQueue% NEQ 0 (
-		IF %UseBatOrExe% EQU 2 (
-			IF "%X2%" == "00" (
-				ECHO Warning. Switching pool server to main.
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Switching pool server to main. >> %~n0.log
-				IF %EnableTelegramNotifications% EQU 1 (
-					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Switching pool server to main." 2>NUL 1>&2
-					)
-				)
-				GOTO hardstart
-			)
-		)
+IF %SwitchToDefault% EQU 1 (
+	IF "%X2%" == "00" (
+		GOTO switch
+	)
+	IF "%X2%" == "30" (
+		GOTO switch
 	)
 )
 IF %ErrorsCounter% GEQ %ErrorsAmount% (
-	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Too many errors, need clear GPU cash. Miner works %t3% >> %~n0.log
+	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Too many errors, need clear GPU cash. Miner works %t3%. >> %~n0.log
 	COLOR 0C
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
@@ -627,7 +631,7 @@ IF %AverageHashrate% GTR 0 (
 				IF %EnableGPUOverClockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverClockProcess%" 2>NUL | find /I /N "%GPUOverClockProcess%" >NUL
 					IF ERRORLEVEL ==1 (
-						ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %GPUOverClockProcess% crashed. Miner works %t3% >> %~n0.log
+						ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %GPUOverClockProcess% crashed. Miner works %t3%. >> %~n0.log
 						IF %EnableTelegramNotifications% EQU 1 (
 							IF EXIST "%CurlPath%" (
 								IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %GPUOverClockProcess% crashed." 2>NUL 1>&2
@@ -639,8 +643,8 @@ IF %AverageHashrate% GTR 0 (
 						GOTO error
 					)
 				)
-				IF %HashrateErrorsAmount% GEQ 5 (
-					ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low Hashrate. Miner works %t3% >> %~n0.log
+				IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
+					ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low Hashrate. Miner works %t3%. >> %~n0.log
 					SET ErrorEcho=+ Warning. Low Hashrate...                                       +
 					GOTO error
 				)
@@ -651,7 +655,7 @@ IF %AverageHashrate% GTR 0 (
 				)
 				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Check your hashrate. [!SumResult!/%AverageHashrate%]
 				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Check your hashrate. [!SumResult!/%AverageHashrate%] >> %~n0.log
-				SET /A HashrateErrorsAmount+=1
+				SET /A HashrateErrorsCount+=1
 				SET OldHashrate=!SumResult!
 			)
 		)
@@ -676,8 +680,8 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
 					)
 				)
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3% >> %~n0.log
-				ECHO %%F >> %~n0.log
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3%. >> %~n0.log
+				ECHO %%F. >> %~n0.log
 				ECHO ==================================================================
 				ECHO +----------------------------------------------------------------+
 				ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
@@ -735,6 +739,8 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 					)
 				)
 				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
+				SET ServerQueue=0
+				SET SwitchToDefault=1
 			)
 			IF %ServerQueue% EQU 0 (
 				ECHO Warning. Pool server is switched to additional. Probably your main pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
@@ -746,13 +752,14 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				)
 				ECHO %MinerProcessBatText1% >> %MinerProcessBat%
 				SET ServerQueue=1
+				SET SwitchToDefault=1
 			)
 		) ELSE (
-			ECHO Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+			ECHO Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
 				)
 			)
 			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --eexit 3 >> %MinerProcessBat%
@@ -763,18 +770,18 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		GOTO start
 	)
 	ECHO %%F | findstr %MinerErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, Voltage or OverClock. Miner works %t3% >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, Voltage or OverClock. Miner works %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		SET ErrorEcho=+ Something wrong with GPU, Voltage or OC...                     +
 		GOTO error
 	)
 	ECHO %%F | findstr %CriticalErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Critical error. Check your GPU, Voltage or OverClock. Miner works %t3% >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Critical error. Check your GPU, Voltage or OverClock. Miner works %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		GOTO restart
 	)
 	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. New error found. Miner works %t3% >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. New error found. Miner works %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		SET ErrorEcho=+ New error found...                                             +
 		GOTO error
@@ -783,7 +790,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq %MinerProcessProgram%" 2>NUL | find /I /N "%MinerProcessProgram%" >NUL
 IF ERRORLEVEL ==1 (
-	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %MinerProcessProgram% crashed. Miner works %t3% >> %~n0.log
+	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %MinerProcessProgram% crashed. Miner works %t3%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
 			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %MinerProcessProgram% crashed." 2>NUL 1>&2
@@ -796,7 +803,7 @@ IF %EnableAUAutorun% EQU 1 (
 	timeout /T 5 /nobreak >NUL
 	tasklist /FI "IMAGENAME eq %AUProcessName%" 2>NUL | find /I /N "%AUProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. %AUProcessName% crashed. Miner works %t3% >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. %AUProcessName% crashed. Miner works %t3%. >> %~n0.log
 		IF %EnableTelegramNotifications% EQU 1 (
 			IF EXIST "%CurlPath%" (
 				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %AUProcessName% crashed." 2>NUL 1>&2
@@ -812,7 +819,7 @@ IF %FirstRun% EQU 0 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%G IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO (SET /A GPUCount+=1)
 		IF %GPUDevicesAmount% NEQ !GPUCount! (
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, failed load all GPU. Amount of GPU [!GPUCount!/%GPUDevicesAmount%]. Miner works %t3% >> %~n0.log
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, failed load all GPU. Amount of GPU [!GPUCount!/%GPUDevicesAmount%]. Miner works %t3%. >> %~n0.log
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
 					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Something wrong with GPU, failed load all GPU. Amount of GPU !GPUCount!/%GPUDevicesAmount%." 2>NUL 1>&2
