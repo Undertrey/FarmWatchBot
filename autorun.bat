@@ -640,30 +640,30 @@ IF %AverageHashrate% GTR 0 (
 				IF %EnableGPUOverclockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 					IF ERRORLEVEL ==1 (
-						>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Process %GPUOverclockProcess% crashed. Miner ran for %t3%.
+						>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %GPUOverclockProcess% crashed. Miner ran for %t3%.
 						IF %EnableTelegramNotifications% EQU 1 (
 							IF EXIST "%CurlPath%" (
 								IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %GPUOverclockProcess% crashed." 2>NUL 1>&2
 							)
 						)
-						IF %EnableGPUOverclockControl% EQU 1 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                           +
-						IF %EnableGPUOverclockControl% EQU 2 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                   +
-						IF %EnableGPUOverclockControl% EQU 3 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                       +
+						IF %EnableGPUOverclockControl% EQU 1 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                           +
+						IF %EnableGPUOverclockControl% EQU 2 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                   +
+						IF %EnableGPUOverclockControl% EQU 3 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                       +
 						GOTO error
 					)
 				)
 				IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Low Hashrate. Miner ran for %t3%.
-					SET ErrorEcho=+ Warning! Low Hashrate...                                       +
+					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low Hashrate. Miner ran for %t3%.
+					SET ErrorEcho=+ Warning. Low Hashrate...                                       +
 					GOTO error
 				)
 				IF %EnableTelegramNotifications% EQU 1 (
 					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Hashrate abnormal. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. !SumResult!/%AverageHashrate%"
 					)
 				)
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Hashrate abnormal. [!SumResult!/%AverageHashrate%]
-				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Hashrate abnormal. [!SumResult!/%AverageHashrate%]
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
+				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
 				SET /A HashrateErrorsCount+=1
 				SET OldHashrate=!SumResult!
 			)
@@ -829,7 +829,7 @@ IF %FirstRun% EQU 0 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%G IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO (SET /A GPUCount+=1)
 		IF %NumberOfGPUs% NEQ !GPUCount! (
-			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
+			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
 					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
