@@ -659,7 +659,7 @@ IF %AverageHashrate% GTR 0 (
 				)
 				IF %EnableTelegramNotifications% EQU 1 (
 					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. !SumResult!/%AverageHashrate%"
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
 					)
 				)
 				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
