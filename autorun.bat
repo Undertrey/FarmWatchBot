@@ -70,7 +70,7 @@ ECHO REM Please, do not use this option if it is not needed. >> config.bat
 ECHO SET AllowRestartGPUOverclock=0 >> config.bat
 ECHO REM =================================================== [GPU] >> config.bat
 ECHO REM Set how many GPU devices are enabled. >> config.bat
-ECHO SET GPUDevicesAmount=0 >> config.bat
+ECHO SET NumberOfGPUs=0 >> config.bat
 ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool) >> config.bat
 ECHO SET AverageHashrate=0 >> config.bat
 ECHO REM =================================================== [Miner] >> config.bat
@@ -88,7 +88,7 @@ ECHO REM =================================================== [Additional server]
 ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
 ECHO SET EnableAdditionalServer=0 >> config.bat
 ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and a new one will be created with this value. UseBatOrExe=2 required. >> config.bat
-ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> config.bat
+ECHO SET MinerProcessBatAdditionalText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> config.bat
 ECHO REM =================================================== [Timers] >> config.bat
 ECHO REM Restart miner every hour. (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
 ECHO SET AutoRestartMinerEveryHour=0 >> config.bat
@@ -111,7 +111,7 @@ ECHO REM Allow %~n0.bat to restart this computer. (1 - true, 0 - false) >> confi
 ECHO SET AllowRestartComputer=1 >> config.bat
 ECHO REM Enable Internet connectivity check. (1 - true, 0 - false) >> config.bat
 ECHO REM Disable Internet connectivity check if you have difficulties with your connection. (ie. high latency, intermittent connectivity) >> config.bat
-ECHO SET EnableInternetErrorsList=1 >> config.bat
+ECHO SET EnableInternetErrorsListCheck=1 >> config.bat
 ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand it's function. (1 - true, 0 - false) >> config.bat
 ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100 >> config.bat
 ECHO SET EnableGPUEnvironments=0 >> config.bat
@@ -126,11 +126,11 @@ ECHO REM Enter here your chat_id, from Telegram @get_id_bot. >> config.bat
 ECHO SET ChatId=000000000 >> config.bat
 ECHO REM =================================================== [Additional program] >> config.bat
 ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (1 - true, 0 - false) >> config.bat
-ECHO SET EnableAUAutorun=0 >> config.bat
+ECHO SET EnableAPAutorun=0 >> config.bat
 ECHO REM Process name of additional program. (Press CTRL+ALT+DEL to find the process name) >> config.bat
-ECHO SET AUProcessName=minergate.exe>> config.bat
+ECHO SET APProcessName=minergate.exe>> config.bat
 ECHO REM Path to file of additional program. (ie. C:\Program Files\MinerGate\minergate.exe) >> config.bat
-ECHO SET AUProcessPath=C:\Program Files\MinerGate\minergate.exe>> config.bat
+ECHO SET APProcessPath=C:\Program Files\MinerGate\minergate.exe>> config.bat
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
 GOTO checkconfig
 :restart
@@ -147,8 +147,8 @@ IF %EnableGPUOverclockControl% EQU 1 (
 	tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
 )
 taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
-IF %EnableAUAutorun% EQU 1 (
-	taskkill /F /IM "%AUProcessName%" 2>NUL 1>&2 && ECHO Process %AUProcessName% was successfully killed.
+IF %EnableAPAutorun% EQU 1 (
+	taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 )
 ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Computer restarting. >> %~n0.log
 IF %EnableTelegramNotifications% EQU 1 (
@@ -161,7 +161,7 @@ ECHO To cancel restart, close this window and start autorun.bat manually.
 timeout /T 50 /nobreak >NUL
 EXIT
 :prestart
-SET GPUDevicesAmount=%GPUDevicesAmount: =%
+SET NumberOfGPUs=%NumberOfGPUs: =%
 SET AverageHashrate=%AverageHashrate: =%
 SET ChatId=%ChatId: =%
 IF %EnableDoubleWindowCheck% EQU 1 (
@@ -358,11 +358,11 @@ IF EXIST "Logs" (
 ) ELSE (
 	MD Logs && ECHO Folder Logs created.
 )
-IF %EnableAUAutorun% EQU 1 (
-	tasklist /FI "IMAGENAME eq %AUProcessName%" 2>NUL | find /I /N "%AUProcessName%" >NUL
+IF %EnableAPAutorun% EQU 1 (
+	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		START /MIN "%AUProcessName%" "%AUProcessPath%" && ECHO %AUProcessName% was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
-		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %AUProcessName% was started. >> %~n0.log
+		START /MIN "%APProcessName%" "%APProcessPath%" && ECHO %APProcessName% was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %APProcessName% was started. >> %~n0.log
 		timeout /T 5 /nobreak >NUL
 	)
 )
@@ -495,8 +495,6 @@ IF NOT EXIST "%MinerProcessLog%" (
 	IF %UseBatOrExe% EQU 2 (
 		ECHO Check permissions in "%MinerPath%". This script requires permission to create files.
 		ECHO Ensure "--log 2" and "--eexit 3" options are added to the miner's command line.
-		ECHO Example:
-		ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --eexit 3
 		CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat%"
 		IF ERRORLEVEL ==2 (
 			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error! %MinerProcessLog% is missing. >> %~n0.log
@@ -683,7 +681,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 			)
 		)
 	)
-	IF %EnableInternetErrorsList% EQU 1 (
+	IF %EnableInternetErrorsListCheck% EQU 1 (
 		ping google.com | find /i "TTL=" 2>NUL 1>&2 || (
 			ECHO %%F | findstr %InternetErrorsList% 2>NUL && (
 				IF %EnableTelegramNotifications% EQU 1 (
@@ -761,7 +759,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 					)
 				)
-				ECHO %MinerProcessBatText1%>> %MinerProcessBat%
+				ECHO %MinerProcessBatAdditionalText%>> %MinerProcessBat%
 				SET ServerQueue=1
 				SET SwitchToDefault=1
 			)
@@ -811,14 +809,14 @@ IF ERRORLEVEL ==1 (
 	SET ErrorEcho=+ Error! Process %MinerProcessProgram% crashed...                            +
 	GOTO error
 )
-IF %EnableAUAutorun% EQU 1 (
+IF %EnableAPAutorun% EQU 1 (
 	timeout /T 5 /nobreak >NUL
-	tasklist /FI "IMAGENAME eq %AUProcessName%" 2>NUL | find /I /N "%AUProcessName%" >NUL
+	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! %AUProcessName% crashed. Miner ran for %t3%. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! %APProcessName% crashed. Miner ran for %t3%. >> %~n0.log
 		IF %EnableTelegramNotifications% EQU 1 (
 			IF EXIST "%CurlPath%" (
-				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %AUProcessName% crashed." 2>NUL 1>&2
+				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %APProcessName% crashed." 2>NUL 1>&2
 			)
 		)
 		SET ErrorEcho=+ Error! Additional program crashed...                           +
@@ -827,14 +825,14 @@ IF %EnableAUAutorun% EQU 1 (
 )
 SET GPUCount=0
 IF %FirstRun% EQU 0 (
-	IF %GPUDevicesAmount% GEQ 1 (
+	IF %NumberOfGPUs% GEQ 1 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%G IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO (SET /A GPUCount+=1)
-		IF %GPUDevicesAmount% NEQ !GPUCount! (
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Failed load all GPUs. Number of GPUs [!GPUCount!/%GPUDevicesAmount%]. Miner ran for %t3%. >> %~n0.log
+		IF %NumberOfGPUs% NEQ !GPUCount! (
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%. >> %~n0.log
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%GPUDevicesAmount%." 2>NUL 1>&2
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
 				)
 			)
 			COLOR 0C
@@ -843,7 +841,7 @@ IF %FirstRun% EQU 0 (
 			ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 			ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
 			ECHO + Miner ran for %t3%                                         +
-			ECHO + Failed load all GPUs. Number of GPUs: [!GPUCount!/%GPUDevicesAmount%]                    +
+			ECHO + Failed load all GPUs. Number of GPUs: [!GPUCount!/%NumberOfGPUs%]                    +
 			ECHO + Computer restarting...                                         +
 			ECHO +----------------------------------------------------------------+
 			ECHO ==================================================================
@@ -908,12 +906,12 @@ IF %FirstRun% EQU 0 (
 	) ELSE (
 		ECHO + Autorestart computer at 12:00: Disabled                        +
 	)
-	IF %EnableAUAutorun% EQU 1 (
+	IF %EnableAPAutorun% EQU 1 (
 		ECHO + Additional program autorun: Enabled                            +
 	) ELSE (
 		ECHO + Additional program autorun: Disabled                           +
 	)
-	ECHO + Number of errors: [%ErrorsCounter%/%ErrorsAmount%], GPUs: [!GPUCount!/%GPUDevicesAmount%]                           +
+	ECHO + Number of errors: [%ErrorsCounter%/%ErrorsAmount%], GPUs: [!GPUCount!/%NumberOfGPUs%]                           +
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
 	SET FirstRun=1
