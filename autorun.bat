@@ -9,14 +9,14 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.0.3.7
+SET Version=1.4.0
 :hardstart
 CLS
 COLOR 06
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO +          AutoRun for EWBF 0.3.4.b Miner - by Acrefawn          +
-ECHO +                acrefawn@gmail.com [v. %Version%]                 +
+ECHO +                 acrefawn@gmail.com [v. %Version%]                  +
 ECHO +                    Donation deposit adress:                    +
 ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
 ECHO +----------------------------------------------------------------+
@@ -59,75 +59,77 @@ IF EXIST config.bat (
 )
 ECHO @ECHO off > config.bat
 ECHO REM Configuration file v. %Version% >> config.bat
-ECHO REM =================================================== [OverClock] >> config.bat
-ECHO REM Enable GPU OverClock control monitor (0 - false, 1 - true GIGABYTE, 2 - true MSI, 3 - true ASUS, 4 - true EVGA) >> config.bat
-ECHO REM Autorun and run-check of GPU OverClock programs >> config.bat
-ECHO SET EnableGPUOverClockControl=0 >> config.bat
-ECHO REM Allow restart OverClock programs when miner restarting (1 - true, 0 - false) >> config.bat
-ECHO REM Please, do not use this option if it is not needed >> config.bat
-ECHO SET AllowRestartGPUOverClock=0 >> config.bat
+ECHO REM =================================================== [Overclock program] >> config.bat
+ECHO REM Enable GPU Overclock control monitor. (0 - false, 1 - true GIGABYTE, 2 - true MSI, 3 - true ASUS, 4 - true EVGA) >> config.bat
+ECHO REM Autorun and run-check of GPU Overclock programs. >> config.bat
+ECHO SET EnableGPUOverclockControl=0 >> config.bat
+ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. (0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5) >> config.bat
+ECHO SET AutorunMSIWithProfile=0 >> config.bat
+ECHO REM Allow Overclock programs to be restarted when miner is restarted. (1 - true, 0 - false) >> config.bat
+ECHO REM Please, do not use this option if it is not needed. >> config.bat
+ECHO SET AllowRestartGPUOverclock=0 >> config.bat
 ECHO REM =================================================== [GPU] >> config.bat
-ECHO REM Set how many GPU devices are enabled >> config.bat
+ECHO REM Set how many GPU devices are enabled. >> config.bat
 ECHO SET GPUDevicesAmount=0 >> config.bat
-ECHO REM Set total average hashrate of this Rig (you can use average hashrate value from your pool) >> config.bat
+ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool) >> config.bat
 ECHO SET AverageHashrate=0 >> config.bat
 ECHO REM =================================================== [Miner] >> config.bat
-ECHO REM Name miner process (in English, without special symbols and spaces) >> config.bat
+ECHO REM Name miner process. (in English, without special symbols and spaces) >> config.bat
 ECHO SET MinerProcessProgram=miner.exe>> config.bat
-ECHO REM Name miner.log file (in English, without special symbols and spaces) >> config.bat
+ECHO REM Name miner.log file. (in English, without special symbols and spaces) >> config.bat
 ECHO SET MinerProcessLog=miner.log>> config.bat
 ECHO REM Use .bat or .exe file to start mining? (1 - .exe, 2 - .bat) >> config.bat
 ECHO SET UseBatOrExe=2 >> config.bat
-ECHO REM Name miner start .bat file (in English, without special symbols and spaces) >> config.bat
+ECHO REM Name miner start .bat file. (in English, without special symbols and spaces) >> config.bat
 ECHO SET MinerProcessBat=miner.bat>> config.bat
-ECHO REM Set %MinerProcessBat% command here to autocreate this file if it is missing >> config.bat
-ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> config.bat
+ECHO REM Set %MinerProcessBat% command here to auto-create this file if it is missing or wrong. >> config.bat
+ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> config.bat
 ECHO REM =================================================== [Additional server] >> config.bat
-ECHO REM Enable additional server. When the main server is fail, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
+ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) >> config.bat
 ECHO SET EnableAdditionalServer=0 >> config.bat
-ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and created new one with this values. UseBatOrExe=2 required. >> config.bat
-ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> config.bat
+ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and a new one will be created with this value. UseBatOrExe=2 required. >> config.bat
+ECHO SET MinerProcessBatText1=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> config.bat
 ECHO REM =================================================== [Timers] >> config.bat
-ECHO REM Restart miner every hour (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
+ECHO REM Restart miner every hour. (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
 ECHO SET AutoRestartMinerEveryHour=0 >> config.bat
-ECHO REM Restart computer every hour (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
+ECHO REM Restart computer every hour. (1 - true every One hour, 2 - true every Two hours, 0 - false) >> config.bat
 ECHO SET AutoRestartComputerEveryHour=0 >> config.bat
-ECHO REM Restart miner every day at 12:00 (1 - true, 0 - false) >> config.bat
+ECHO REM Restart miner every day at 12:00. (1 - true, 0 - false) >> config.bat
 ECHO SET AutoRestartMinerAtMidday=1 >> config.bat
-ECHO REM Restart computer every day at 12:00 (1 - true, 0 - false) >> config.bat
+ECHO REM Restart computer every day at 12:00. (1 - true, 0 - false) >> config.bat
 ECHO SET AutoRestartComputerAtMidday=0 >> config.bat
-ECHO REM Restart miner every day at 00:00 (1 - true, 0 - false) >> config.bat
-ECHO SET AutoRestartMinerAtMidnight=1 >> config.bat
-ECHO REM Restart computer every day at 00:00 (1 - true, 0 - false) >> config.bat
-ECHO SET AutoRestartComputerAtMidnight=0 >> config.bat
+ECHO REM Restart miner every day at 00:00. (1 - true, 0 - false) >> config.bat
+ECHO SET AutoRestartMinerAtMidnight=0 >> config.bat
+ECHO REM Restart computer every day at 00:00. (1 - true, 0 - false) >> config.bat
+ECHO SET AutoRestartComputerAtMidnight=1 >> config.bat
 ECHO REM =================================================== [Other] >> config.bat
-ECHO REM Enable double window check (1 - true, 0 - false ) >> config.bat
+ECHO REM Check to see if %~n0.bat has already been started. (1 - true, 0 - false ) >> config.bat
 ECHO SET EnableDoubleWindowCheck=1 >> config.bat
-ECHO REM Skip "Begin mining" confirmation (1 - true, 0 - false) >> config.bat
+ECHO REM Skip miner startup confirmation. (1 - true, 0 - false) >> config.bat
 ECHO SET SkipBeginMining=0 >> config.bat
-ECHO REM Allow %~n0.bat to restart this computer (1 - true, 0 - false) >> config.bat
+ECHO REM Allow %~n0.bat to restart this computer. (1 - true, 0 - false) >> config.bat
 ECHO SET AllowRestartComputer=1 >> config.bat
-ECHO REM Enable checking of internet connection (1 - true, 0 - false) >> config.bat
-ECHO REM Disable this function only if you have problems or errors with it (bad internet connection, problems with provider, etc...) >> config.bat
+ECHO REM Enable Internet connectivity check. (1 - true, 0 - false) >> config.bat
+ECHO REM Disable Internet connectivity check if you have difficulties with your connection. (ie. high latency, intermittent connectivity) >> config.bat
 ECHO SET EnableInternetErrorsList=1 >> config.bat
-ECHO REM Enable additional environments. Please, do not use this option if it is not needed, or you don't understand what does it mean (1 - true, 0 - false) >> config.bat
+ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand it's function. (1 - true, 0 - false) >> config.bat
 ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100 >> config.bat
 ECHO SET EnableGPUEnvironments=0 >> config.bat
 ECHO REM =================================================== [Telegram notifications] >> config.bat
-ECHO REM Enable Telegram notifications, don't forget to add @ZcashMinerAutorunBot in Telegram (1 - true, 2 - false) >> config.bat
+ECHO REM Enable Telegram notifications. Don't forget to add @ZcashMinerAutorunBot in Telegram. (1 - true, 2 - false) >> config.bat
 ECHO SET EnableTelegramNotifications=0 >> config.bat
-ECHO REM Path to "curl" library + curl.exe file (in English, without special symbols and spaces) >> config.bat
+ECHO REM Path to "curl" library + curl.exe file. (in English, without special symbols and spaces) >> config.bat
 ECHO SET CurlPath=curl-7.55.1-win64-mingw\bin\curl.exe>> config.bat
-ECHO REM Name your Rig (in English, without special symbols) >> config.bat
+ECHO REM Name your Rig. (in English, without special symbols) >> config.bat
 ECHO SET RigName=Zcash Farm>> config.bat
-ECHO REM Enter here your chat_id, from Telegram @get_id_bot >> config.bat
+ECHO REM Enter here your chat_id, from Telegram @get_id_bot. >> config.bat
 ECHO SET ChatId=000000000 >> config.bat
 ECHO REM =================================================== [Additional program] >> config.bat
-ECHO REM If you need to start another additional program, miner, etc... and check if this program is working, you can use this feature (1 - true, 0 - false) >> config.bat
+ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (1 - true, 0 - false) >> config.bat
 ECHO SET EnableAUAutorun=0 >> config.bat
-ECHO REM Process Name additional program (Press CTRL+ALT+DEL and type Name process) >> config.bat
+ECHO REM Process name of additional program. (Press CTRL+ALT+DEL to find the process name) >> config.bat
 ECHO SET AUProcessName=minergate.exe>> config.bat
-ECHO REM Path + launcher file of additional program (in English, without special symbols and spaces) >> config.bat
+ECHO REM Path to file of additional program. (ie. C:\Program Files\MinerGate\minergate.exe) >> config.bat
 ECHO SET AUProcessPath=C:\Program Files\MinerGate\minergate.exe>> config.bat
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
 GOTO checkconfig
@@ -140,13 +142,13 @@ IF %AllowRestartComputer% EQU 1 (
 	CHOICE /C yn /T 60 /D n /M "Restart your computer"
 	IF ERRORLEVEL ==2 GOTO hardstart
 )
-tskill /A /V %GPUOverClockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverClockProcess% was successfuly killed.
-IF %EnableGPUOverClockControl% EQU 1 (
-	tskill /A /V %GPUOverClockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverClockProcessJunk%.exe was successfuly killed.
+tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
+IF %EnableGPUOverclockControl% EQU 1 (
+	tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
 )
-taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfuly killed.
+taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
 IF %EnableAUAutorun% EQU 1 (
-	taskkill /F /IM "%AUProcessName%" 2>NUL 1>&2 && ECHO Process %AUProcessName% was successfuly killed.
+	taskkill /F /IM "%AUProcessName%" 2>NUL 1>&2 && ECHO Process %AUProcessName% was successfully killed.
 )
 ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Computer restarting. >> %~n0.log
 IF %EnableTelegramNotifications% EQU 1 (
@@ -155,7 +157,7 @@ IF %EnableTelegramNotifications% EQU 1 (
 	)
 )
 shutdown /T 60 /R /F
-ECHO To cancel restarting, close this window and start autorun.bat manually.
+ECHO To cancel restart, close this window and start autorun.bat manually.
 timeout /T 50 /nobreak >NUL
 EXIT
 :prestart
@@ -166,8 +168,8 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist /V /FI "WINDOWTITLE ne Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)" | find /I /N "Miner-autorun" >NUL && GOTO :doublewindow
 	GOTO preprestart
 	:doublewindow
-	ECHO Warning. This is second CMD window of this program. Check it, please. 
-	ECHO Or try to turn off EnableDoubleWindowCheck option in config.bat.
+	ECHO Warning! This process is already running. The original process will continue, but this window will close in 10 seconds.
+	ECHO You can disable this check in the config.bat file under EnableDoubleWindowCheck. Do not do this unless you're sure the above warning is in error.
 	CHOICE /C yn /T 10 /D y /M "Exit"
 	IF ERRORLEVEL ==2 (
 		SET EnableDoubleWindowCheck=0
@@ -183,11 +185,11 @@ IF %EnableGPUEnvironments% EQU 1 (
 	SETX GPU_MAX_ALLOC_PERCENT 100 2>NUL 1>&2 && ECHO GPU_MAX_ALLOC_PERCENT 100
 	SETX GPU_SINGLE_ALLOC_PERCENT 100 2>NUL 1>&2 && ECHO GPU_SINGLE_ALLOC_100
 ) ELSE (
-	REG DELETE HKCU\Environment /F /V GPU_FORCE_64BIT_PTR 2>NUL 1>&2 && ECHO GPU_FORCE_64BIT_PTR successfuly removed from environments.
-	REG DELETE HKCU\Environment /F /V GPU_MAX_HEAP_SIZE 2>NUL 1>&2 && ECHO GPU_MAX_HEAP_SIZE successfuly removed from environments.
-	REG DELETE HKCU\Environment /F /V GPU_USE_SYNC_OBJECTS 2>NUL 1>&2 && ECHO GPU_USE_SYNC_OBJECTS successfuly removed from environments.
-	REG DELETE HKCU\Environment /F /V GPU_MAX_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_MAX_ALLOC_PERCENT successfuly removed from environments.
-	REG DELETE HKCU\Environment /F /V GPU_SINGLE_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_SINGLE_ALLOC_PERCENT successfuly removed from environments.
+	REG DELETE HKCU\Environment /F /V GPU_FORCE_64BIT_PTR 2>NUL 1>&2 && ECHO GPU_FORCE_64BIT_PTR successfully removed from environments.
+	REG DELETE HKCU\Environment /F /V GPU_MAX_HEAP_SIZE 2>NUL 1>&2 && ECHO GPU_MAX_HEAP_SIZE successfully removed from environments.
+	REG DELETE HKCU\Environment /F /V GPU_USE_SYNC_OBJECTS 2>NUL 1>&2 && ECHO GPU_USE_SYNC_OBJECTS successfully removed from environments.
+	REG DELETE HKCU\Environment /F /V GPU_MAX_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_MAX_ALLOC_PERCENT successfully removed from environments.
+	REG DELETE HKCU\Environment /F /V GPU_SINGLE_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_SINGLE_ALLOC_PERCENT successfully removed from environments.
 )
 IF %SkipBeginMining% EQU 0 (
 	CHOICE /C yn /T 30 /D y /M "Begin mining"
@@ -199,11 +201,11 @@ IF %SkipBeginMining% EQU 0 (
 )
 :switch
 COLOR 06
-ECHO Warning. An attempt to switch to the main pool server.
-ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. An attempt to switch to the main pool server. >> %~n0.log
+ECHO Warning! Attempting to switch to the main pool server.
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Attempting to switch to the main pool server. >> %~n0.log
 IF %EnableTelegramNotifications% EQU 1 (
 	IF EXIST "%CurlPath%" (
-		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. An attempt to switch to the main pool server." 2>NUL 1>&2
+		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Attempting to switch to the main pool server." 2>NUL 1>&2
 	)
 )
 GOTO hardstart
@@ -211,16 +213,16 @@ GOTO hardstart
 COLOR 06
 IF %EnableTelegramNotifications% EQU 1 (
 	IF EXIST "%CurlPath%" (
-		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Scheduled computer restart, please wait" 2>NUL 1>&2
+		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Scheduled computer restart, please wait" 2>NUL 1>&2
 	)
 )
-ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled computer restart, please wait. Miner works %t3%. >> %~n0.log
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Scheduled computer restart, please wait. Miner ran for %t3%. >> %~n0.log
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-ECHO + Miner works %t3%                                           +
-ECHO + Warning. Scheduled computer restart, please wait...            +
+ECHO + Miner ran for %t3%                                         +
+ECHO + Warning! Scheduled computer restart, please wait...            +
 ECHO +----------------------------------------------------------------+
 ECHO ==================================================================
 GOTO restart
@@ -228,16 +230,16 @@ GOTO restart
 COLOR 06
 IF %EnableTelegramNotifications% EQU 1 (
 	IF EXIST "%CurlPath%" (
-		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Scheduled miner restart, please wait" 2>NUL 1>&2
+		IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Scheduled miner restart, please wait" 2>NUL 1>&2
 	)
 )
-ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Scheduled miner restart, please wait. Miner works %t3%. >> %~n0.log
+ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Scheduled miner restart, please wait. Miner ran for %t3%. >> %~n0.log
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-ECHO + Miner works %t3%                                           +
-ECHO + Warning. Scheduled miner restart, please wait...               +
+ECHO + Miner ran for %t3%                                         +
+ECHO + Warning! Scheduled miner restart, please wait...               +
 ECHO +----------------------------------------------------------------+
 ECHO ==================================================================
 timeout /T 60 /nobreak >NUL
@@ -253,7 +255,7 @@ ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-ECHO + Miner works %t3%                                           +
+ECHO + Miner ran for %t3%                                         +
 ECHO %ErrorEcho%
 ECHO + Miner restarting...                                            +
 ECHO +----------------------------------------------------------------+
@@ -270,84 +272,84 @@ SET X1=%t1:~10,2%
 SET C1=%t1:~12,2%
 SET /A s1=H1*60*60*100+X1*60*100+C1*100
 IF %AllowRestartComputer% EQU 0 (
-	IF %AutoRestartComputerEveryHour% NEQ 0 ECHO Computer restart is denied. Check and reconfigure AutoRestartComputerEveryHour in your config.bat.
-	IF %AutoRestartComputerAtMidday% NEQ 0 ECHO Computer restart is denied. Check and reconfigure AutoRestartComputerAtMidday in your config.bat.
-	IF %AutoRestartComputerAtMidnight% NEQ 0 ECHO Computer restart is denied. Check and reconfigure AutoRestartComputerAtMidnight in your config.bat.
+	IF %AutoRestartComputerEveryHour% NEQ 0 ECHO Computer restart was denied. Check and reconfigure AutoRestartComputerEveryHour in your config.bat.
+	IF %AutoRestartComputerAtMidday% NEQ 0 ECHO Computer restart was denied. Check and reconfigure AutoRestartComputerAtMidday in your config.bat.
+	IF %AutoRestartComputerAtMidnight% NEQ 0 ECHO Computer restart was denied. Check and reconfigure AutoRestartComputerAtMidnight in your config.bat.
 	SET AutoRestartComputerEveryHour=0
 	SET AutoRestartComputerAtMidday=0
 	SET AutoRestartComputerAtMidnight=0
 )
-IF %EnableGPUOverClockControl% GEQ 0 (
-	IF %EnableGPUOverClockControl% EQU 0 (
-		ECHO OverClock control monitor is disabled.
+IF %EnableGPUOverclockControl% GEQ 0 (
+	IF %EnableGPUOverclockControl% EQU 0 (
+		ECHO Overclock control monitor was disabled.
 	) ELSE (
 		IF %AverageHashrate% EQU 0 (
-			ECHO Error. Average hashrate = 0. Configure it, please.
-			ECHO GPUOverClockControl will be disabled...
-			SET EnableGPUOverClockControl=0
+			ECHO Error! Average hashrate = 0. This must be set to a number higher than 0 in your config.bat file under AverageHashrate.
+			ECHO GPUOverclockControl will be disabled...
+			SET EnableGPUOverclockControl=0
 		)
 	)
-	IF %EnableGPUOverClockControl% GTR 4 (
-		ECHO Warning. Wrong parameter of EnableGPUOverClockControl, only [0-4] are required. Configure it, please.
-		SET EnableGPUOverClockControl=0
+	IF %EnableGPUOverclockControl% GTR 4 (
+		ECHO Warning! Incorrect parameter detected in EnableGPUOverclockControl. Please choose option 0-4 in your config.bat file.
+		SET EnableGPUOverclockControl=0
 	)
-	IF %EnableGPUOverClockControl% EQU 1 (
-	SET GPUOverClockTaskName=Xtreme
-	SET GPUOverClockProcess=Xtreme.exe
-	SET GPUOverClockProcessJunk=loading
-	SET GPUOverClockPath="C:\Program Files (x86)\GIGABYTE\XTREME GAMING ENGINE\Launcher.exe"
+	IF %EnableGPUOverclockControl% EQU 1 (
+	SET GPUOverclockTaskName=Xtreme
+	SET GPUOverclockProcess=Xtreme.exe
+	SET GPUOverclockProcessJunk=loading
+	SET GPUOverclockPath="C:\Program Files (x86)\GIGABYTE\XTREME GAMING ENGINE\Launcher.exe"
 		IF NOT EXIST "C:\Program Files (x86)\GIGABYTE\XTREME GAMING ENGINE" (
-			ECHO Warning. Wrong path to Gigabyte Xtreme OC, use default install path. Check it, please.
-			ECHO GPUOverClockControl will be disabled...
-			SET EnableGPUOverClockControl=0
+			ECHO Warning! Incorrect path to Gigabyte Xtreme Gaming Engine. Default install path required to function. Please reinstall the software using the default path.
+			ECHO GPUOverclockControl will be disabled...
+			SET EnableGPUOverclockControl=0
 		)
 	)
-	IF %EnableGPUOverClockControl% EQU 2 (
-	SET GPUOverClockTaskName=MSIAfterburner
-	SET GPUOverClockProcess=MSIAfterburner.exe
-	SET GPUOverClockPath="C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe"
+	IF %EnableGPUOverclockControl% EQU 2 (
+	SET GPUOverclockTaskName=MSIAfterburner
+	SET GPUOverclockProcess=MSIAfterburner.exe
+	SET GPUOverclockPath="C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe"
 		IF NOT EXIST "C:\Program Files (x86)\MSI Afterburner" (
-			ECHO Warning. Wrong path to MSI Afterburner OC, use default install path. Check it, please.
-			ECHO GPUOverClockControl will be disabled...
-			SET EnableGPUOverClockControl=0
+			ECHO Warning! Incorrect path to MSI Afterburner. Default install path required to function. Please reinstall the software using the default path.
+			ECHO GPUOverclockControl will be disabled...
+			SET EnableGPUOverclockControl=0
 		)
 	)
-	IF %EnableGPUOverClockControl% EQU 3 (
-	SET GPUOverClockTaskName=GPUTweakII
-	SET GPUOverClockProcess=GPUTweakII.exe
-	SET GPUOverClockPath="C:\Program Files (x86)\ASUS\GPU TweakII\GPUTweakII.exe"
+	IF %EnableGPUOverclockControl% EQU 3 (
+	SET GPUOverclockTaskName=GPUTweakII
+	SET GPUOverclockProcess=GPUTweakII.exe
+	SET GPUOverclockPath="C:\Program Files (x86)\ASUS\GPU TweakII\GPUTweakII.exe"
 		IF NOT EXIST "C:\Program Files (x86)\ASUS\GPU TweakII" (
-			ECHO Warning. Wrong path to ASUS GPU TweakII OC, use default install path. Check it, please.
-			ECHO GPUOverClockControl will be disabled...
-			SET EnableGPUOverClockControl=0
+			ECHO Warning! Incorrect path to ASUS GPU TweakII. Default install path required to function. Please reinstall the software using the default path.
+			ECHO GPUOverclockControl will be disabled...
+			SET EnableGPUOverclockControl=0
 		)
 	)
-	IF %EnableGPUOverClockControl% EQU 4 (
-	SET GPUOverClockTaskName=PrecisionX_x64
-	SET GPUOverClockProcess=PrecisionX_x64.exe
-	SET GPUOverClockPath="C:\Program Files (x86)\EVGA\Precision XOC\PrecisionX_x64.exe"
+	IF %EnableGPUOverclockControl% EQU 4 (
+	SET GPUOverclockTaskName=PrecisionX_x64
+	SET GPUOverclockProcess=PrecisionX_x64.exe
+	SET GPUOverclockPath="C:\Program Files (x86)\EVGA\Precision XOC\PrecisionX_x64.exe"
 		IF NOT EXIST "C:\Program Files (x86)\EVGA\Precision XOC\" (
-			ECHO Warning. Wrong path to EVGA Precision X OC, use default install path. Check it, please.
-			ECHO GPUOverClockControl will be disabled...
-			SET EnableGPUOverClockControl=0
+			ECHO Warning! Incorrect path to EVGA Precision XOC. Default install path required to function. Please reinstall the software using the default path.
+			ECHO GPUOverclockControl will be disabled...
+			SET EnableGPUOverclockControl=0
 		)
 	)
 ) ELSE (
-	ECHO Warning. Wrong parameter of EnableGPUOverClockControl, only [0-4] are required. Configure it, please.
-	SET EnableGPUOverClockControl=0
+	ECHO Warning! Incorrect parameter detected in EnableGPUOverclockControl. Please choose option 0-4 in your config.bat file.
+	SET EnableGPUOverclockControl=0
 )
 IF NOT EXIST "%MinerProcessProgram%" (
-	ECHO Error. "%MinerPath%miner.exe" is missing. Check it, please.
+	ECHO Error! "%MinerPath%miner.exe" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
 IF NOT EXIST "cudart32_80.dll" (
-	ECHO Error. "%MinerPath%cudart32_80.dll" is missing. Check it, please.
+	ECHO Error! "%MinerPath%cudart32_80.dll" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
 IF NOT EXIST "cudart64_80.dll" (
-	ECHO Error. "%MinerPath%cudart64_80.dll" is missing. Check it, please.
+	ECHO Error! "%MinerPath%cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
@@ -359,45 +361,52 @@ IF EXIST "Logs" (
 IF %EnableAUAutorun% EQU 1 (
 	tasklist /FI "IMAGENAME eq %AUProcessName%" 2>NUL | find /I /N "%AUProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		START /MIN "%AUProcessName%" "%AUProcessPath%" && ECHO %AUProcessName% is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
-		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %AUProcessName% is started. >> %~n0.log
+		START /MIN "%AUProcessName%" "%AUProcessPath%" && ECHO %AUProcessName% was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %AUProcessName% was started. >> %~n0.log
 		timeout /T 5 /nobreak >NUL
 	)
 )
-IF %EnableGPUOverClockControl% GEQ 1 (
-	IF %AllowRestartGPUOverClock% EQU 1 (
+IF %EnableGPUOverclockControl% GEQ 1 (
+	IF %AllowRestartGPUOverclock% EQU 1 (
 		IF %FirstRun% EQU 1 (
-			tskill /A /V %GPUOverClockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverClockProcess% was successfuly killed.
-			IF %EnableGPUOverClockControl% EQU 1 (
-				tskill /A /V %GPUOverClockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverClockProcessJunk%.exe was successfuly killed.
+			tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
+			IF %EnableGPUOverclockControl% EQU 1 (
+				tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
 			)
 			timeout /T 5 /nobreak >NUL
 		)
 	)
-	tasklist /FI "IMAGENAME eq %GPUOverClockProcess%" 2>NUL | find /I /N "%GPUOverClockProcess%" >NUL
+	tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 	IF ERRORLEVEL ==1 (
-		START /MIN "" %GPUOverClockPath% && ECHO %GPUOverClockProcess% is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
-		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %GPUOverClockProcess% is started. >> %~n0.log
+		START /MIN "" %GPUOverclockPath% && ECHO %GPUOverclockProcess% was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] %GPUOverclockProcess% was started. >> %~n0.log
 		IF %EnableTelegramNotifications% EQU 1 (
 			IF EXIST "%CurlPath%" (
-				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %GPUOverClockProcess% is started." 2>NUL 1>&2
+				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %GPUOverclockProcess% was started." 2>NUL 1>&2
 			)
 		)
 		timeout /T 5 /nobreak >NUL
 	)
+	IF %EnableGPUOverclockControl% EQU 2 (
+		IF %AutorunMSIWithProfile% GEQ 1 (
+			IF %AutorunMSIWithProfile% LEQ 5 (
+				%GPUOverclockPath% -Profile%AutorunMSIWithProfile% 2>NUL 1>&2
+			)
+		)
+	)
 )
-taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfuly killed.
+taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
 timeout /T 5 /nobreak >NUL
 taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
 timeout /T 5 /nobreak >NUL
 IF EXIST "%MinerProcessLog%" MOVE /Y %MinerProcessLog% Logs\miner_%Y1%.%M1%.%D1%_%H1%.%X1%.%C1%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
-	ECHO Error. Can't rename, move or open %MinerProcessLog%. Check it, please.
+	ECHO Error! Unable to rename or access %MinerProcessLog%.
 	CHOICE /C yn /T 10 /D y /M "Try to delete %MinerProcessLog%"
 	IF ERRORLEVEL ==2 (
-		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. Can't rename, move or open %MinerProcessLog%. Check it, please. >> %~n0.log
+		ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error! Unable to rename or access %MinerProcessLog%. >> %~n0.log
 	) ELSE (
-		DEL /Q /F %MinerProcessLog% 2>NUL 1>&2 && ECHO %MinerProcessLog% deleted successfuly. Continue...
+		DEL /Q /F %MinerProcessLog% 2>NUL 1>&2 && ECHO %MinerProcessLog% deleted successfully. Continue...
 	)
 ) ELSE (
 	ECHO %MinerProcessLog% renamed and moved to Logs folder.
@@ -443,78 +452,78 @@ IF %UseBatOrExe% EQU 1 (
 		)
 	)
 	IF NOT EXIST "%MinerProcessProgram%" (
-		ECHO %MinerProcessProgram% is missing, mining is impossible.
+		ECHO %MinerProcessProgram% is missing! Mining is impossible. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.
 		PAUSE
 		EXIT
 	)
-	START %MinerProcessProgram% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
-	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
+	START %MinerProcessProgram% && ECHO Miner was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner was started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
-			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Miner is started." 2>NUL 1>&2
+			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
 		)
 	)
 ) ELSE (
 	IF NOT EXIST "%MinerProcessBat%" (
 		ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
-		ECHO %MinerProcessBatText% >> %MinerProcessBat%
+		ECHO %MinerProcessBatText%>> %MinerProcessBat%
 		ECHO EXIT >> %MinerProcessBat%
-		ECHO %MinerProcessBat% created... Check it, please.
+		ECHO %MinerProcessBat% created. Please check it for errors.
 		GOTO start
 	) ELSE (
 		IF %SwitchToDefault% EQU 0 (
 			FOR /F "delims=" %%F IN ('findstr /R /C:"miner .*" %MinerProcessBat%') DO (
 				IF NOT "%%F" == "%MinerProcessBatText%" (
 					ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
-					ECHO %MinerProcessBatText% >> %MinerProcessBat%
+					ECHO %MinerProcessBatText%>> %MinerProcessBat%
 					ECHO EXIT >> %MinerProcessBat%
 				)
 			)
 		)
 	)
-	START "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner is started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
-	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner is started. Autorun v. %Version%. >> %~n0.log
+	START "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner was started at %H1%:%X1%:%C1% %Y1%.%M1%.%D1%.
+	ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Miner was started. Autorun v. %Version%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
-			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Miner is started." 2>NUL 1>&2
+			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
 		)
 	)
 )
 timeout /T 5 /nobreak >NUL
 IF NOT EXIST "%MinerProcessLog%" (
-	ECHO Error. %MinerProcessLog% is missing. Check it, please.
+	ECHO Error! %MinerProcessLog% is missing.
 	IF %UseBatOrExe% EQU 2 (
-		ECHO Check permissions to create new files in "%MinerPath%" folder.
-		ECHO Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file.
+		ECHO Check permissions in "%MinerPath%". This script requires permission to create files.
+		ECHO Ensure "--log 2" and "--eexit 3" options are added to the miner's command line.
 		ECHO Example:
 		ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --eexit 3
 		CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat%"
 		IF ERRORLEVEL ==2 (
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in "%MinerPath%" folder. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "--log 2" and "--eexit 3" options in your %MinerProcessBat% file. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error! %MinerProcessLog% is missing. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions in "%MinerPath%". This script requires permission to create files. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Ensure "--log 2" and "--eexit 3" options are added to the miner's command line. >> %~n0.log
 		) ELSE (
 			ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
-			ECHO %MinerProcessBatText% >> %MinerProcessBat%
+			ECHO %MinerProcessBatText%>> %MinerProcessBat%
 			ECHO EXIT >> %MinerProcessBat%
-			ECHO %MinerProcessBat% created... Check it, please.
+			ECHO %MinerProcessBat% created. Please check it for errors.
 			GOTO start
 		)
 	) ELSE (
-		ECHO Check permissions to create new files in "%MinerPath%" folder.
-		ECHO Check "log 2" and "eexit 3" options in your miner.cfg file.
+		ECHO Check permissions in "%MinerPath%". This script requires permission to create files.
+		ECHO Ensure "log 2" and "eexit 3" options are added in your miner.cfg file.
 		CHOICE /C yn /T 30 /D y /M "Create default miner.cfg"
 		IF ERRORLEVEL ==2 (
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error. %MinerProcessLog% is missing. Check it, please. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions to create new files in "%MinerPath%" folder. >> %~n0.log
-			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check "log 2" and "eexit 3" options in your miner.cfg file. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Error! %MinerProcessLog% is missing. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Check permissions in "%MinerPath%". This script requires permission to create files. >> %~n0.log
+			ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Ensure "log 2" and "eexit 3" options are added in your miner.cfg file. >> %~n0.log
 		) ELSE (
 			DEL /Q /F miner.cfg 2>NUL 1>&2
 			GOTO start
 		)
 	)
 ) ELSE (
-	ECHO Connected to %MinerProcessLog%. Start reading...
+	ECHO Connected to %MinerProcessLog%. Log monitoring started...
 )
 SET FirstRun=0
 SET HashrateErrorsCount=0
@@ -538,7 +547,7 @@ IF %D2% GTR %D1% (
 	SET /A s3=^(days*8640000^)-s1
 ) ELSE (
 	IF %M2% NEQ %M1% (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Miner must be restarted, please wait. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Miner must be restarted, please wait... >> %~n0.log
 		GOTO hardstart
 	)
 	IF %s2% GEQ %s1% (SET /A s3=s2-s1) ELSE (SET /A s3=s1-s2)
@@ -608,14 +617,14 @@ IF %SwitchToDefault% EQU 1 (
 	)
 )
 IF %ErrorsCounter% GEQ %ErrorsAmount% (
-	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Too many errors, need clear GPU cash. Miner works %t3%. >> %~n0.log
+	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Too many errors. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %t3%. >> %~n0.log
 	COLOR 0C
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
 	ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 	ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-	ECHO + Miner works %t3%                                           +
-	ECHO + Warning. Too many errors, need clear GPU cash.                 +
+	ECHO + Miner ran for %t3%                                         +
+	ECHO + Warning! Too many errors, need clear GPU cash.                 +
 	ECHO + Computer restarting...                                         +
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
@@ -630,33 +639,33 @@ IF %AverageHashrate% GTR 0 (
 		IF !SumResult! NEQ %OldHashrate% (
 			IF !SumResult! LSS %AverageHashrate% (
 				COLOR 0C
-				IF %EnableGPUOverClockControl% NEQ 0 (
-					tasklist /FI "IMAGENAME eq %GPUOverClockProcess%" 2>NUL | find /I /N "%GPUOverClockProcess%" >NUL
+				IF %EnableGPUOverclockControl% NEQ 0 (
+					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 					IF ERRORLEVEL ==1 (
-						ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %GPUOverClockProcess% crashed. Miner works %t3%. >> %~n0.log
+						ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Process %GPUOverclockProcess% crashed. Miner ran for %t3%. >> %~n0.log
 						IF %EnableTelegramNotifications% EQU 1 (
 							IF EXIST "%CurlPath%" (
-								IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %GPUOverClockProcess% crashed." 2>NUL 1>&2
+								IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %GPUOverclockProcess% crashed." 2>NUL 1>&2
 							)
 						)
-						IF %EnableGPUOverClockControl% EQU 1 SET ErrorEcho=+ Error. Process %GPUOverClockProcess% crashed...                           +
-						IF %EnableGPUOverClockControl% EQU 2 SET ErrorEcho=+ Error. Process %GPUOverClockProcess% crashed...                   +
-						IF %EnableGPUOverClockControl% EQU 3 SET ErrorEcho=+ Error. Process %GPUOverClockProcess% crashed...                       +
+						IF %EnableGPUOverclockControl% EQU 1 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                           +
+						IF %EnableGPUOverclockControl% EQU 2 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                   +
+						IF %EnableGPUOverclockControl% EQU 3 SET ErrorEcho=+ Error! Process %GPUOverclockProcess% crashed...                       +
 						GOTO error
 					)
 				)
 				IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-					ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low Hashrate. Miner works %t3%. >> %~n0.log
-					SET ErrorEcho=+ Warning. Low Hashrate...                                       +
+					ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Low Hashrate. Miner ran for %t3%. >> %~n0.log
+					SET ErrorEcho=+ Warning! Low Hashrate...                                       +
 					GOTO error
 				)
 				IF %EnableTelegramNotifications% EQU 1 (
 					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Check your hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Hashrate abnormal. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
 					)
 				)
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Check your hashrate. [!SumResult!/%AverageHashrate%]
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Check your hashrate. [!SumResult!/%AverageHashrate%] >> %~n0.log
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Hashrate abnormal. [!SumResult!/%AverageHashrate%]
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Hashrate abnormal. [!SumResult!/%AverageHashrate%] >> %~n0.log
 				SET /A HashrateErrorsCount+=1
 				SET OldHashrate=!SumResult!
 			)
@@ -682,26 +691,26 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
 					)
 				)
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with Internet. Check it, please. Miner works %t3%. >> %~n0.log
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Something is wrong with your Internet. Please check your connection. Miner ran for %t3%. >> %~n0.log
 				ECHO %%F. >> %~n0.log
 				ECHO ==================================================================
 				ECHO +----------------------------------------------------------------+
 				ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 				ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-				ECHO + Miner works %t3%                                           +
-				ECHO + Something wrong with Internet...                               +
+				ECHO + Miner ran for %t3%                                         +
+				ECHO + Something is wrong with your Internet...                       +
 				ECHO + Waiting 12 minutes...                                          +
 				ECHO +----------------------------------------------------------------+
 				ECHO ==================================================================
 				CHOICE /C yn /T 660 /D y /M "Restart miner"
 				IF ERRORLEVEL ==2 EXIT
 				IF EXIST "Logs\miner_*.log" (
-					CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
+					CHOICE /C yn /T 60 /D n /M "Cleaning %MinerPath%Logs folder now"
 					IF ERRORLEVEL ==2 (
 						SET /A ErrorsCounter+=1
 						GOTO start
 					)
-					DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
+					DEL /F /Q "Logs\*" && ECHO Cleaning "%MinerPath%Logs" finished.
 				)
 				GOTO start
 			)
@@ -713,14 +722,14 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
 			)
 		)
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%. Check your pool server, maybe it is offline. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		ECHO ==================================================================
 		ECHO +----------------------------------------------------------------+
 		ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 		ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
 		ECHO + Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%     +
-		ECHO + Check your pool server, maybe it is offline                    +
+		ECHO + Check config file for errors or pool is offline                +
 		ECHO + Miner restarting with default values...                        +
 		ECHO +----------------------------------------------------------------+
 		ECHO ==================================================================
@@ -733,86 +742,86 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		ECHO TITLE %MinerProcessBat% > %MinerProcessBat%
 		IF %EnableAdditionalServer% EQU 1 (
 			IF %ServerQueue% EQU 1 (
-				ECHO Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+				ECHO Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online. >> %~n0.log
 				IF %EnableTelegramNotifications% EQU 1 (
 					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool servers are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 					)
 				)
-				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> %MinerProcessBat%
+				ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> %MinerProcessBat%
 				SET ServerQueue=0
 				SET SwitchToDefault=1
 			)
 			IF %ServerQueue% EQU 0 (
-				ECHO Warning. Pool server is switched to additional. Probably your main pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
-				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to additional. Probably your main pool server are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+				ECHO Warning! Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+				ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online. >> %~n0.log
 				IF %EnableTelegramNotifications% EQU 1 (
 					IF EXIST "%CurlPath%" (
-						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to additional. Probably your main pool server are offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+						IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 					)
 				)
-				ECHO %MinerProcessBatText1% >> %MinerProcessBat%
+				ECHO %MinerProcessBatText1%>> %MinerProcessBat%
 				SET ServerQueue=1
 				SET SwitchToDefault=1
 			)
 		) ELSE (
-			ECHO Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information.
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information. >> %~n0.log
+			ECHO Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online. >> %~n0.log
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning. Pool server is switched to default. Probably your pool server is offline. Check config.bat, %MinerProcessBat% or miner.cfg for errors when filling out information." 2>NUL 1>&2
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Warning! Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 				)
 			)
-			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 >> %MinerProcessBat%
+			ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec>> %MinerProcessBat%
 			SET SwitchToDefault=1
 		)
 		ECHO EXIT >> %MinerProcessBat%
-		ECHO Default %MinerProcessBat% created... Check it, please.
+		ECHO Default %MinerProcessBat% created. Please check it for errors.
 		SET /A ErrorsCounter+=1
 		GOTO start
 	)
 	ECHO %%F | findstr %MinerErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, Voltage or OverClock. Miner works %t3%. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error from GPU. Voltage or Overclock issue. Miner ran for %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
-		SET ErrorEcho=+ Something wrong with GPU, Voltage or OC...                     +
+		SET ErrorEcho=+ Error from GPU. Voltage or Overclock issue...                  +
 		GOTO error
 	)
 	ECHO %%F | findstr %CriticalErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Critical error. Check your GPU, Voltage or OverClock. Miner works %t3%. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
 		GOTO restart
 	)
 	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% 2>NUL && (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. New error found. Miner works %t3%. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Unknown error found. Miner ran for %t3%. >> %~n0.log
 		ECHO %%F >> %~n0.log
-		SET ErrorEcho=+ New error found...                                             +
+		SET ErrorEcho=+ Unknown error found...                                         +
 		GOTO error
 	)
 )
 timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq %MinerProcessProgram%" 2>NUL | find /I /N "%MinerProcessProgram%" >NUL
 IF ERRORLEVEL ==1 (
-	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Process %MinerProcessProgram% crashed. Miner works %t3%. >> %~n0.log
+	ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Process %MinerProcessProgram% crashed. Miner ran for %t3%. >> %~n0.log
 	IF %EnableTelegramNotifications% EQU 1 (
 		IF EXIST "%CurlPath%" (
 			IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Process %MinerProcessProgram% crashed." 2>NUL 1>&2
 		)
 	)
-	SET ErrorEcho=+ Error. Process %MinerProcessProgram% crashed...                            +
+	SET ErrorEcho=+ Error! Process %MinerProcessProgram% crashed...                            +
 	GOTO error
 )
 IF %EnableAUAutorun% EQU 1 (
 	timeout /T 5 /nobreak >NUL
 	tasklist /FI "IMAGENAME eq %AUProcessName%" 2>NUL | find /I /N "%AUProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. %AUProcessName% crashed. Miner works %t3%. >> %~n0.log
+		ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! %AUProcessName% crashed. Miner ran for %t3%. >> %~n0.log
 		IF %EnableTelegramNotifications% EQU 1 (
 			IF EXIST "%CurlPath%" (
 				IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: %AUProcessName% crashed." 2>NUL 1>&2
 			)
 		)
-		SET ErrorEcho=+ Error. Additional program crashed...                           +
+		SET ErrorEcho=+ Error! Additional program crashed...                           +
 		GOTO error
 	)
 )
@@ -822,10 +831,10 @@ IF %FirstRun% EQU 0 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%G IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO (SET /A GPUCount+=1)
 		IF %GPUDevicesAmount% NEQ !GPUCount! (
-			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something wrong with GPU, failed load all GPU. Amount of GPU [!GPUCount!/%GPUDevicesAmount%]. Miner works %t3%. >> %~n0.log
+			ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error! Failed load all GPUs. Number of GPUs [!GPUCount!/%GPUDevicesAmount%]. Miner ran for %t3%. >> %~n0.log
 			IF %EnableTelegramNotifications% EQU 1 (
 				IF EXIST "%CurlPath%" (
-					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Something wrong with GPU, failed load all GPU. Amount of GPU !GPUCount!/%GPUDevicesAmount%." 2>NUL 1>&2
+					IF %ChatId% NEQ "000000000" "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%GPUDevicesAmount%." 2>NUL 1>&2
 				)
 			)
 			COLOR 0C
@@ -833,36 +842,36 @@ IF %FirstRun% EQU 0 (
 			ECHO +----------------------------------------------------------------+
 			ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
 			ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-			ECHO + Miner works %t3%                                           +
-			ECHO + Something wrong with GPU, failed load all GPU.                 +
-			ECHO + Amount of GPU: [!GPUCount!/%GPUDevicesAmount%]                                           +
+			ECHO + Miner ran for %t3%                                         +
+			ECHO + Failed load all GPUs. Number of GPUs: [!GPUCount!/%GPUDevicesAmount%]                    +
 			ECHO + Computer restarting...                                         +
 			ECHO +----------------------------------------------------------------+
 			ECHO ==================================================================
 			GOTO restart
 		)
 	) ELSE (
-		ECHO GPU activated check is disabled.
+	
+		ECHO GPU check is disabled.
 	)
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
 	ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
 	ECHO + Process %MinerProcessProgram% is running - don't worry                     +
-	IF %EnableGPUOverClockControl% NEQ 0 (
-		IF %EnableGPUOverClockControl% EQU 1 (
-			ECHO + Process %GPUOverClockProcess% is running...                               +
+	IF %EnableGPUOverclockControl% NEQ 0 (
+		IF %EnableGPUOverclockControl% EQU 1 (
+			ECHO + Process %GPUOverclockProcess% is running...                               +
 		)
-		IF %EnableGPUOverClockControl% EQU 2 (
-			ECHO + Process %GPUOverClockProcess% is running...                       +
+		IF %EnableGPUOverclockControl% EQU 2 (
+			ECHO + Process %GPUOverclockProcess% is running...                       +
 		)
-		IF %EnableGPUOverClockControl% EQU 3 (
-			ECHO + Process %GPUOverClockProcess% is running...                           +
+		IF %EnableGPUOverclockControl% EQU 3 (
+			ECHO + Process %GPUOverclockProcess% is running...                           +
 		)
-		IF %EnableGPUOverClockControl% GEQ 4 (
-			ECHO + GPU OverClock monitor: Wrong config.                           +
+		IF %EnableGPUOverclockControl% GEQ 4 (
+			ECHO + GPU Overclock monitor: Wrong config.                           +
 		)
 	) ELSE (
-		ECHO + GPU OverClock monitor: Disabled                                +
+		ECHO + GPU Overclock monitor: Disabled                                +
 	)
 	IF %AllowRestartComputer% EQU 1 (
 		ECHO + Restart computer: Allowed                                      +
@@ -904,32 +913,32 @@ IF %FirstRun% EQU 0 (
 	) ELSE (
 		ECHO + Additional program autorun: Disabled                           +
 	)
-	ECHO + Amount of errors: [%ErrorsCounter%/%ErrorsAmount%], GPU: [!GPUCount!/%GPUDevicesAmount%]                            +
+	ECHO + Number of errors: [%ErrorsCounter%/%ErrorsAmount%], GPUs: [!GPUCount!/%GPUDevicesAmount%]                           +
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
 	SET FirstRun=1
 	IF EXIST "Logs\miner_*.log" (
 		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
 		IF ERRORLEVEL ==2 (
-			ECHO Now I will take care of your %RigName%, and you can take a rest.
+			ECHO Now I will take care of your %RigName% and you can take a rest.
 			GOTO check
 		) ELSE (
 			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
 		)
 		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath% folder now"
 		IF ERRORLEVEL ==2 (
-			ECHO Now I will take care of your %RigName%, and you can take a rest.
+			ECHO Now I will take care of your %RigName% and you can take a rest.
 			GOTO check
 		) ELSE (
 			CHOICE /C yn /T 60 /D n /M "Really, delete all useless files and folders from %MinerPath%"
 			IF ERRORLEVEL ==2 (
-				ECHO Now I will take care of your %RigName%, and you can take a rest.
+				ECHO Now I will take care of your %RigName% and you can take a rest.
 				GOTO check
 			) ELSE (
 				FOR %%H IN ("%MinerPath%*") DO (IF NOT "%%H" == "%MinerPath%%~n0.bat" IF NOT "%%H" == "%MinerPath%%~n0.log" IF NOT "%%H" == "%MinerPath%autorun.exe" IF NOT "%%H" == "%MinerPath%config.bat" IF NOT "%%H" == "%MinerPath%miner.cfg" IF NOT "%%H" == "%MinerPath%%MinerProcessBat%" IF NOT "%%H" == "%MinerPath%cudart32_80.dll" IF NOT "%%H" == "%MinerPath%cudart64_80.dll" IF NOT "%%H" == "%MinerPath%miner.exe" IF NOT "%%H" == "%MinerPath%%MinerProcessProgram%" IF NOT "%%H" == "%MinerPath%%MinerProcessLog%" DEL /Q /F "%%H")
 				FOR /F "tokens=*" %%I IN ('DIR "%MinerPath%" /A:D /B') DO (IF /I NOT "%%I" == "Logs" IF /I NOT "%%I" == "Profiles" IF /I NOT "%%I" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%I"))
 				ECHO Good. Folder "%MinerPath%" clean now.
-				ECHO Now I will take care of your %RigName%, and you can take a rest.
+				ECHO Now I will take care of your %RigName% and you can take a rest.
 				GOTO check
 			)
 		)
