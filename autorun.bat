@@ -39,6 +39,8 @@ SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Str
 SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error"
 SET CriticalErrorsList=/C:"ERROR: Cannot initialize NVML. Temperature monitor will not work"
 SET OtherErrorsList=/C:"ERROR:"
+SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped."
+SET OtherWarningsList=/C:"WARNING:"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET ServerQueue=0
 SET SwitchToDefault=0
@@ -147,6 +149,8 @@ IF %EnableGPUOverclockControl% EQU 1 (
 	tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
 )
 taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
+timeout /T 5 /nobreak >NUL
+taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
 IF %EnableAPAutorun% EQU 1 (
 	taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 )
@@ -671,7 +675,7 @@ IF %AverageHashrate% GTR 0 (
 	)
 )
 timeout /T 5 /nobreak >NUL
-FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerProcessLog%') DO (
+FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %MinerProcessLog%') DO (
 	COLOR 0C
 	timeout /T 10 /nobreak >NUL
 	IF %EnableTelegramNotifications% EQU 1 (
@@ -790,10 +794,31 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		>> %~n0.log ECHO %%F.
 		GOTO restart
 	)
-	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% 2>NUL && (
-		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Unknown error found. Miner ran for %t3%.
+	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% 2>NUL && (
+		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Unknown error found. Please send this error to developer. Miner ran for %t3%.
 		>> %~n0.log ECHO %%F.
 		SET ErrorEcho=+ Unknown error found...                                         +
+		GOTO error
+	)
+	ECHO %%F | findstr %MinerWarningsList% 2>NUL && (
+		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+		>> %~n0.log ECHO %%F.
+		tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
+		IF %EnableGPUOverclockControl% EQU 1 (
+			tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
+		)
+		taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
+		timeout /T 5 /nobreak >NUL
+		taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
+		ECHO Temperature limit reached. GPU will now stop mining.
+		ECHO Miner ran for %t3%.
+		PAUSE
+		GOTO hardstart
+	)
+	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% 2>NUL && (
+		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Unknown warning found. Please send this warning to developer. Miner ran for %t3%.
+		>> %~n0.log ECHO %%F.
+		SET ErrorEcho=+ Unknown warning found...                                       +
 		GOTO error
 	)
 )
