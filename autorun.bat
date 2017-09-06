@@ -9,7 +9,7 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.4.0
+SET Version=1.5.0
 :hardstart
 CLS
 COLOR 06
@@ -470,6 +470,7 @@ IF %UseBatOrExe% EQU 1 (
 ) ELSE (
 	IF NOT EXIST "%MinerProcessBat%" (
 		> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
+		>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBatText%.
 		>> %MinerProcessBat% ECHO %MinerProcessBatText%
 		>> %MinerProcessBat% ECHO EXIT
 		ECHO %MinerProcessBat% created. Please check it for errors.
@@ -479,6 +480,7 @@ IF %UseBatOrExe% EQU 1 (
 			FOR /F "delims=" %%F IN ('findstr /R /C:"miner .*" %MinerProcessBat%') DO (
 				IF NOT "%%F" == "%MinerProcessBatText%" (
 					> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
+					>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBatText%.
 					>> %MinerProcessBat% ECHO %MinerProcessBatText%
 					>> %MinerProcessBat% ECHO EXIT
 				)
@@ -506,6 +508,7 @@ IF NOT EXIST "%MinerProcessLog%" (
 			>> %~n0.log ECHO [%Y1%.%M1%.%D1%][%H1%:%X1%:%C1%] Ensure "--log 2" and "--eexit 3" options are added to the miner's command line.
 		) ELSE (
 			> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
+			>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBatText%.
 			>> %MinerProcessBat% ECHO %MinerProcessBatText%
 			>> %MinerProcessBat% ECHO EXIT
 			ECHO %MinerProcessBat% created. Please check it for errors.
@@ -742,6 +745,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		SET UseBatOrExe=2
 		timeout /T 5 /nobreak >NUL
 		> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
+		>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBatText%.
 		IF %EnableAdditionalServer% EQU 1 (
 			IF %ServerQueue% EQU 1 (
 				ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
