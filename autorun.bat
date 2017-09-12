@@ -56,7 +56,7 @@ IF EXIST config.bat (
 		) ELSE (
 			ECHO Your config.bat is out of date.
 		)
-		FOR %%s IN (config.bat) DO IF %%~Zs LSS 4600 ECHO Config.bat file error. It is corrupted, check it please.
+		FOR %%C IN (config.bat) DO IF %%~ZC LSS 4600 ECHO Config.bat file error. It is corrupted, check it please.
 		CHOICE /C yn /T 15 /D y /M "Backup existing and create an updated (default) config.bat"
 		IF ERRORLEVEL ==2 EXIT
 		MOVE /Y config.bat config_backup_%%B.bat 2>NUL 1>&2 && ECHO Created backup of your v. %%B config.bat.
@@ -254,7 +254,7 @@ ECHO ==================================================================
 SET /A ErrorsCounter+=1
 :start
 COLOR 06
-FOR /F %%C IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t1=%%C
+FOR /F %%D IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t1=%%D
 SET Y1=%t1:~0,4%
 SET M1=%t1:~4,2%
 SET D1=%t1:~6,2%
@@ -456,8 +456,8 @@ IF %UseBatOrExe% EQU 1 (
 		GOTO start
 	) ELSE (
 		IF %SwitchToDefault% EQU 0 (
-			FOR /F "delims=" %%F IN ('findstr /R /C:"miner .*" %MinerProcessBat%') DO (
-				IF NOT "%%F" == "%MinerProcessBatText%" (
+			FOR /F "delims=" %%E IN ('findstr /R /C:"miner .*" %MinerProcessBat%') DO (
+				IF NOT "%%E" == "%MinerProcessBatText%" (
 					> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
 					>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBat%.
 					>> %MinerProcessBat% ECHO %MinerProcessBatText%
@@ -515,7 +515,7 @@ SET SumHash=0
 SET SumResult=0
 COLOR 02
 timeout /T 5 /nobreak >NUL
-FOR /F %%D IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t2=%%D
+FOR /F %%F IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t2=%%F
 SET Y2=%t2:~0,4%
 SET M2=%t2:~4,2%
 SET D2=%t2:~6,2%
@@ -613,9 +613,9 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 )
 IF %AverageHashrate% GTR 0 (
 	timeout /T 5 /nobreak >NUL
-	FOR /F "tokens=3 delims= " %%E IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerProcessLog%') DO (
+	FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerProcessLog%') DO (
 		SET /A Hashcount+=1
-		SET /A SumHash=SumHash+%%E
+		SET /A SumHash=SumHash+%%G
 		SET /A SumResult=SumHash/Hashcount
 		IF !SumResult! NEQ %OldHashrate% (
 			IF !SumResult! LSS %AverageHashrate% (
@@ -632,8 +632,8 @@ IF %AverageHashrate% GTR 0 (
 					)
 				)
 				IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low Hashrate. Miner ran for %t3%.
-					SET ErrorEcho=+ Warning. Low Hashrate...                                       +
+					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Low hashrate. Miner ran for %t3%.
+					SET ErrorEcho=+ Warning. Low hashrate...                                       +
 					GOTO error
 				)
 				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
@@ -646,22 +646,74 @@ IF %AverageHashrate% GTR 0 (
 	)
 )
 timeout /T 5 /nobreak >NUL
-FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %InternetErrorsCancel% %MinerProcessLog%') DO (
+FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %MinerProcessLog%') DO (
 	COLOR 0C
 	timeout /T 10 /nobreak >NUL
 	IF %EnableTelegramNotifications% EQU 1 (
-		ECHO %%F | findstr /V %InternetErrorsList% %ConfigErrorsList% %InternetErrorsCancel% %MinerWarningsList% 2>NUL 1>&2 && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
+		ECHO %%N | findstr /V %InternetErrorsList% %ConfigErrorsList% %MinerWarningsList% 2>NUL 1>&2 && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
 	)
-	IF %EnableInternetErrorsListCheck% EQU 1 (
-	>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] %%F.
-		ECHO %%F | findstr %InternetErrorsCancel% 2>NUL 1>&2 && (
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Something was wrong with your Internet. Connection has been restored." 2>NUL 1>&2
-			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Something was wrong with your Internet. Connection has been restored.
+	ECHO %%N | findstr /V %InternetErrorsList% 2>NUL 1>&2 && >> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] %%N.
+	ping google.com | find /i "TTL=" 2>NUL 1>&2 && (
+		FOR /F "delims=" %%M IN ('findstr %InternetErrorsCancel% %MinerProcessLog%') DO ECHO %%M | findstr %InternetErrorsCancel% 2>NUL 1>&2 && (
+			ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
+			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
 			GOTO start
 		)
-		ping google.com | find /i "TTL=" 2>NUL 1>&2 || (
-			ECHO %%F | findstr %InternetErrorsList% 2>NUL && (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
+		ECHO %%N | findstr %ConfigErrorsList% 2>NUL && (
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
+			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+			ECHO ==================================================================
+			ECHO +----------------------------------------------------------------+
+			ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
+			ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
+			ECHO + Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%     +
+			ECHO + Check config file for errors or pool is offline                +
+			ECHO + Miner restarting with default values...                        +
+			ECHO +----------------------------------------------------------------+
+			ECHO ==================================================================
+			CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat% and continue mining"
+			IF ERRORLEVEL ==2 EXIT
+			taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2
+			taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
+			SET UseBatOrExe=2
+			timeout /T 5 /nobreak >NUL
+			> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
+			>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBat%.
+			IF %EnableAdditionalServer% EQU 1 (
+				IF %ServerQueue% EQU 1 (
+					ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+					>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+					SET ServerQueue=0
+					SET SwitchToDefault=1
+				)
+				IF %ServerQueue% EQU 0 (
+					ECHO Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+					>> %MinerProcessBat% ECHO %MinerProcessBatAdditionalText%
+					SET ServerQueue=1
+					SET SwitchToDefault=1
+				)
+			) ELSE (
+				ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+				>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+				SET SwitchToDefault=1
+			)
+			>> %MinerProcessBat% ECHO EXIT
+			ECHO Default %MinerProcessBat% created. Please check it for errors.
+			SET /A ErrorsCounter+=1
+			GOTO start
+		)
+	) || (
+		IF %EnableInternetErrorsListCheck% EQU 1 (
+			ECHO %%N | findstr %InternetErrorsList% 2>NUL && (
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
+				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] %%N.
 				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Something is wrong with your Internet. Please check your connection. Miner ran for %t3%.
 				ECHO ==================================================================
 				ECHO +----------------------------------------------------------------+
@@ -669,7 +721,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
 				ECHO + Miner ran for %t3%                                         +
 				ECHO + Something is wrong with your Internet...                       +
-				ECHO + Trying to reconnect...                                         +
+				ECHO + Attempting to reconnect...                                     +
 				ECHO +----------------------------------------------------------------+
 				ECHO ==================================================================
 				:tryingreconnect
@@ -680,85 +732,36 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				)
 				SET /A InternetErrorsCounter+=1
 				ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
-				FOR /F "delims=" %%R IN ('findstr %InternetErrorsCancel% %MinerProcessLog%') DO ECHO %%R | findstr %InternetErrorsCancel% 2>NUL && GOTO reconnected
+				FOR /F "delims=" %%L IN ('findstr %InternetErrorsCancel% %MinerProcessLog%') DO ECHO %%L | findstr %InternetErrorsCancel% 2>NUL 1>&2 && GOTO reconnected
 				ping google.com | find /i "TTL=" 2>NUL 1>&2 || (
 					CHOICE /C yn /T 60 /D n /M "Restart miner manually"
 					IF ERRORLEVEL ==2 GOTO tryingreconnect
+					SET /A ErrorsCounter+=1
+					GOTO start
 				)
 				:reconnected
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Internet connection restored." 2>NUL 1>&2
-				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Internet connection restored.
-				SET /A ErrorsCounter+=1
+				ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
+				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
 				GOTO start
 			)
 		)
-	) ELSE (
-		ECHO %%F | findstr /V %InternetErrorsList% %InternetErrorsCancel% 2>NUL 1>&2 && >> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] %%F.
 	)
-	ECHO %%F | findstr %ConfigErrorsList% 2>NUL && (
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%F." 2>NUL 1>&2
-		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-		ECHO ==================================================================
-		ECHO +----------------------------------------------------------------+
-		ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
-		ECHO + Miner was started at %Y1%.%M1%.%D1% %H1%:%X1%                          +
-		ECHO + Carefully configure config.bat, miner.cfg or/and %MinerProcessBat%     +
-		ECHO + Check config file for errors or pool is offline                +
-		ECHO + Miner restarting with default values...                        +
-		ECHO +----------------------------------------------------------------+
-		ECHO ==================================================================
-		CHOICE /C yn /T 30 /D y /M "Create default %MinerProcessBat% and continue mining"
-		IF ERRORLEVEL ==2 EXIT
-		taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2
-		taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
-		SET UseBatOrExe=2
-		timeout /T 5 /nobreak >NUL
-		> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
-		>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBat%.
-		IF %EnableAdditionalServer% EQU 1 (
-			IF %ServerQueue% EQU 1 (
-				ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
-				>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
-				SET ServerQueue=0
-				SET SwitchToDefault=1
-			)
-			IF %ServerQueue% EQU 0 (
-				ECHO Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-				>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
-				>> %MinerProcessBat% ECHO %MinerProcessBatAdditionalText%
-				SET ServerQueue=1
-				SET SwitchToDefault=1
-			)
-		) ELSE (
-			ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
-			>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
-			SET SwitchToDefault=1
-		)
-		>> %MinerProcessBat% ECHO EXIT
-		ECHO Default %MinerProcessBat% created. Please check it for errors.
-		SET /A ErrorsCounter+=1
-		GOTO start
-	)
-	ECHO %%F | findstr %MinerErrorsList% 2>NUL && (
+	ECHO %%N | findstr %MinerErrorsList% 2>NUL && (
 		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
 		SET ErrorEcho=+ Error from GPU. Voltage or Overclock issue...                  +
 		GOTO error
 	)
-	ECHO %%F | findstr %CriticalErrorsList% 2>NUL && (
+	ECHO %%N | findstr %CriticalErrorsList% 2>NUL && (
 		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
 		GOTO restart
 	)
-	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% %InternetErrorsCancel% 2>NUL && (
+	ECHO %%N | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% 2>NUL && (
 		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Unknown error found. Please send this error to developer. Miner ran for %t3%.
 		SET ErrorEcho=+ Unknown error found...                                         +
 		GOTO error
 	)
-	ECHO %%F | findstr %MinerWarningsList% 2>NUL && (
+	ECHO %%N | findstr %MinerWarningsList% 2>NUL && (
 		IF %t3_m% LSS 10 (
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Waiting for users input..." 2>NUL 1>&2
 			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
@@ -781,7 +784,7 @@ FOR /F "delims=" %%F IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 			GOTO restart
 		)
 	)
-	ECHO %%F | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %InternetErrorsCancel% 2>NUL && (
+	ECHO %%N | findstr /V %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% 2>NUL && (
 		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Unknown warning found. Please send this warning to developer. Miner ran for %t3%.
 		SET ErrorEcho=+ Unknown warning found...                                       +
 		GOTO error
@@ -809,7 +812,7 @@ SET GPUCount=0
 IF %FirstRun% EQU 0 (
 	IF %NumberOfGPUs% GEQ 1 (
 		timeout /T 10 /nobreak >NUL
-		FOR /F "delims=" %%G IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO SET /A GPUCount+=1
+		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO SET /A GPUCount+=1
 		IF %NumberOfGPUs% NEQ !GPUCount! (
 			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
@@ -919,8 +922,8 @@ IF %FirstRun% EQU 0 (
 				ECHO Now I will take care of your %RigName% and you can take a rest.
 				GOTO check
 			) ELSE (
-				FOR %%H IN ("%MinerPath%*") DO (IF NOT "%%H" == "%MinerPath%%~n0.bat" IF NOT "%%H" == "%MinerPath%%~n0.log" IF NOT "%%H" == "%MinerPath%autorun.exe" IF NOT "%%H" == "%MinerPath%config.bat" IF NOT "%%H" == "%MinerPath%miner.cfg" IF NOT "%%H" == "%MinerPath%%MinerProcessBat%" IF NOT "%%H" == "%MinerPath%cudart32_80.dll" IF NOT "%%H" == "%MinerPath%cudart64_80.dll" IF NOT "%%H" == "%MinerPath%miner.exe" IF NOT "%%H" == "%MinerPath%%MinerProcessProgram%" IF NOT "%%H" == "%MinerPath%%MinerProcessLog%" DEL /Q /F "%%H")
-				FOR /F "tokens=*" %%I IN ('DIR "%MinerPath%" /A:D /B') DO (IF /I NOT "%%I" == "Logs" IF /I NOT "%%I" == "Profiles" IF /I NOT "%%I" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%I"))
+				FOR %%J IN ("%MinerPath%*") DO (IF NOT "%%J" == "%MinerPath%%~n0.bat" IF NOT "%%J" == "%MinerPath%%~n0.log" IF NOT "%%J" == "%MinerPath%autorun.exe" IF NOT "%%J" == "%MinerPath%config.bat" IF NOT "%%J" == "%MinerPath%miner.cfg" IF NOT "%%J" == "%MinerPath%%MinerProcessBat%" IF NOT "%%J" == "%MinerPath%cudart32_80.dll" IF NOT "%%J" == "%MinerPath%cudart64_80.dll" IF NOT "%%J" == "%MinerPath%miner.exe" IF NOT "%%J" == "%MinerPath%%MinerProcessProgram%" IF NOT "%%J" == "%MinerPath%%MinerProcessLog%" DEL /Q /F "%%J")
+				FOR /F "tokens=*" %%K IN ('DIR "%MinerPath%" /A:D /B') DO (IF /I NOT "%%K" == "Logs" IF /I NOT "%%K" == "Profiles" IF /I NOT "%%K" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%K"))
 				ECHO Good. Folder "%MinerPath%" clean now.
 				ECHO Now I will take care of your %RigName% and you can take a rest.
 				GOTO check
