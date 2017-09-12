@@ -37,7 +37,7 @@ SET ErrorsCounter=0
 SET ConfigErrorsList=/C:"Cannot connect to the pool" /C:"No properly configured pool" /C:"Cannot resolve hostname"
 SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool"
 SET InternetErrorsCancel=/C:"Connection restored"
-SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error"
+SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"ERROR: Looks like"
 SET CriticalErrorsList=/C:"ERROR: Cannot initialize NVML. Temperature monitor will not work"
 SET OtherErrorsList=/C:"ERROR:"
 SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped."
@@ -135,9 +135,9 @@ IF EXIST config.bat (
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (1 - true, 0 - false)
 >> config.bat ECHO SET EnableAPAutorun=0
 >> config.bat ECHO REM Process name of additional program. (Press CTRL+ALT+DEL to find the process name)
->> config.bat ECHO SET APProcessName=minergate.exe
->> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files\MinerGate\minergate.exe)
->> config.bat ECHO SET APProcessPath=C:\Program Files\MinerGate\minergate.exe
+>> config.bat ECHO SET APProcessName=TeamViewer.exe
+>> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files (x86)\TeamViewer\TeamViewer.exe)
+>> config.bat ECHO SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
 GOTO checkconfig
 :restart
