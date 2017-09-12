@@ -56,7 +56,7 @@ IF EXIST config.bat (
 		) ELSE (
 			ECHO Your config.bat is out of date.
 		)
-		FOR %%s IN (config.bat) DO IF %%~Zs LSS 4500 ECHO Config.bat file error. It is corrupted, check it please.
+		FOR %%s IN (config.bat) DO IF %%~Zs LSS 4600 ECHO Config.bat file error. It is corrupted, check it please.
 		CHOICE /C yn /T 15 /D y /M "Backup existing and create an updated (default) config.bat"
 		IF ERRORLEVEL ==2 EXIT
 		MOVE /Y config.bat config_backup_%%B.bat 2>NUL 1>&2 && ECHO Created backup of your v. %%B config.bat.
@@ -129,7 +129,7 @@ IF EXIST config.bat (
 >> config.bat ECHO SET RigName=Zcash Farm
 >> config.bat ECHO REM Enter here your chat_id, from Telegram @get_id_bot.
 >> config.bat ECHO SET ChatId=000000000
->> config.bat ECHO REM Enable statistics sending every hour (1 - true, 0 - false)
+>> config.bat ECHO REM Enable hourly statistics through Telegram (1 - true, 0 - false)
 >> config.bat ECHO SET EnableEveryHourStatSend=0
 >> config.bat ECHO REM =================================================== [Additional program]
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (1 - true, 0 - false)
