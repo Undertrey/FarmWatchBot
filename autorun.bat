@@ -662,7 +662,6 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		)
 		ECHO %%N | findstr %ConfigErrorsList% 2>NUL && (
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
-			>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Error. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
 			ECHO ==================================================================
 			ECHO +----------------------------------------------------------------+
 			ECHO + Now %Y2%.%M2%.%D2% %H2%:%X2%                                           +
