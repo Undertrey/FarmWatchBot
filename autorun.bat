@@ -524,7 +524,7 @@ SET X2=%t2:~10,2%
 SET C2=%t2:~12,2%
 SET /A s2=H2*60*60*100+X2*60*100+C2*100
 IF %D2% GTR %D1% (
-	SET /A s3=^(%D2%-%D1%^)*8640000-%s2%+%s1%
+	SET /A s3=^(%D2%-%D1%^)*8640000-%s1%+%s2%
 ) ELSE (
 	IF %M2% NEQ %M1% (
 		>> %~n0.log ECHO [%Y2%.%M2%.%D2%][%H2%:%X2%:%C2%] Warning. Miner must be restarted, please wait...
