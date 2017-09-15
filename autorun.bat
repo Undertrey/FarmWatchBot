@@ -237,7 +237,6 @@ ECHO + Miner ran for %t3%                                         +
 ECHO + Warning. Scheduled miner restart, please wait...               +
 ECHO +----------------------------------------------------------------+
 ECHO ==================================================================
-timeout /T 60 /nobreak >NUL
 GOTO hardstart
 :error
 COLOR 0C
@@ -263,6 +262,7 @@ SET X1=%t1:~10,2%
 SET C1=%t1:~12,2%
 SET StartTime=%H1%:%X1%
 SET StartDate=%Y1%.%M1%.%D1%
+SET /A RestartHour=%H1%+2
 IF %M1:~0,1% ==0 SET M1=%M1:~1%
 IF %D1:~0,1% ==0 SET D1=%D1:~1%
 IF %H1:~0,1% ==0 SET H1=%H1:~1%
@@ -554,51 +554,26 @@ IF %t3_m% LSS 10 (SET t3_m=0%t3_m%) ELSE (SET t3_m=%t3_m%)
 IF %t3_s% LSS 10 (SET t3_s=0%t3_s%) ELSE (SET t3_s=%t3_s%)
 SET t3=%t3_h%:%t3_m%:%t3_s%
 IF %D2% NEQ %D1% (
-	IF %AutoRestartComputerAtMidnight% EQU 1 (
-		GOTO ctimer
-	) ELSE (
-		IF %AutoRestartMinerAtMidnight% EQU 1 GOTO mtimer
+	IF %AutoRestartComputerAtMidnight% EQU 1 GOTO ctimer
+	IF %AutoRestartMinerAtMidnight% EQU 1 GOTO mtimer
+)
+IF %H2% NEQ %H1% (
+	IF %AutoRestartComputerEveryHour% EQU 1 GOTO ctimer
+	IF %AutoRestartMinerEveryHour% EQU 1 GOTO mtimer
+	IF %AutoRestartComputerEveryHour% EQU 2 (
+		IF %H2% GEQ %RestartHour% GOTO ctimer
+		IF %H2% LSS %H1% GOTO ctimer
 	)
-)
-IF %AutoRestartComputerEveryHour% EQU 1 (
-	IF %H2% NEQ %H1% GOTO ctimer
-)
-IF %AutoRestartComputerEveryHour% EQU 2 (
-	IF "%NowTime%" == "01:00" GOTO ctimer
-	IF "%NowTime%" == "03:00" GOTO ctimer
-	IF "%NowTime%" == "05:00" GOTO ctimer
-	IF "%NowTime%" == "07:00" GOTO ctimer
-	IF "%NowTime%" == "09:00" GOTO ctimer
-	IF "%NowTime%" == "11:00" GOTO ctimer
-	IF "%NowTime%" == "13:00" GOTO ctimer
-	IF "%NowTime%" == "15:00" GOTO ctimer
-	IF "%NowTime%" == "17:00" GOTO ctimer
-	IF "%NowTime%" == "19:00" GOTO ctimer
-	IF "%NowTime%" == "21:00" GOTO ctimer
-	IF "%NowTime%" == "23:00" GOTO ctimer
-)
-IF %AutoRestartComputerAtMidday% EQU 1 (
-	IF "%NowTime%" == "12:00" GOTO ctimer
-)
-IF %AutoRestartMinerEveryHour% EQU 1 (
-	IF %H2% NEQ %H1% GOTO mtimer
-)
-IF %AutoRestartMinerEveryHour% EQU 2 (
-	IF "%NowTime%" == "01:00" GOTO mtimer
-	IF "%NowTime%" == "03:00" GOTO mtimer
-	IF "%NowTime%" == "05:00" GOTO mtimer
-	IF "%NowTime%" == "07:00" GOTO mtimer
-	IF "%NowTime%" == "09:00" GOTO mtimer
-	IF "%NowTime%" == "11:00" GOTO mtimer
-	IF "%NowTime%" == "13:00" GOTO mtimer
-	IF "%NowTime%" == "15:00" GOTO mtimer
-	IF "%NowTime%" == "17:00" GOTO mtimer
-	IF "%NowTime%" == "19:00" GOTO mtimer
-	IF "%NowTime%" == "21:00" GOTO mtimer
-	IF "%NowTime%" == "23:00" GOTO mtimer
-)
-IF %AutoRestartMinerAtMidday% EQU 1 (
-	IF "%NowTime%" == "12:00" GOTO mtimer
+	IF %AutoRestartMinerEveryHour% EQU 2 (
+		IF %H2% GEQ %RestartHour% GOTO mtimer
+		IF %H2% LSS %H1% GOTO mtimer
+	)
+	IF %AutoRestartComputerAtMidday% EQU 1 (
+		IF "%H2%" == "12" GOTO ctimer
+	)
+	IF %AutoRestartMinerAtMidday% EQU 1 (
+		IF "%H2%" == "12" GOTO mtimer
+	)
 )
 IF %SwitchToDefault% EQU 1 (
 	IF %H2% NEQ %H1% GOTO switch
@@ -937,7 +912,7 @@ IF %FirstRun% EQU 0 (
 )
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
-		IF %H2% NEQ %H1% (
+		IF "%X2%" == "0" (
 			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
