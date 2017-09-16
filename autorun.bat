@@ -262,12 +262,12 @@ SET X1=%t1:~10,2%
 SET C1=%t1:~12,2%
 SET StartTime=%H1%:%X1%
 SET StartDate=%Y1%.%M1%.%D1%
-SET /A RestartHour=%H1%+2
 IF %M1:~0,1% ==0 SET M1=%M1:~1%
 IF %D1:~0,1% ==0 SET D1=%D1:~1%
 IF %H1:~0,1% ==0 SET H1=%H1:~1%
 IF %X1:~0,1% ==0 SET X1=%X1:~1%
 IF %C1:~0,1% ==0 SET C1=%C1:~1%
+SET /A RestartHour=%H1%+2
 SET /A s1=H1*60*60+X1*60+C1
 IF %AllowRestartComputer% EQU 0 (
 	IF %AutoRestartComputerEveryHour% NEQ 0 ECHO Computer restart was denied. Check and reconfigure AutoRestartComputerEveryHour in your config.bat.
