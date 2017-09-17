@@ -890,30 +890,18 @@ IF %FirstRun% EQU 0 (
 			GOTO check
 		) ELSE (
 			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
-		)
-		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath% folder now"
-		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
-			GOTO check
-		) ELSE (
-			CHOICE /C yn /T 60 /D n /M "Really, delete all useless files and folders from %MinerPath%"
-			IF ERRORLEVEL ==2 (
-				ECHO Now I will take care of your %RigName% and you can take a rest.
-				GOTO check
-			) ELSE (
-				FOR %%J IN ("%MinerPath%*") DO (IF NOT "%%J" == "%MinerPath%%~n0.bat" IF NOT "%%J" == "%MinerPath%%~n0.log" IF NOT "%%J" == "%MinerPath%autorun.exe" IF NOT "%%J" == "%MinerPath%config.bat" IF NOT "%%J" == "%MinerPath%miner.cfg" IF NOT "%%J" == "%MinerPath%%MinerProcessBat%" IF NOT "%%J" == "%MinerPath%cudart32_80.dll" IF NOT "%%J" == "%MinerPath%cudart64_80.dll" IF NOT "%%J" == "%MinerPath%miner.exe" IF NOT "%%J" == "%MinerPath%%MinerProcessProgram%" IF NOT "%%J" == "%MinerPath%%MinerProcessLog%" DEL /Q /F "%%J")
-				FOR /F "tokens=*" %%K IN ('DIR "%MinerPath%" /A:D /B') DO (IF /I NOT "%%K" == "Logs" IF /I NOT "%%K" == "Profiles" IF /I NOT "%%K" == "curl-7.55.1-win64-mingw"  (RD /S /Q "%MinerPath%%%K"))
-				ECHO Good. Folder "%MinerPath%" clean now.
-				ECHO Now I will take care of your %RigName% and you can take a rest.
-				GOTO check
-			)
 		)
 	)
 )
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
+			IF %AverageHashrate% GTR 0 (
+				"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
+			) ELSE (
+				"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry." 2>NUL 1>&2
+			)
 			timeout /T 60 /nobreak >NUL
 		)
 	)
