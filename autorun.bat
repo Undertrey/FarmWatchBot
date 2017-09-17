@@ -887,11 +887,11 @@ IF %FirstRun% EQU 0 (
 		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
-			GOTO check
 		) ELSE (
 			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		)
+		GOTO check
 	)
 )
 IF %EnableTelegramNotifications% EQU 1 (
