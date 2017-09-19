@@ -160,7 +160,7 @@ taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2
 IF %EnableAPAutorun% EQU 1 (
 	taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 )
-IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Computer restarting..." 2>NUL 1>&2
+IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Computer restarting..." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting.
 shutdown /T 60 /R /F
 ECHO To cancel restart, close this window and start autorun.bat manually.
@@ -209,7 +209,7 @@ IF %SkipBeginMining% EQU 0 (
 )
 :switch
 COLOR 06
-IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Attempting to switch to the main pool server." 2>NUL 1>&2
+IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Attempting to switch to the main pool server." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Attempting to switch to the main pool server.
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
@@ -222,7 +222,7 @@ ECHO ==================================================================
 GOTO hardstart
 :ctimer
 COLOR 06
-IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Scheduled computer restart, please wait" 2>NUL 1>&2
+IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Scheduled computer restart, please wait..." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Scheduled computer restart, please wait. Miner ran for %t3%.
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
@@ -235,7 +235,7 @@ ECHO ==================================================================
 GOTO restart
 :mtimer
 COLOR 06
-IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Scheduled miner restart, please wait" 2>NUL 1>&2
+IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Scheduled miner restart, please wait..." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Scheduled miner restart, please wait. Miner ran for %t3%.
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
@@ -248,7 +248,7 @@ ECHO ==================================================================
 GOTO hardstart
 :error
 COLOR 0C
-IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner restarting..." 2>NUL 1>&2
+IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner restarting..." 2>NUL 1>&2
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO + Now %NowDate% %NowTime%                                           +
@@ -363,7 +363,7 @@ IF %EnableAPAutorun% EQU 1 (
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
 		START /MIN "%APProcessName%" "%APProcessPath%" && ECHO %APProcessName% was started at %StartDate% %StartTime%
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %APProcessName% was started." 2>NUL 1>&2
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %APProcessName% was started." 2>NUL 1>&2
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] %APProcessName% was started.
 		timeout /T 5 /nobreak >NUL
 	)
@@ -372,7 +372,7 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 	IF %AllowRestartGPUOverclock% EQU 1 (
 		IF %FirstRun% EQU 1 (
 			tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %GPUOverclockProcess% was successfully killed." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %GPUOverclockProcess% was successfully killed." 2>NUL 1>&2
 			>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %GPUOverclockProcess% was successfully killed.
 			IF %EnableGPUOverclockControl% EQU 1 (
 				tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
@@ -383,7 +383,7 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 	tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 	IF ERRORLEVEL ==1 (
 		START /MIN "" %GPUOverclockPath% && ECHO %GPUOverclockProcess% was started at %StartDate% %StartTime%
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %GPUOverclockProcess% was started." 2>NUL 1>&2
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %GPUOverclockProcess% was started." 2>NUL 1>&2
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] %GPUOverclockProcess% was started.
 		timeout /T 5 /nobreak >NUL
 	)
@@ -397,7 +397,7 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 )
 taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && (
 	ECHO Process %MinerProcessProgram% was successfully killed.
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %MinerProcessProgram% was successfully killed." 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %MinerProcessProgram% was successfully killed." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcessProgram% was successfully killed.
 	timeout /T 5 /nobreak >NUL
 	taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
@@ -461,7 +461,7 @@ IF %UseBatOrExe% EQU 1 (
 		EXIT
 	)
 	START %MinerProcessProgram% && ECHO Miner was started at %StartDate% %StartTime%
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
 	IF NOT EXIST "%MinerProcessBat%" (
@@ -484,7 +484,7 @@ IF %UseBatOrExe% EQU 1 (
 		)
 	)
 	START "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner was started at %StartDate% %StartTime%
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 )
 timeout /T 5 /nobreak >NUL
@@ -616,8 +616,8 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %M
 				IF %EnableGPUOverclockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 					IF ERRORLEVEL ==1 (
+						IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %GPUOverclockProcess% crashed." 2>NUL 1>&2
 						>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %GPUOverclockProcess% crashed. Miner ran for %t3%.
-						IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %GPUOverclockProcess% crashed." 2>NUL 1>&2
 						IF %EnableGPUOverclockControl% EQU 1 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                           +
 						IF %EnableGPUOverclockControl% EQU 2 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                   +
 						IF %EnableGPUOverclockControl% EQU 3 SET ErrorEcho=+ Error. Process %GPUOverclockProcess% crashed...                       +
@@ -629,9 +629,9 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %M
 					SET ErrorEcho=+ Warning. Low hashrate...                                       +
 					GOTO error
 				)
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. %SumResult%/%AverageHashrate%" 2>NUL 1>&2
-				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Abnormal hashrate. %SumResult%/%AverageHashrate%" 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
+				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
 				SET /A HashrateErrorsCount+=1
 				SET OldHashrate=%SumResult%
 			)
@@ -642,19 +642,17 @@ timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %MinerProcessLog%') DO (
 	COLOR 0C
 	timeout /T 10 /nobreak >NUL
-	IF %EnableTelegramNotifications% EQU 1 (
-		ECHO %%N | findstr /V %InternetErrorsList% %ConfigErrorsList% %MinerWarningsList% 2>NUL 1>&2 && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
-	)
+	IF %EnableTelegramNotifications% EQU 1 ECHO %%N | findstr /V %InternetErrorsList% %ConfigErrorsList% %MinerWarningsList% 2>NUL 1>&2 && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N." 2>NUL 1>&2
 	ECHO %%N | findstr /V %InternetErrorsList% 2>NUL 1>&2 && >> %~n0.log ECHO [%NowDate%][%NowTime%] %%N.
 	ping google.com | find /i "TTL=" 2>NUL 1>&2 && (
 		FOR /F "delims=" %%M IN ('findstr %InternetErrorsCancel% %MinerProcessLog%') DO ECHO %%M | findstr %InternetErrorsCancel% 2>NUL 1>&2 && (
-			ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
+			ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
 			GOTO start
 		)
 		ECHO %%N | findstr %ConfigErrorsList% 2>NUL && (
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N." 2>NUL 1>&2
 			ECHO ==================================================================
 			ECHO +----------------------------------------------------------------+
 			ECHO + Now %NowDate% %NowTime%                                           +
@@ -674,25 +672,25 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 			>> %MinerProcessBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerProcessBat%.
 			IF %EnableAdditionalServer% EQU 1 (
 				IF %ServerQueue% EQU 1 (
-					ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+					ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
 					>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 					SET ServerQueue=0
 					SET SwitchToDefault=1
 				)
 				IF %ServerQueue% EQU 0 (
-					ECHO Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+					ECHO Warning. Pool server was switched to additional. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
 					>> %MinerProcessBat% ECHO %MinerProcessBatAdditionalText%
 					SET ServerQueue=1
 					SET SwitchToDefault=1
 				)
 			) ELSE (
-				ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online." 2>NUL 1>&2
+				ECHO Warning. Pool server was switched to default. Please check your config.bat, miner.cfg or %MinerProcessBat% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you're connecting to is online.
 				>> %MinerProcessBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 				SET SwitchToDefault=1
 			)
@@ -704,7 +702,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 	) || (
 		IF %EnableInternetErrorsListCheck% EQU 1 (
 			ECHO %%N | findstr %InternetErrorsList% 2>NUL && (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %%N." 2>NUL 1>&2
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] %%N.
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Something is wrong with your Internet. Please check your connection. Miner ran for %t3%.
 				ECHO ==================================================================
@@ -733,7 +731,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				)
 				:reconnected
 				ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
 				GOTO start
 			)
@@ -755,7 +753,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 	)
 	ECHO %%N | findstr %MinerWarningsList% 2>NUL && (
 		IF %t3_m% LSS 10 (
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Waiting for users input..." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
 			IF %EnableGPUOverclockControl% EQU 1 (
@@ -769,7 +767,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 			PAUSE
 			GOTO hardstart
 		) ELSE (
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Temperature limit reached. Fans may be stuck. Attempting to restart computer." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. Fans may be stuck. Attempting to restart computer." 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
 			ECHO Temperature limit reached. Fans may be stuck. Miner ran for %t3%.
 			ECHO Computer restarting...
@@ -786,7 +784,7 @@ timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq %MinerProcessProgram%" 2>NUL | find /I /N "%MinerProcessProgram%" >NUL
 IF ERRORLEVEL ==1 (
 	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %MinerProcessProgram% crashed. Miner ran for %t3%.
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %MinerProcessProgram% crashed." 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %MinerProcessProgram% crashed." 2>NUL 1>&2
 	SET ErrorEcho=+ Error. Process %MinerProcessProgram% crashed...                            +
 	GOTO error
 )
@@ -795,7 +793,7 @@ IF %EnableAPAutorun% EQU 1 (
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
 		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %APProcessName% crashed." 2>NUL 1>&2
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %APProcessName% crashed." 2>NUL 1>&2
 		SET ErrorEcho=+ Error. Additional program crashed...                           +
 		GOTO error
 	)
@@ -806,8 +804,8 @@ IF %FirstRun% EQU 0 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO SET /A GPUCount+=1
 		IF %NumberOfGPUs% NEQ !GPUCount! (
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*." 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
 			COLOR 0C
 			ECHO ==================================================================
 			ECHO +----------------------------------------------------------------+
@@ -908,7 +906,7 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
+			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3_h%:%t3_m%:%t3_s%* - don't worry. Average hashrate: *%SumResult%*." 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
 	)
