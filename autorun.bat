@@ -648,7 +648,15 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		FOR /F "delims=" %%M IN ('findstr %InternetErrorsCancel% %MinerProcessLog%') DO ECHO %%M | findstr %InternetErrorsCancel% 2>NUL 1>&2 && (
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
-			ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
+			ECHO ==================================================================
+			ECHO +----------------------------------------------------------------+
+			ECHO + Now %NowDate% %NowTime%                                           +
+			ECHO + Miner was started at %StartDate% %StartTime%                          +
+			ECHO + Something was wrong with your Internet.                        +
+			ECHO + Connection has been restored.                                  +
+			ECHO + Miner restarting...                                            +
+			ECHO +----------------------------------------------------------------+
+			ECHO ==================================================================
 			GOTO start
 		)
 		ECHO %%N | findstr %ConfigErrorsList% 2>NUL && (
