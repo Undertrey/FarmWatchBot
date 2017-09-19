@@ -10,6 +10,8 @@ SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
 SET Version=1.6.0
+SET OldMessageId=0
+SET OldUnixTime=0
 :hardstart
 CLS
 COLOR 06
@@ -28,7 +30,6 @@ IF "%PROCESSOR_ARCHITECTURE%" == "x86" (
 		EXIT
 	)
 )
-REM Basic constant
 SET FirstRun=0
 SET MinerPath=%~dp0
 SET ErrorsAmount=5
@@ -87,12 +88,12 @@ IF EXIST config.bat (
 >> config.bat ECHO SET UseBatOrExe=2
 >> config.bat ECHO REM Name miner start .bat file. (in English, without special symbols and spaces)
 >> config.bat ECHO SET MinerProcessBat=miner.bat
->> config.bat ECHO REM Set %MinerProcessBat% command here to auto-create this file if it is missing or wrong.
+>> config.bat ECHO REM Set %MinerProcessBat% command here to auto-create this file if it is missing or wrong (keep default order).
 >> config.bat ECHO SET MinerProcessBatText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM =================================================== [Additional server]
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (1 - true, 0 - false)
 >> config.bat ECHO SET EnableAdditionalServer=0
->> config.bat ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and a new one will be created with this value. UseBatOrExe=2 required.
+>> config.bat ECHO REM Configure %MinerProcessBat% command here. Old %MinerProcessBat% will be removed and a new one will be created with this value (keep default order). UseBatOrExe=2 required.
 >> config.bat ECHO SET MinerProcessBatAdditionalText=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner every hour. (1 - true every One hour, 2 - true every Two hours, 0 - false)
@@ -159,8 +160,8 @@ taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2
 IF %EnableAPAutorun% EQU 1 (
 	taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 )
->> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting.
 IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Computer restarting..." 2>NUL 1>&2
+>> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting.
 shutdown /T 60 /R /F
 ECHO To cancel restart, close this window and start autorun.bat manually.
 timeout /T 50 /nobreak >NUL
@@ -208,9 +209,16 @@ IF %SkipBeginMining% EQU 0 (
 )
 :switch
 COLOR 06
-ECHO Warning. Attempting to switch to the main pool server.
->> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Attempting to switch to the main pool server.
 IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Warning. Attempting to switch to the main pool server." 2>NUL 1>&2
+>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Attempting to switch to the main pool server.
+ECHO ==================================================================
+ECHO +----------------------------------------------------------------+
+ECHO + Now %NowDate% %NowTime%                                           +
+ECHO + Miner was started at %StartDate% %StartTime%                          +
+ECHO + Miner ran for %t3%                                         +
+ECHO + Warning. Attempting to switch to the main pool server.         +
+ECHO +----------------------------------------------------------------+
+ECHO ==================================================================
 GOTO hardstart
 :ctimer
 COLOR 06
@@ -341,11 +349,6 @@ IF NOT EXIST "%MinerProcessProgram%" (
 	PAUSE
 	EXIT
 )
-IF NOT EXIST "cudart32_80.dll" (
-	ECHO Error. "%MinerPath%cudart32_80.dll" is missing. Please check the directory for missing files. Exiting...
-	PAUSE
-	EXIT
-)
 IF NOT EXIST "cudart64_80.dll" (
 	ECHO Error. "%MinerPath%cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
@@ -360,6 +363,7 @@ IF %EnableAPAutorun% EQU 1 (
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
 		START /MIN "%APProcessName%" "%APProcessPath%" && ECHO %APProcessName% was started at %StartDate% %StartTime%
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %APProcessName% was started." 2>NUL 1>&2
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] %APProcessName% was started.
 		timeout /T 5 /nobreak >NUL
 	)
@@ -368,6 +372,8 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 	IF %AllowRestartGPUOverclock% EQU 1 (
 		IF %FirstRun% EQU 1 (
 			tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %GPUOverclockProcess% was successfully killed." 2>NUL 1>&2
+			>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %GPUOverclockProcess% was successfully killed.
 			IF %EnableGPUOverclockControl% EQU 1 (
 				tskill /A /V %GPUOverclockProcessJunk% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcessJunk%.exe was successfully killed.
 			)
@@ -377,8 +383,8 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 	tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
 	IF ERRORLEVEL ==1 (
 		START /MIN "" %GPUOverclockPath% && ECHO %GPUOverclockProcess% was started at %StartDate% %StartTime%
-		>> %~n0.log ECHO [%StartDate%][%StartTime%] %GPUOverclockProcess% was started.
 		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: %GPUOverclockProcess% was started." 2>NUL 1>&2
+		>> %~n0.log ECHO [%StartDate%][%StartTime%] %GPUOverclockProcess% was started.
 		timeout /T 5 /nobreak >NUL
 	)
 	IF %EnableGPUOverclockControl% EQU 2 (
@@ -389,10 +395,14 @@ IF %EnableGPUOverclockControl% GEQ 1 (
 		)
 	)
 )
-taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && ECHO Process %MinerProcessProgram% was successfully killed.
-timeout /T 5 /nobreak >NUL
-taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
-timeout /T 5 /nobreak >NUL
+taskkill /F /IM "%MinerProcessProgram%" 2>NUL 1>&2 && (
+	ECHO Process %MinerProcessProgram% was successfully killed.
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Process %MinerProcessProgram% was successfully killed." 2>NUL 1>&2
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcessProgram% was successfully killed.
+	timeout /T 5 /nobreak >NUL
+	taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerProcessBat%*" 2>NUL 1>&2
+	timeout /T 5 /nobreak >NUL
+)
 IF EXIST "%MinerProcessLog%" MOVE /Y %MinerProcessLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
 	ECHO Error. Unable to rename or access %MinerProcessLog%.
@@ -451,8 +461,8 @@ IF %UseBatOrExe% EQU 1 (
 		EXIT
 	)
 	START %MinerProcessProgram% && ECHO Miner was started at %StartDate% %StartTime%
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
 	IF NOT EXIST "%MinerProcessBat%" (
 		> %MinerProcessBat% ECHO TITLE %MinerProcessBat%
@@ -474,8 +484,8 @@ IF %UseBatOrExe% EQU 1 (
 		)
 	)
 	START "%MinerProcessBat%" %MinerProcessBat% && ECHO Miner was started at %StartDate% %StartTime%
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner was started." 2>NUL 1>&2
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 )
 timeout /T 5 /nobreak >NUL
 IF NOT EXIST "%MinerProcessLog%" (
@@ -516,6 +526,7 @@ SET FirstRun=0
 SET HashrateErrorsCount=0
 SET OldHashrate=0
 SET InternetErrorsCounter=1
+timeout /T 10 /nobreak >NUL
 :check
 SET Hashcount=0
 SET SumHash=0
@@ -593,14 +604,14 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	ECHO ==================================================================
 	GOTO restart
 )
-IF %AverageHashrate% GTR 0 (
-	timeout /T 5 /nobreak >NUL
-	FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerProcessLog%') DO (
-		SET /A Hashcount+=1
-		SET /A SumHash=SumHash+%%G
-		SET /A SumResult=SumHash/Hashcount
-		IF !SumResult! NEQ %OldHashrate% (
-			IF !SumResult! LSS %AverageHashrate% (
+timeout /T 5 /nobreak >NUL
+FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerProcessLog%') DO (
+	SET /A Hashcount+=1
+	SET /A SumHash=SumHash+%%G
+	SET /A SumResult=SumHash/Hashcount
+	IF %AverageHashrate% GTR 0 (
+		IF %SumResult% NEQ %OldHashrate% (
+			IF %SumResult% LSS %AverageHashrate% (
 				COLOR 0C
 				IF %EnableGPUOverclockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
@@ -618,11 +629,11 @@ IF %AverageHashrate% GTR 0 (
 					SET ErrorEcho=+ Warning. Low hashrate...                                       +
 					GOTO error
 				)
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
-				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Abnormal hashrate. %SumResult%/%AverageHashrate%" 2>NUL 1>&2
+				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
+				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
 				SET /A HashrateErrorsCount+=1
-				SET OldHashrate=!SumResult!
+				SET OldHashrate=%SumResult%
 			)
 		)
 	)
@@ -897,11 +908,7 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			IF %AverageHashrate% GTR 0 (
-				"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
-			) ELSE (
-				"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry." 2>NUL 1>&2
-			)
+			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&text=%RigName%: Miner has been running for %t3_h%:%t3_m%:%t3_s% - don't worry. Average hashrate: %SumResult%." 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
 	)
