@@ -9,7 +9,7 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.6.0
+SET Version=1.6.1
 SET OldMessageId=0
 SET OldUnixTime=0
 :hardstart
