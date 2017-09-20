@@ -526,8 +526,10 @@ SET FirstRun=0
 SET HashrateErrorsCount=0
 SET OldHashrate=0
 SET InternetErrorsCounter=1
-timeout /T 10 /nobreak >NUL
 :check
+IF %FirstRun% EQU 0 (
+	timeout /T 15 /nobreak >NUL
+)
 SET Hashcount=0
 SET SumHash=0
 SET SumResult=0
