@@ -564,13 +564,13 @@ IF %D2% GTR %D1% (
 	)
 	IF %s2% GEQ %s1% (SET /A s3=%s2%-%s1%) ELSE (SET /A s3=%s1%-%s2%)
 )
-SET /A t3_h=%s3%/60/60
-SET /A t3_m=%s3% %% 3600/60
-SET /A t3_s=%s3% %% 60
-IF %t3_h% LSS 10 (SET t3_h=0%t3_h%) ELSE (SET t3_h=%t3_h%)
-IF %t3_m% LSS 10 (SET t3_m=0%t3_m%) ELSE (SET t3_m=%t3_m%)
-IF %t3_s% LSS 10 (SET t3_s=0%t3_s%) ELSE (SET t3_s=%t3_s%)
-SET t3=%t3_h%:%t3_m%:%t3_s%
+SET /A t3h=%s3%/60/60
+SET /A t3m=%s3% %% 3600/60
+SET /A t3s=%s3% %% 60
+IF %t3h% LSS 10 (SET t3h=0%t3h%) ELSE (SET t3h=%t3h%)
+IF %t3m% LSS 10 (SET t3m=0%t3m%) ELSE (SET t3m=%t3m%)
+IF %t3s% LSS 10 (SET t3s=0%t3s%) ELSE (SET t3s=%t3s%)
+SET t3=%t3h%:%t3m%:%t3s%
 IF %D2% NEQ %D1% (
 	IF %AutoRestartComputerAtMidnight% EQU 1 GOTO ctimer
 	IF %AutoRestartMinerAtMidnight% EQU 1 GOTO mtimer
@@ -730,7 +730,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 				ECHO +----------------------------------------------------------------+
 				ECHO ==================================================================
 				:tryingreconnect
-				IF %t3_m% LSS 10 (
+				IF %t3m% LSS 10 (
 					IF %InternetErrorsCounter% GTR 60 GOTO restart
 				) ELSE (
 					IF %InternetErrorsCounter% GTR 10 GOTO restart
@@ -767,7 +767,7 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 		GOTO error
 	)
 	ECHO %%N | findstr %MinerWarningsList% 2>NUL && (
-		IF %t3_m% LSS 10 (
+		IF %t3m% LSS 10 (
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. GPU will now stop mining. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			tskill /A /V %GPUOverclockTaskName% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess% was successfully killed.
@@ -819,7 +819,7 @@ IF %FirstRun% EQU 0 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerProcessLog%') DO SET /A GPUCount+=1
 		IF %NumberOfGPUs% NEQ !GPUCount! (
-			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*." 2>NUL 1>&2
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
 			COLOR 0C
 			ECHO ==================================================================
@@ -838,7 +838,7 @@ IF %FirstRun% EQU 0 (
 	)
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
-	ECHO + Process %MinerProcessProgram% is running - don't worry                     +
+	ECHO + Process %MinerProcessProgram% is running - do not worry                    +
 	IF %EnableGPUOverclockControl% NEQ 0 (
 		IF %EnableGPUOverclockControl% EQU 1 (
 			ECHO + Process %GPUOverclockProcess% is running...                               +
@@ -921,7 +921,7 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3_h%:%t3_m%:%t3_s%* - don't worry. Average hashrate: *!SumResult!*." 2>NUL 1>&2
+			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for %t3h%:%t3m%:%t3s% - do not worry. Average hashrate: *!SumResult!*." 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
 	)
