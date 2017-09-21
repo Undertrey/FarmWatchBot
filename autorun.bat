@@ -180,7 +180,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 		ECHO %%z | findstr /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && GOTO doublecheck
 	)
 	GOTO preprestart
-	:doublecheck
+	:doublewindow
 	ECHO Warning. This process is already running. The original process will continue, but this window will close in 10 seconds.
 	ECHO You can disable this check in the config.bat file under EnableDoubleWindowCheck. Do not do this unless you're sure the above warning is in error.
 	CHOICE /C yn /T 10 /D y /M "Exit"
