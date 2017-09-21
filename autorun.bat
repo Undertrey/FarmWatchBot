@@ -10,8 +10,11 @@ SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
 SET Version=1.6.1
-SET OldMessageId=0
-SET OldUnixTime=0
+SET OldPMessageId=0
+SET OldGMessageId=0
+SET OldUpdateId=0
+SET Utdiff=100
+SET IsPrepaidVersion=1
 :hardstart
 CLS
 COLOR 06
@@ -173,9 +176,11 @@ SET ChatId=%ChatId: =%
 IF %ChatId% EQU "000000000" SET EnableTelegramNotifications=0
 IF NOT EXIST "%CurlPath%" SET EnableTelegramNotifications=0
 IF %EnableDoubleWindowCheck% EQU 1 (
-	tasklist /V /FI "WINDOWTITLE ne Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)" | find /I /N "Miner-autorun" >NUL && GOTO :doublewindow
+	FOR /f "delims=" %%z in ('tasklist /V /NH /FI "imagename eq cmd.exe" ^| findstr /V /R /C:".*Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)"') DO (
+		ECHO %%z | findstr /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && GOTO doublecheck
+	)
 	GOTO preprestart
-	:doublewindow
+	:doublecheck
 	ECHO Warning. This process is already running. The original process will continue, but this window will close in 10 seconds.
 	ECHO You can disable this check in the config.bat file under EnableDoubleWindowCheck. Do not do this unless you're sure the above warning is in error.
 	CHOICE /C yn /T 10 /D y /M "Exit"
@@ -417,6 +422,11 @@ IF ERRORLEVEL ==1 (
 )
 timeout /T 5 /nobreak >NUL
 IF %UseBatOrExe% EQU 1 (
+	IF NOT EXIST "%MinerProcessProgram%" (
+		ECHO %MinerProcessProgram% is missing. Mining is impossible. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.
+		PAUSE
+		EXIT
+	)
 	IF NOT EXIST "miner.cfg" (
 		FOR /F "tokens=3,5,7,9 delims= " %%W IN ("%MinerProcessBatText%") DO (
 			> miner.cfg ECHO # Common parameters
@@ -454,11 +464,6 @@ IF %UseBatOrExe% EQU 1 (
 			>> miner.cfg ECHO pass   x
 			ECHO miner.cfg created. Please check it for errors.
 		)
-	)
-	IF NOT EXIST "%MinerProcessProgram%" (
-		ECHO %MinerProcessProgram% is missing. Mining is impossible. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.
-		PAUSE
-		EXIT
 	)
 	START %MinerProcessProgram% && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
@@ -612,8 +617,8 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %M
 	SET /A SumHash=SumHash+%%G
 	SET /A SumResult=SumHash/Hashcount
 	IF %AverageHashrate% GTR 0 (
-		IF %SumResult% NEQ %OldHashrate% (
-			IF %SumResult% LSS %AverageHashrate% (
+		IF !SumResult! NEQ %OldHashrate% (
+			IF !SumResult! LSS %AverageHashrate% (
 				COLOR 0C
 				IF %EnableGPUOverclockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
@@ -631,11 +636,11 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %M
 					SET ErrorEcho=+ Warning. Low hashrate...                                       +
 					GOTO error
 				)
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Abnormal hashrate. %SumResult%/%AverageHashrate%" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
-				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [%SumResult%/%AverageHashrate%]
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Abnormal hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
+				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
+				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
 				SET /A HashrateErrorsCount+=1
-				SET OldHashrate=%SumResult%
+				SET OldHashrate=!SumResult!
 			)
 		)
 	)
@@ -793,8 +798,8 @@ FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %Miner
 timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq %MinerProcessProgram%" 2>NUL | find /I /N "%MinerProcessProgram%" >NUL
 IF ERRORLEVEL ==1 (
-	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %MinerProcessProgram% crashed. Miner ran for %t3%.
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %MinerProcessProgram% crashed." 2>NUL 1>&2
+	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %MinerProcessProgram% crashed. Miner ran for %t3%.
 	SET ErrorEcho=+ Error. Process %MinerProcessProgram% crashed...                            +
 	GOTO error
 )
@@ -802,8 +807,8 @@ IF %EnableAPAutorun% EQU 1 (
 	timeout /T 5 /nobreak >NUL
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
 		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %APProcessName% crashed." 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
 		SET ErrorEcho=+ Error. Additional program crashed...                           +
 		GOTO error
 	)
@@ -916,7 +921,7 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3_h%:%t3_m%:%t3_s%* - don't worry. Average hashrate: *%SumResult%*." 2>NUL 1>&2
+			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3_h%:%t3_m%:%t3_s%* - don't worry. Average hashrate: *!SumResult!*." 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
 	)
