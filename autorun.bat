@@ -177,7 +177,7 @@ IF %ChatId% EQU "000000000" SET EnableTelegramNotifications=0
 IF NOT EXIST "%CurlPath%" SET EnableTelegramNotifications=0
 IF %EnableDoubleWindowCheck% EQU 1 (
 	FOR /f "delims=" %%z in ('tasklist /V /NH /FI "imagename eq cmd.exe" ^| findstr /V /R /C:".*Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)"') DO (
-		ECHO %%z | findstr /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && GOTO doublecheck
+		ECHO %%z | findstr /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && GOTO doublewindow
 	)
 	GOTO preprestart
 	:doublewindow
