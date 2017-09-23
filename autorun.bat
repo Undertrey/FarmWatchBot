@@ -14,7 +14,6 @@ SET OldPMessageId=0
 SET OldGMessageId=0
 SET OldUpdateId=0
 SET Utdiff=100
-SET IsPrepaidVersion=1
 :hardstart
 CLS
 COLOR 06
@@ -538,6 +537,7 @@ IF %FirstRun% EQU 0 (
 SET Hashcount=0
 SET SumHash=0
 SET SumResult=0
+SET MinHashrate=0
 COLOR 02
 timeout /T 5 /nobreak >NUL
 FOR /F %%F IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t2=%%F
@@ -613,12 +613,16 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 )
 timeout /T 5 /nobreak >NUL
 FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerProcessLog%') DO (
+	SET LastHashrate=%%G
 	SET /A Hashcount+=1
 	SET /A SumHash=SumHash+%%G
 	SET /A SumResult=SumHash/Hashcount
 	IF %AverageHashrate% GTR 0 (
+		IF !LastHashrate! LSS %AverageHashrate% SET /A MinHashrate+=1
+		IF !MinHashrate! GEQ 100 GOTO passaveragecheck
 		IF !SumResult! NEQ %OldHashrate% (
 			IF !SumResult! LSS %AverageHashrate% (
+			:passaveragecheck
 				COLOR 0C
 				IF %EnableGPUOverclockControl% NEQ 0 (
 					tasklist /FI "IMAGENAME eq %GPUOverclockProcess%" 2>NUL | find /I /N "%GPUOverclockProcess%" >NUL
@@ -636,14 +640,18 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %M
 					SET ErrorEcho=+ Warning. Low hashrate...                                       +
 					GOTO error
 				)
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Abnormal hashrate. !SumResult!/%AverageHashrate%" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
-				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. [!SumResult!/%AverageHashrate%]
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageHashrate%* Last: *!LastHashrate!/%AverageHashrate%*" 2>NUL 1>&2
+				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageHashrate% Last: !LastHashrate!/%AverageHashrate%
+				ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageHashrate% Last: !LastHashrate!/%AverageHashrate%
 				SET /A HashrateErrorsCount+=1
 				SET OldHashrate=!SumResult!
 			)
 		)
 	)
+)
+timeout /T 5 /nobreak >NUL
+FOR /F "delims=" %%T IN ('findstr /R /C:"Temp:.*" %MinerProcessLog%') DO (
+	SET CurrentTemp=%%T
 )
 timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr %ConfigErrorsList% %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %MinerProcessLog%') DO (
@@ -921,7 +929,7 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %EnableEveryHourStatSend% EQU 1 (
 		IF "%X2%" == "0" (
-			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for %t3h%:%t3m%:%t3s% - do not worry. Average hashrate: *!SumResult!*." 2>NUL 1>&2
+			"%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent !CurrentTemp!" 2>NUL 1>&2
 			timeout /T 60 /nobreak >NUL
 		)
 	)
