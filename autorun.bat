@@ -528,7 +528,7 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	ECHO ==================================================================
 	GOTO restart
 )
-timeout /T 2 /nobreak >NUL
+timeout /T 5 /nobreak >NUL
 FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
 	SET LastHashrate=%%G
 	SET /A Hashcount+=1
@@ -566,12 +566,12 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" mi
 		)
 	)
 )
-timeout /T 2 /nobreak >NUL
+timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" /C:"GPU.*: .* Sol/s .*" miner.log') DO (
 	ECHO %%T | findstr /R /C:"Temp: GPU.*C.*" >NUL && SET CurrentTemp=%%T
 	ECHO %%T | findstr /R /C:"GPU.*: .* Sol/s .*" >NUL && SET CurrentSpeed=%%T
 )
-timeout /T 2 /nobreak >NUL
+timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
 	COLOR 0C
 	IF %EnableTelegramNotifications% EQU 1 ECHO %%N | findstr /V %InternetErrorsList% %MinerWarningsList% >NUL && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N" >NUL
@@ -720,7 +720,7 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 		GOTO error
 	)
 )
-timeout /T 2 /nobreak >NUL
+timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq miner.exe" 2>NUL | find /I /N "miner.exe" >NUL
 IF ERRORLEVEL ==1 (
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process miner.exe crashed." >NUL
@@ -729,7 +729,7 @@ IF ERRORLEVEL ==1 (
 	GOTO error
 )
 IF %EnableAPAutorun% EQU 1 (
-	timeout /T 2 /nobreak >NUL
+	timeout /T 5 /nobreak >NUL
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
 		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %APProcessName% crashed." >NUL
