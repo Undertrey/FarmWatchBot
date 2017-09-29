@@ -40,7 +40,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Attention. Do not touch this options bellow in any case.
-SET MP=%~dp0
+SET MinerPath=%~dp0
 SET FirstRun=0
 SET ErrorsCounter=0
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Cannot resolve hostname.*" /C:".*Stratum subscribe timeout.*" /C:".*Cannot connect to the pool.*" /C:".*No properly configured pool.*"
@@ -808,11 +808,11 @@ IF %FirstRun% EQU 0 (
 	ECHO ==================================================================
 	SET FirstRun=1
 	IF EXIST "Logs\miner_*.log" (
-		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
+		CHOICE /C yn /T 60 /D n /M "Clean Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		) ELSE (
-			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
+			DEL /F /Q "Logs\*" && ECHO Clean Logs folder finished.
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		)
 		GOTO check
