@@ -40,6 +40,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Attention. Do not touch this options bellow in any case.
+SET MP=%~dp0
 SET FirstRun=0
 SET ErrorsCounter=0
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Cannot resolve hostname.*" /C:".*Stratum subscribe timeout.*" /C:".*Cannot connect to the pool.*" /C:".*No properly configured pool.*"
@@ -280,12 +281,12 @@ IF %EnableGPUOverclockMonitor% GTR 0 (
 	SET EnableGPUOverclockMonitor=0
 )
 IF NOT EXIST "miner.exe" (
-	ECHO Error. "%~dp0miner.exe" is missing. Please check the directory for missing files. Exiting...
+	ECHO Error. "miner.exe" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
 IF NOT EXIST "cudart64_80.dll" (
-	ECHO Error. "%~dp0cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...
+	ECHO Error. "cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
@@ -424,10 +425,10 @@ IF %StartFromBatOrExe% EQU 1 (
 timeout /T 5 /nobreak >NUL
 IF NOT EXIST "miner.log" (
 	ECHO Error. miner.log is missing.
-	ECHO Check permissions in "%~dp0". This script requires permission to create files.
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Error. miner.log is missing.%%0ACheck permissions in "%~dp0". This script requires permission to create files." 2>NUL 1>&2
+	ECHO Check permissions in "%MinerPath%". This script requires permission to create files.
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Error. miner.log is missing.%%0ACheck permissions in "%MinerPath%". This script requires permission to create files." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. miner.log is missing.
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%~dp0". This script requires permission to create files.
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%MinerPath%". This script requires permission to create files.
 	IF %StartFromBatOrExe% EQU 2 (
 		ECHO Ensure "--log 2" option is added to the miner's command line.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "--log 2" option is added to the miner's command line.
@@ -807,18 +808,18 @@ IF %FirstRun% EQU 0 (
 	ECHO ==================================================================
 	SET FirstRun=1
 	IF EXIST "Logs\miner_*.log" (
-		CHOICE /C yn /T 60 /D n /M "Clean %~dp0Logs folder now"
+		CHOICE /C yn /T 60 /D n /M "Clean %MinerPath%Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		) ELSE (
-			DEL /F /Q "Logs\*" && ECHO Clean "%~dp0Logs" finished.
+			DEL /F /Q "Logs\*" && ECHO Clean "%MinerPath%Logs" finished.
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		)
 		GOTO check
 	)
 )
 IF %EnableTelegramNotifications% EQU 1 (
-	IF "%X2%" == "0" (
+	IF %X2% EQU 0 (
 		IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
 		IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
 		timeout /T 60 /nobreak >NUL
