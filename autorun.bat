@@ -40,7 +40,6 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Attention. Do not touch this options bellow in any case.
-SET MinerPath=%~dp0
 SET FirstRun=0
 SET ErrorsCounter=0
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Cannot resolve hostname.*" /C:".*Stratum subscribe timeout.*" /C:".*Cannot connect to the pool.*" /C:".*No properly configured pool.*"
@@ -56,7 +55,7 @@ SET SwitchToDefault=0
 SET OldMessageId=0
 SET TelegramCommand=https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?
 :checkconfig
-IF EXIST config.bat (
+IF EXIST %~dp0config.bat (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"Configuration file v." config.bat') DO (
 		IF "%%B" == "%Version%" (
 			FOR %%C IN (config.bat) DO (
@@ -96,11 +95,11 @@ IF EXIST config.bat (
 >> config.bat ECHO REM Use miner.bat or miner.exe file to start mining? (1 - .exe, 2 - .bat)
 >> config.bat ECHO SET StartFromBatOrExe=2
 >> config.bat ECHO REM Set miner command here to auto-create miner.bat or miner.cfg file if it is missing or wrong. (keep default order)
->> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+>> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET EnableAdditionalServer=0
 >> config.bat ECHO REM Configure miner command here. Old miner.bat will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+>> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
 >> config.bat ECHO SET EveryHourAutoRestart=0
@@ -280,17 +279,17 @@ IF %EnableGPUOverclockMonitor% GTR 0 (
 	ECHO ECHO Overclock control monitor was disabled.
 	SET EnableGPUOverclockMonitor=0
 )
-IF NOT EXIST "miner.exe" (
+IF NOT EXIST "%~dp0miner.exe" (
 	ECHO Error. "miner.exe" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
-IF NOT EXIST "cudart64_80.dll" (
+IF NOT EXIST "%~dp0cudart64_80.dll" (
 	ECHO Error. "cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
 )
-IF EXIST "Logs" (
+IF EXIST "%~dp0Logs" (
 	ECHO Folder Logs exist.
 ) ELSE (
 	MD Logs && ECHO Folder Logs created.
@@ -339,7 +338,7 @@ taskkill /F /IM "miner.exe" 2>NUL 1>&2 && (
 IF EXIST "miner.log" MOVE /Y miner.log Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access miner.log. Attempting to delete miner.log and continue...
-	DEL /Q /F miner.log >NUL || (
+	DEL /Q /F "%~dp0miner.log" >NUL || (
 		ECHO Error. Unable to rename or access miner.log.
 		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Unable to delete miner.log." 2>NUL 1>&2
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. Unable to delete miner.log.
@@ -350,12 +349,12 @@ IF ERRORLEVEL ==1 (
 )
 timeout /T 5 /nobreak >NUL
 IF %StartFromBatOrExe% EQU 1 (
-	IF NOT EXIST "miner.exe" (
+	IF NOT EXIST "%~dp0miner.exe" (
 		ECHO Mining is impossible, miner.exe is missing. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.
 		PAUSE
 		EXIT
 	)
-	IF NOT EXIST "miner.cfg" (
+	IF NOT EXIST "%~dp0miner.cfg" (
 		FOR /F "tokens=3,5,7,9 delims= " %%W IN ("%MainServerBatCommand%") DO (
 			> miner.cfg ECHO # Common parameters
 			>> miner.cfg ECHO # All the parameters here are similar to the command line arguments
@@ -393,11 +392,11 @@ IF %StartFromBatOrExe% EQU 1 (
 			ECHO miner.cfg created. Please check it for errors.
 		)
 	)
-	START miner.exe && ECHO Miner was started at %StartDate% %StartTime%
+	START "miner.exe" "%~dp0miner.exe" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
-	IF NOT EXIST "miner.bat" (
+	IF NOT EXIST "%~dp0miner.bat" (
 		> miner.bat ECHO @ECHO off
 		>> miner.bat ECHO TITLE miner.bat
 		>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
@@ -418,17 +417,17 @@ IF %StartFromBatOrExe% EQU 1 (
 			)
 		)
 	)
-	START "miner.bat" miner.bat && ECHO Miner was started at %StartDate% %StartTime%
+	START "miner.bat" "%~dp0miner.bat" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 )
 timeout /T 5 /nobreak >NUL
-IF NOT EXIST "miner.log" (
+IF NOT EXIST "%~dp0miner.log" (
 	ECHO Error. miner.log is missing.
-	ECHO Check permissions in "%MinerPath%". This script requires permission to create files.
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Error. miner.log is missing.%%0ACheck permissions in "%MinerPath%". This script requires permission to create files." 2>NUL 1>&2
+	ECHO Check permissions in "%~dp0". This script requires permission to create files.
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Error. miner.log is missing.%%0ACheck permissions in "%~dp0". This script requires permission to create files." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. miner.log is missing.
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%MinerPath%". This script requires permission to create files.
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%~dp0". This script requires permission to create files.
 	IF %StartFromBatOrExe% EQU 2 (
 		ECHO Ensure "--log 2" option is added to the miner's command line.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "--log 2" option is added to the miner's command line.
@@ -442,7 +441,7 @@ IF NOT EXIST "miner.log" (
 	) ELSE (
 		ECHO Ensure "log 2" option is added in your miner.cfg file.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "log 2" option is added in your miner.cfg file.
-		DEL /Q /F miner.cfg >NUL
+		DEL /Q /F "%~dp0miner.cfg" >NUL
 		GOTO start
 	)
 ) ELSE (
@@ -568,34 +567,15 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" mi
 	)
 )
 timeout /T 5 /nobreak >NUL
-FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" /C:"GPU.*: .* Sol/s .*" miner.log') DO (
-	ECHO %%T | findstr /R /C:"Temp: GPU.*C.*" >NUL && SET CurrentTemp=%%T
-	ECHO %%T | findstr /R /C:"GPU.*: .* Sol/s .*" >NUL && SET CurrentSpeed=%%T
-)
-timeout /T 5 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
 	COLOR 0C
 	IF %EnableTelegramNotifications% EQU 1 ECHO %%N | findstr /V /R %InternetErrorsList% %MinerWarningsList% >NUL && "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N" 2>NUL 1>&2
 	ECHO %%N | findstr /V /R %InternetErrorsList% >NUL && >> %~n0.log ECHO [%NowDate%][%NowTime%] %%N
 	IF %EnableInternetConnectivityCheck% EQU 1 (
-		timeout /T 10 /nobreak >NUL
+		timeout /T 15 /nobreak >NUL
 		FOR /F "delims=" %%M IN ('findstr /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
 		ECHO !LastInternetError! | findstr /R %InternetErrorsList% >NUL && (
 			ping google.com | find /i "TTL=" >NUL && (
-				FOR /F "delims=" %%P IN ('findstr /R %InternetErrorsCancel% miner.log') DO (
-					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
-					>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
-					ECHO ==================================================================
-					ECHO +----------------------------------------------------------------+
-					ECHO + Now %NowDate% %NowTime%                                           +
-					ECHO + Miner was started at %StartDate% %StartTime%                          +
-					ECHO + Something was wrong with your Internet.                        +
-					ECHO + Connection has been restored.                                  +
-					ECHO + Miner restarting...                                            +
-					ECHO +----------------------------------------------------------------+
-					ECHO ==================================================================
-					GOTO start
-				)
 				ECHO %%N | findstr /R %InternetErrorsList% 2>NUL && (
 					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N" 2>NUL 1>&2
 					ECHO ==================================================================
@@ -666,9 +646,17 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 						GOTO start
 					)
 					:reconnected
-					ECHO Something was wrong with your Internet. Connection has been restored. Miner restarting...
 					IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting..." 2>NUL 1>&2
 					>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
+					ECHO ==================================================================
+					ECHO +----------------------------------------------------------------+
+					ECHO + Now %NowDate% %NowTime%                                           +
+					ECHO + Miner was started at %StartDate% %StartTime%                          +
+					ECHO + Something was wrong with your Internet.                        +
+					ECHO + Connection has been restored.                                  +
+					ECHO + Miner restarting...                                            +
+					ECHO +----------------------------------------------------------------+
+					ECHO ==================================================================
 					GOTO start
 				)
 			)
@@ -807,12 +795,12 @@ IF %FirstRun% EQU 0 (
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
 	SET FirstRun=1
-	IF EXIST "Logs\miner_*.log" (
+	IF EXIST "%~dp0Logs\miner_*.log" (
 		CHOICE /C yn /T 60 /D n /M "Clean Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		) ELSE (
-			DEL /F /Q "Logs\*" && ECHO Clean Logs folder finished.
+			DEL /F /Q "%~dp0Logs\*" && ECHO Clean Logs folder finished.
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		)
 		GOTO check
@@ -820,6 +808,8 @@ IF %FirstRun% EQU 0 (
 )
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %X2% EQU 0 (
+		FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T 
+		FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
 		IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
 		IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "%TelegramCommand%chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
 		timeout /T 60 /nobreak >NUL
