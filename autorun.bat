@@ -95,11 +95,11 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO REM Use miner.bat or miner.exe file to start mining? (1 - .exe, 2 - .bat)
 >> config.bat ECHO SET StartFromBatOrExe=2
 >> config.bat ECHO REM Set miner command here to auto-create miner.bat or miner.cfg file if it is missing or wrong. (keep default order)
->> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.default --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (1 - true, 0 - false) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET EnableAdditionalServer=0
 >> config.bat ECHO REM Configure miner command here. Old miner.bat will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.default --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
 >> config.bat ECHO SET EveryHourAutoRestart=0
