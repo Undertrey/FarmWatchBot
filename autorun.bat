@@ -35,12 +35,12 @@ FOR /F "delims=" %%z IN ('tasklist /V /NH /FI "imagename eq cmd.exe" ^| findstr 
 	CHOICE /C yn /T 10 /D y /M "Continue this process"
 	IF ERRORLEVEL ==2 EXIT
 )
-:: Attention. Change this options bellow if it is really needed.
+:: Attention. Change the options below only if it's really needed.
 :: Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 :: Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
-:: Attention. Do not touch this options bellow in any case.
+:: Attention. Do not touch the options below in any case.
 SET FirstRun=0
 SET ErrorsCounter=0
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Cannot resolve hostname.*" /C:".*Stratum subscribe timeout.*" /C:".*Cannot connect to the pool.*" /C:".*No properly configured pool.*"
@@ -399,8 +399,7 @@ IF %StartFromBatOrExe% EQU 1 (
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
 	IF NOT EXIST "%~dp0miner.bat" (
-		> miner.bat ECHO @ECHO off
-		>> miner.bat ECHO TITLE miner.bat
+		> miner.bat ECHO TITLE miner.bat
 		>> miner.bat ECHO :: Configure miner's command line in config.bat file. Not in miner.bat.
 		>> miner.bat ECHO %MainServerBatCommand%
 		>> miner.bat ECHO EXIT
@@ -410,8 +409,7 @@ IF %StartFromBatOrExe% EQU 1 (
 		IF %SwitchToDefault% EQU 0 (
 			FOR /F "delims=" %%E IN ('findstr /R /C:"miner .*" miner.bat') DO (
 				IF NOT "%%E" == "%MainServerBatCommand%" (
-					> miner.bat ECHO @ECHO off
-					>> miner.bat ECHO TITLE miner.bat
+					> miner.bat ECHO TITLE miner.bat
 					>> miner.bat ECHO :: Configure miner's command line in config.bat file. Not in miner.bat.
 					>> miner.bat ECHO %MainServerBatCommand%
 					>> miner.bat ECHO EXIT
@@ -433,7 +431,6 @@ IF NOT EXIST "%~dp0miner.log" (
 	IF %StartFromBatOrExe% EQU 2 (
 		ECHO Ensure "--log 2" option is added to the miner's command line.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "--log 2" option is added to the miner's command line.
-		> miner.bat ECHO @ECHO off
 		>> miner.bat ECHO TITLE miner.bat
 		>> miner.bat ECHO :: Configure miner's command line in config.bat file. Not in miner.bat.
 		>> miner.bat ECHO %MainServerBatCommand%
@@ -593,7 +590,6 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 					taskkill /F /IM "miner.exe" 2>NUL 1>&2
 					taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
 					timeout /T 5 /nobreak >NUL
-					> miner.bat ECHO @ECHO off
 					>> miner.bat ECHO TITLE miner.bat
 					>> miner.bat ECHO :: Configure miner's command line in config.bat file. Not in miner.bat.
 					IF %EnableAdditionalServer% EQU 1 (
