@@ -1,4 +1,4 @@
-@ECHO OFF & SETLOCAL ENABLEDELAYEDEXPANSION
+@ECHO off & SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=100 lines=35
 shutdown /A >NUL
 FOR /F %%A IN ('wmic.exe OS GET localdatetime ^| findstr ^[0-9]') DO SET t0=%%A
@@ -53,7 +53,6 @@ SET OtherWarningsList=/C:"WARNING:.*"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET ServerQueue=0
 SET SwitchToDefault=0
-SET OldMessageId=0
 :checkconfig
 IF EXIST %~dp0config.bat (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"Configuration file v." config.bat') DO (
@@ -62,7 +61,7 @@ IF EXIST %~dp0config.bat (
 				IF %%~ZC LSS 4290 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48240 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48306 EXIT
 					CALL config.bat
 					ECHO Config.bat loaded.
 					GOTO prestart
@@ -814,7 +813,7 @@ IF %FirstRun% EQU 0 (
 	)
 )
 IF %EnableTelegramNotifications% EQU 1 (
-	IF %X2% EQU 59 (
+	IF %X2% EQU 30 (
 		FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T
 		FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
 		IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
