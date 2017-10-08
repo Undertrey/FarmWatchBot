@@ -22,12 +22,10 @@ ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
 ECHO +             BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB             +
 ECHO +----------------------------------------------------------------+
 ECHO ==================================================================
-IF "%PROCESSOR_ARCHITECTURE%" == "x86" (
-	IF NOT DEFINED PROCESSOR_ARCHITEW6432 (
-		ECHO Your OS Architecture is %PROCESSOR_ARCHITECTURE%. Only x64 required.
-		PAUSE
-		EXIT
-	)
+IF "%PROCESSOR_ARCHITECTURE%" == "x86" IF NOT DEFINED PROCESSOR_ARCHITEW6432 (
+	ECHO Your OS Architecture is %PROCESSOR_ARCHITECTURE%. Only x64 required.
+	PAUSE
+	EXIT
 )
 FOR /F "delims=" %%z IN ('tasklist /V /NH /FI "imagename eq cmd.exe" ^| findstr /V /R /C:".*Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)" ^| findstr /R /C:".*Miner-autorun.*"') DO (
 	ECHO Warning. This process is already running. 
@@ -600,13 +598,11 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 1 (
 							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.developers --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
-							SET ServerQueue=0
-							SET SwitchToDefault=1
+							SET ServerQueue=0 & SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 0 (
 							>> miner.bat ECHO %AdditionalServerBatCommand%
-							SET ServerQueue=1
-							SET SwitchToDefault=1
+							SET ServerQueue=1 & SET SwitchToDefault=1
 						)
 					) ELSE (
 						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.developers --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
@@ -678,19 +674,17 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 		GOTO error
 	)
 	ECHO %%N | findstr /R %MinerWarningsList% 2>NUL && (
-		IF %t3h% EQU 0 (
-			IF %t3m% LSS 10 (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
-				tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-				taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
-				timeout /T 5 /nobreak >NUL
-				taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-				ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
-				ECHO Waiting for users input...
-				PAUSE
-				GOTO hardstart
-			)
+		IF %t3h% EQU 0 IF %t3m% LSS 10 (
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+			tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+			taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
+			timeout /T 5 /nobreak >NUL
+			taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+			ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+			ECHO Waiting for users input...
+			PAUSE
+			GOTO hardstart
 		)
 		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer." 2>NUL 1>&2
 		>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
@@ -816,12 +810,10 @@ IF %FirstRun% EQU 0 (
 )
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %X2% LSS 30 SET AllowSend=1
-	IF %AllowSend% EQU 1 (
-		IF %X2% GEQ 30 (
-			IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
-			IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
-			SET AllowSend=0
-		)
+	IF %AllowSend% EQU 1 IF %X2% GEQ 30 (
+		IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
+		IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
+		SET AllowSend=0
 	)
 )
 GOTO check
