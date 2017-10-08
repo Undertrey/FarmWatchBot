@@ -35,12 +35,12 @@ FOR /F "delims=" %%z IN ('tasklist /V /NH /FI "imagename eq cmd.exe" ^| findstr 
 	CHOICE /C yn /T 10 /D y /M "Continue this process"
 	IF ERRORLEVEL ==2 EXIT
 )
-REM Attention. Change this options bellow if it is really needed.
+REM Attention. Change the options below only if it's really needed.
 REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
-REM Attention. Do not touch this options bellow in any case.
+REM Attention. Do not touch the options below in any case.
 SET FirstRun=0
 SET ErrorsCounter=0
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Cannot resolve hostname.*" /C:".*Stratum subscribe timeout.*" /C:".*Cannot connect to the pool.*" /C:".*No properly configured pool.*"
@@ -53,6 +53,7 @@ SET OtherWarningsList=/C:"WARNING:.*"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET ServerQueue=0
 SET SwitchToDefault=0
+SET AllowSend=0
 :checkconfig
 IF EXIST %~dp0config.bat (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"Configuration file v." config.bat') DO (
@@ -61,7 +62,7 @@ IF EXIST %~dp0config.bat (
 				IF %%~ZC LSS 4290 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48306 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48400 EXIT
 					CALL config.bat
 					ECHO Config.bat loaded.
 					GOTO prestart
@@ -146,9 +147,7 @@ tskill /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProce
 taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
 timeout /T 5 /nobreak >NUL
 taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-IF %EnableAPAutorun% EQU 1 (
-	taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
-)
+IF %EnableAPAutorun% EQU 1 taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Computer restarting..." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting...
 shutdown /T 30 /R /F /C "Your computer will restart after 30 seconds. To cancel restart, close this window and start autorun.bat manually."
@@ -309,7 +308,7 @@ IF %EnableGPUOverclockMonitor% GEQ 1 (
 	IF %RestartGPUOverclockMonitor% EQU 1 (
 		IF %FirstRun% EQU 1 (
 			timeout /T 5 /nobreak >NUL
-			tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+			tskill /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process %GPUOverclockProcess%.exe was successfully killed." 2>NUL 1>&2
 			>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %GPUOverclockProcess%.exe was successfully killed.
 		)
@@ -507,14 +506,14 @@ IF %H2% NEQ %H1% (
 		IF %H2% GEQ %RestartHour% GOTO ctimer
 		IF %H2% LSS %H1% GOTO ctimer
 	)
-	IF "%H2%" == "12" (
+	IF %H2% EQU 12 (
 		IF %MiddayAutoRestart% EQU 1 GOTO mtimer
 		IF %MiddayAutoRestart% EQU 2 GOTO ctimer
 	)
 )
 IF %SwitchToDefault% EQU 1 (
 	IF %H2% NEQ %H1% GOTO switch
-	IF "%X2%" == "30" GOTO switch
+	IF %X2% EQU 30 GOTO switch
 )
 IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Too many errors. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %t3%.
@@ -569,6 +568,8 @@ FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" mi
 	)
 )
 timeout /T 5 /nobreak >NUL
+FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T
+FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
 FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
 	COLOR 0C
 	IF %EnableTelegramNotifications% EQU 1 ECHO %%N | findstr /V /R %InternetErrorsList% %MinerWarningsList% >NUL && "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %%N" 2>NUL 1>&2
@@ -679,7 +680,7 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 	ECHO %%N | findstr /R %MinerWarningsList% 2>NUL && (
 		IF %t3h% EQU 0 (
 			IF %t3m% LSS 10 (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%0ACurrent !CurrentTemp!.%%0A*Waiting for users input...*" 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 				tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 				taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
@@ -745,6 +746,7 @@ IF %FirstRun% EQU 0 (
 				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%].
 				ECHO Failed load all GPUs. Number of GPUs: [!GPUCount!/%NumberOfGPUs%]
+				SET /A AverageTotalHashrate=%AverageTotalHashrate%/%NumberOfGPUs%*!GPUCount!
 			)
 		)
 	) ELSE (
@@ -813,11 +815,13 @@ IF %FirstRun% EQU 0 (
 	)
 )
 IF %EnableTelegramNotifications% EQU 1 (
-	IF %X2% EQU 30 (
-		FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T
-		FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
-		IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
-		IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
-		timeout /T 60 /nobreak >NUL
+	IF %X2% LSS 30 SET AllowSend=1
+	IF %AllowSend% EQU 1 (
+		IF %X2% GEQ 30 (
+			IF %EnableEveryHourInfoSend% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
+			IF %EnableEveryHourInfoSend% EQU 2 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%:%t3s%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!." 2>NUL 1>&2
+			SET AllowSend=0
+		)
 	)
+)
 GOTO check
