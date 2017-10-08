@@ -60,7 +60,7 @@ IF EXIST %~dp0config.bat (
 				IF %%~ZC LSS 4290 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48400 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 49000 EXIT
 					CALL config.bat
 					ECHO Config.bat loaded.
 					GOTO prestart
@@ -142,9 +142,7 @@ COLOR 0C
 CHOICE /C yn /T 30 /D y /M "Restart your computer now"
 IF ERRORLEVEL ==2 GOTO hardstart
 tskill /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
-timeout /T 5 /nobreak >NUL
-taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed. && timeout /T 5 /nobreak >NUL && taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
 IF %EnableAPAutorun% EQU 1 taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Computer restarting..." 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting...
@@ -330,9 +328,7 @@ taskkill /F /IM "miner.exe" 2>NUL 1>&2 && (
 	ECHO Process miner.exe was successfully killed.
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process miner.exe was successfully killed." 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process miner.exe was successfully killed.
-	timeout /T 5 /nobreak >NUL
-	taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-	timeout /T 5 /nobreak >NUL
+	taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2 && timeout /T 5 /nobreak >NUL
 )
 IF EXIST "miner.log" MOVE /Y miner.log Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
@@ -361,10 +357,10 @@ IF %StartFromBatOrExe% EQU 1 (
 			>> miner.cfg ECHO [common]
 			>> miner.cfg ECHO cuda_devices 0 1 2 3 4 5 6 7
 			>> miner.cfg ECHO intensity    64 64 64 64 64 64 64 64
-			>> miner.cfg ECHO templimit    80
+			>> miner.cfg ECHO templimit    90
 			>> miner.cfg ECHO pec          1
 			>> miner.cfg ECHO boff         0
-			>> miner.cfg ECHO eexit        2
+			>> miner.cfg ECHO eexit        3
 			>> miner.cfg ECHO tempunits    c
 			>> miner.cfg ECHO log          2
 			>> miner.cfg ECHO logfile      miner.log
@@ -589,20 +585,20 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 					ECHO +----------------------------------------------------------------+
 					ECHO ==================================================================
 					SET StartFromBatOrExe=2
-					taskkill /F /IM "miner.exe" 2>NUL 1>&2
-					taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-					timeout /T 5 /nobreak >NUL
+					taskkill /F /IM "miner.exe" 2>NUL 1>&2 && timeout /T 5 /nobreak >NUL && taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
 					> miner.bat ECHO @ECHO off
 					>> miner.bat ECHO TITLE miner.bat
 					>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 1 (
 							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.developers --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
-							SET ServerQueue=0 & SET SwitchToDefault=1
+							SET ServerQueue=0
+							SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 0 (
 							>> miner.bat ECHO %AdditionalServerBatCommand%
-							SET ServerQueue=1 & SET SwitchToDefault=1
+							SET ServerQueue=1
+							SET SwitchToDefault=1
 						)
 					) ELSE (
 						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.developers --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
@@ -678,9 +674,7 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
 			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-			taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
-			timeout /T 5 /nobreak >NUL
-			taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+			taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed. && timeout /T 5 /nobreak >NUL && taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
 			ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			ECHO Waiting for users input...
 			PAUSE
@@ -701,7 +695,7 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 timeout /T 5 /nobreak >NUL
 tasklist /FI "IMAGENAME eq miner.exe" 2>NUL | find /I /N "miner.exe" >NUL
 IF ERRORLEVEL ==1 (
-	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process miner.exe crashed." 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process *miner.exe* crashed." 2>NUL 1>&2
 	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process miner.exe crashed. Miner ran for %t3%.
 	SET ErrorEcho=+ Error. Process miner.exe crashed...                            +
 	GOTO error
@@ -710,7 +704,7 @@ IF %EnableAPAutorun% EQU 1 (
 	timeout /T 5 /nobreak >NUL
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL | find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* %APProcessName% crashed." 2>NUL 1>&2
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Process *%APProcessName%* crashed." 2>NUL 1>&2
 		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
 		SET ErrorEcho=+ Error. Additional program crashed...                           +
 		GOTO error
@@ -721,9 +715,9 @@ IF %FirstRun% EQU 0 (
 	IF %NumberOfGPUs% GEQ 1 (
 		timeout /T 10 /nobreak >NUL
 		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" miner.log') DO SET /A GPUCount+=1
-		IF %NumberOfGPUs% NEQ !GPUCount! (
+		IF %NumberOfGPUs% GTR !GPUCount! (
 			IF %AllowRestartGPU% EQU 1 (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%]. Miner ran for %t3%.
 				COLOR 0C
 				ECHO ==================================================================
@@ -737,11 +731,16 @@ IF %FirstRun% EQU 0 (
 				ECHO ==================================================================
 				GOTO restart
 			) ELSE (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs !GPUCount!/%NumberOfGPUs%." 2>NUL 1>&2
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*." 2>NUL 1>&2
 				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Failed load all GPUs. Number of GPUs [!GPUCount!/%NumberOfGPUs%].
 				ECHO Failed load all GPUs. Number of GPUs: [!GPUCount!/%NumberOfGPUs%]
 				SET /A AverageTotalHashrate=%AverageTotalHashrate%/%NumberOfGPUs%*!GPUCount!
 			)
+		)
+		IF %NumberOfGPUs% LSS !GPUCount! (
+			IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Loaded too many GPUs. This must be set to a number higher than *%NumberOfGPUs%* in your *config.bat* file under *NumberOfGPUs*. Number of GPUs *!GPUCount!/%NumberOfGPUs%*." 2>NUL 1>&2
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Loaded too many GPUs. This must be set to a number higher than %NumberOfGPUs% in your config.bat file under NumberOfGPUs. Number of GPUs: [!GPUCount!/%NumberOfGPUs%].
+			ECHO Loaded too many GPUs. This must be set to a number higher than %NumberOfGPUs% in your config.bat file under NumberOfGPUs. Number of GPUs: [!GPUCount!/%NumberOfGPUs%]
 		)
 	) ELSE (
 		ECHO GPU check is disabled.
