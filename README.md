@@ -52,5 +52,7 @@
 7. Powershell (for premium users).
 
 **Donation adress:**
+
 **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
+
 **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
