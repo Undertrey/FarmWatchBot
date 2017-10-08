@@ -51,8 +51,7 @@
 6. Attention and lack of desire to put your hands into the code yourself, write to me, I will do everything. Then to disassemble, that there was, and that became, it is long and it is not interesting!
 7. Powershell (for premium users).
 
-**Donation adress:**
 
-**ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
-
-**BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
+# **Donations:**
+* **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
+* **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
