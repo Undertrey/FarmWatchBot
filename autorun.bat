@@ -378,14 +378,16 @@ IF %StartFromBatOrExe% EQU 1 (
 			>> miner.cfg ECHO user   %%Y
 			>> miner.cfg ECHO pass   %%Z
 			>> miner.cfg ECHO.
+		)
+		FOR /F "tokens=3,5,7,9 delims= " %%W IN ("%AdditionalServerBatCommand%") DO (
 			>> miner.cfg ECHO # additional server 1
 			>> miner.cfg ECHO [server]
-			>> miner.cfg ECHO server eu1-zcash.flypool.org
-			>> miner.cfg ECHO port   3333
-			>> miner.cfg ECHO user   t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.imaginary
-			>> miner.cfg ECHO pass   x
-			ECHO miner.cfg created. Please check it for errors.
+			>> miner.cfg ECHO server %%W
+			>> miner.cfg ECHO port   %%X
+			>> miner.cfg ECHO user   %%Y
+			>> miner.cfg ECHO pass   %%Z
 		)
+		ECHO miner.cfg created. Please check it for errors.
 	)
 	START "miner.exe" "%~dp0miner.exe" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Miner was started." 2>NUL 1>&2
