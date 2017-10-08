@@ -680,8 +680,8 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 	ECHO %%N | findstr /R %MinerWarningsList% 2>NUL && (
 		IF %t3h% EQU 0 (
 			IF %t3m% LSS 10 (
-				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%0ACurrent !CurrentTemp!.%%0A*Waiting for users input...*" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+				IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*" 2>NUL 1>&2
+				>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 				tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 				taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed.
 				timeout /T 5 /nobreak >NUL
@@ -692,8 +692,8 @@ FOR /F "delims=" %%N IN ('findstr /R %InternetErrorsList% %MinerErrorsList% %Cri
 				GOTO hardstart
 			)
 		)
-		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Temperature limit reached. Fans may be stuck. Attempting to restart computer." 2>NUL 1>&2
-		>> %~n0.log ECHO [%NowDate%][%NowTime%] Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
+		IF %EnableTelegramNotifications% EQU 1 "%CurlPath%" "https://api.telegram.org/bot438597926:AAGGY2wHtvLriYdlvgOuptjw8FJYj6rimac/sendMessage?chat_id=%ChatId%&parse_mode=markdown&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer." 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
 		ECHO Temperature limit reached. Fans may be stuck. Miner ran for %t3%.
 		ECHO Computer restarting...
 		GOTO restart
