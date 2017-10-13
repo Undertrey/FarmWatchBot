@@ -485,7 +485,7 @@ IF %FirstRun% EQU 1 (
 		SET LstShareDiff=0
 		timeout /T 2 /nobreak >NUL
 		FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=%%Y
-		IF !LstShareMin! GEQ 0 IF %X2% NEQ 0 (
+		IF !LstShareMin! GTR 0 IF %X2% NEQ 0 (
 			IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
 			IF !LstShareMin! GTR %X2% IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
 			IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
