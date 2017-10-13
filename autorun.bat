@@ -1,5 +1,4 @@
-@ECHO off
-SETLOCAL ENABLEDELAYEDEXPANSION
+@ECHO off& SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=100 lines=35
 shutdown /A 2>NUL 1>&2
 FOR /F %%A IN ('wmic.exe OS GET localdatetime^| findstr ^[0-9]') DO SET t0=%%A
@@ -488,7 +487,7 @@ IF %FirstRun% EQU 1 (
 		FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=%%Y
 		IF !LstShareMin! GEQ 0 IF %X2% NEQ 0 (
 			IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
-			IF !LstShareMin! GTR %X2% SET /A LstShareDiff=60-!LstShareMin!+%X2%
+			IF !LstShareMin! GTR %X2% IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
 			IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
 			IF !LstShareDiff! GTR 10 (
 				IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. Long share timeout... Miner ran for %t3%.')" 2>NUL 1>&2
