@@ -4,7 +4,7 @@ shutdown /A 2>NUL 1>&2
 FOR /F %%A IN ('wmic.exe OS GET localdatetime^| findstr ^[0-9]') DO SET t0=%%A
 SET Y0=%t0:~0,4%& SET M0=%t0:~4,2%& SET D0=%t0:~6,2%& SET H0=%t0:~8,2%& SET X0=%t0:~10,2%& SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.7.0
+SET Version=1.6.9
 :hardstart
 CLS
 COLOR 1F
@@ -61,7 +61,7 @@ IF EXIST %~dp0config.bat (
 				IF %%~ZC LSS 4200 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 51600 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 50030 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
@@ -96,11 +96,11 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO REM Use miner.bat or %MinerProcess% file to start mining? (1 - %MinerProcess%, 2 - miner.bat)
 >> config.bat ECHO SET StartFromBatOrExe=2
 >> config.bat ECHO REM Set miner command here to auto-create miner.bat or miner.cfg file if it is missing or wrong. (keep default order)
->> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def169 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (0 - false, 1 - true) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET EnableAdditionalServer=0
 >> config.bat ECHO REM Configure miner command here. Old miner.bat will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO SET AdditionalServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def169 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
 >> config.bat ECHO SET EveryHourAutoRestart=0
@@ -126,8 +126,6 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO SET ChatId=000000000
 >> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true, 2 - true in silent mode, 3 - true short, 4 - true short in silent mode)
 >> config.bat ECHO SET EnableEveryHourInfoSend=0
->> config.bat ECHO REM Enable Rig offline notifications through Telegram. (0 - false, 1 - true)
->> config.bat ECHO SET EnableOnlineStatusSend=0
 >> config.bat ECHO REM =================================================== [Additional program]
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (0 - false, 1 - true)
 >> config.bat ECHO SET EnableAPAutorun=0
@@ -536,7 +534,7 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 					>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 1 (
-							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev169 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 							SET ServerQueue=0& SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 0 (
@@ -544,7 +542,7 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 							SET ServerQueue=1& SET SwitchToDefault=1
 						)
 					) ELSE (
-						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev169 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 						SET SwitchToDefault=1
 					)
 					>> miner.bat ECHO EXIT
