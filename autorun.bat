@@ -24,7 +24,7 @@ REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=miner.exe
-REM Name %MinerLog% file. (in English, without special symbols and spaces)
+REM Name miner log file. (in English, without special symbols and spaces)
 SET MinerLog=miner.log
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
 SET EnableDoubleWindowCheck=1
@@ -500,7 +500,7 @@ IF %PTOS1% LSS %X2% (
 		IF !LstShareMin! GTR 50 IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
 		IF !LstShareDiff! GTR 10 (
 			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. Long share timeout... Miner ran for %t3%.')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Long share timeout... (!LstShareDiff!/!LstShareMin!/%X2%) Miner ran for %t3%.
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Long share timeout... !LstShareDiff!/!LstShareMin!/%X2%. Miner ran for %t3%.
 			SET ErrorEcho=+ Error. Long share timeout...                                   +
 			GOTO error
 		)
