@@ -1,10 +1,10 @@
-@ECHO off& SETLOCAL ENABLEDELAYEDEXPANSION
+@ECHO OFF& SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=100 lines=35
 shutdown /A 2>NUL 1>&2
 FOR /F %%A IN ('wmic.exe OS GET localdatetime^| findstr ^[0-9]') DO SET t0=%%A
 SET Y0=%t0:~0,4%& SET M0=%t0:~4,2%& SET D0=%t0:~6,2%& SET H0=%t0:~8,2%& SET X0=%t0:~10,2%& SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.6.9
+SET Version=1.7.0
 :hardstart
 CLS
 COLOR 1F
@@ -17,22 +17,31 @@ ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
 ECHO +             BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB             +
 ECHO +----------------------------------------------------------------+
 ECHO ==================================================================
-IF "%PROCESSOR_ARCHITECTURE%" == "x86" IF NOT DEFINED PROCESSOR_ARCHITEW6432 ECHO Your OS Architecture is %PROCESSOR_ARCHITECTURE%. Only x64 required.& PAUSE & EXIT
-FOR /F "delims=" %%z IN ('tasklist /V /NH /FI "imagename eq cmd.exe"^| findstr /V /R /C:".*Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)"^| findstr /R /C:".*Miner-autorun.*"') DO (
-	ECHO Warning. This process is already running.&	ECHO The original process will continue, but this window will close in 10 seconds.
-	CHOICE /C yn /T 10 /D y /M "Continue this process"
-	IF ERRORLEVEL ==2 EXIT
-)
 REM Attention. Change the options below only if it's really needed.
 REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
+REM Name miner process. (in English, without special symbols and spaces)
+SET MinerProcess=miner.exe
+REM Name %MinerLog% file. (in English, without special symbols and spaces)
+SET MinerLog=miner.log
+REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
+SET EnableDoubleWindowCheck=1
 REM Attention. Do not touch the options below in any case.
+IF "%PROCESSOR_ARCHITECTURE%" == "x86" IF NOT DEFINED PROCESSOR_ARCHITEW6432 ECHO Your OS Architecture is %PROCESSOR_ARCHITECTURE%. Only x64 required.& PAUSE & EXIT
+IF %EnableDoubleWindowCheck% EQU 1 (
+	FOR /F "delims=" %%z IN ('tasklist /V /NH /FI "imagename eq cmd.exe"^| findstr /V /R /C:".*Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)"^| findstr /R /C:".*Miner-autorun.*"') DO (
+		ECHO Warning. This process is already running.&	ECHO The original process will continue, but this window will close in 10 seconds.
+		CHOICE /C yn /T 10 /D y /M "Continue this process"
+		IF ERRORLEVEL ==2 EXIT
+	)
+)
 SET PTOS1=0
 SET FirstRun=0
 SET AllowSend=0
 SET ServerQueue=0
+SET MinHashrate=0
 SET ErrorsCounter=0
 SET SwitchToDefault=0
 SET OtherErrorsList=/C:"ERROR:"
@@ -52,7 +61,7 @@ IF EXIST %~dp0config.bat (
 				IF %%~ZC LSS 4200 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 49600 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 51600 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
@@ -84,7 +93,7 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool)
 >> config.bat ECHO SET AverageTotalHashrate=0
 >> config.bat ECHO REM =================================================== [Miner]
->> config.bat ECHO REM Use miner.bat or miner.exe file to start mining? (1 - miner.exe, 2 - miner.bat)
+>> config.bat ECHO REM Use miner.bat or %MinerProcess% file to start mining? (1 - %MinerProcess%, 2 - miner.bat)
 >> config.bat ECHO SET StartFromBatOrExe=2
 >> config.bat ECHO REM Set miner command here to auto-create miner.bat or miner.cfg file if it is missing or wrong. (keep default order)
 >> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
@@ -117,6 +126,8 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO SET ChatId=000000000
 >> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true, 2 - true in silent mode, 3 - true short, 4 - true short in silent mode)
 >> config.bat ECHO SET EnableEveryHourInfoSend=0
+>> config.bat ECHO REM Enable Rig offline notifications through Telegram. (0 - false, 1 - true)
+>> config.bat ECHO SET EnableOnlineStatusSend=0
 >> config.bat ECHO REM =================================================== [Additional program]
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (0 - false, 1 - true)
 >> config.bat ECHO SET EnableAPAutorun=0
@@ -131,7 +142,7 @@ COLOR 4F
 CHOICE /C yn /T 30 /D y /M "Restart your computer now"
 IF ERRORLEVEL ==2 GOTO hardstart
 tskill /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed. & timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed. & timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
 IF %EnableAPAutorun% EQU 1 taskkill /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Computer restarting...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting...
@@ -234,7 +245,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 (
 	)
 )
 IF %EnableGPUOverclockMonitor% LEQ 0 ECHO ECHO Overclock control monitor was disabled.& SET EnableGPUOverclockMonitor=0
-IF NOT EXIST "%~dp0miner.exe" ECHO Error. "miner.exe" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
+IF NOT EXIST "%~dp0%MinerProcess%" ECHO Error. "%MinerProcess%" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
 IF NOT EXIST "%~dp0cudart64_80.dll" ECHO Error. "cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
 IF EXIST "%~dp0Logs" ECHO Folder Logs exist.
 IF NOT EXIST "%~dp0Logs" MD Logs && ECHO Folder Logs created.
@@ -262,26 +273,26 @@ IF %EnableGPUOverclockMonitor% GEQ 1 (
 	)
 	IF %EnableGPUOverclockMonitor% EQU 2 IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 )
-taskkill /F /IM "miner.exe" 2>NUL 1>&2 && (
-	ECHO Process miner.exe was successfully killed. & timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process miner.exe was successfully killed.')" 2>NUL 1>&2
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process miner.exe was successfully killed.
+taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
+	ECHO Process %MinerProcess% was successfully killed. & timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process %MinerProcess% was successfully killed.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcess% was successfully killed.
 )
-IF EXIST "miner.log" MOVE /Y miner.log Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
+IF EXIST "%MinerLog%" MOVE /Y %MinerLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
 IF ERRORLEVEL ==1 (
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access miner.log. Attempting to delete miner.log and continue...
-	DEL /Q /F "%~dp0miner.log" >NUL || (
-		ECHO Error. Unable to rename or access miner.log.
-		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Unable to delete miner.log.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. Unable to delete miner.log.
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access %MinerLog%. Attempting to delete %MinerLog% and continue...
+	DEL /Q /F "%~dp0%MinerLog%" >NUL || (
+		ECHO Error. Unable to rename or access %MinerLog%.
+		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Unable to delete %MinerLog%.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. Unable to delete %MinerLog%.
 		GOTO hardstart
 	)
 ) ELSE (
-	ECHO miner.log renamed and moved to Logs folder.
+	ECHO %MinerLog% renamed and moved to Logs folder.
 )
 timeout /T 5 /nobreak >NUL
 IF %StartFromBatOrExe% EQU 1 (
-	IF NOT EXIST "%~dp0miner.exe" ECHO Mining is impossible, miner.exe is missing. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.& PAUSE & EXIT
+	IF NOT EXIST "%~dp0%MinerProcess%" ECHO Mining is impossible, %MinerProcess% is missing. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.& PAUSE & EXIT
 	IF NOT EXIST "%~dp0miner.cfg" (
 		FOR /F "tokens=3,5,7,9 delims= " %%W IN ("%MainServerBatCommand%") DO (
 			> miner.cfg ECHO # Common parameters
@@ -296,7 +307,7 @@ IF %StartFromBatOrExe% EQU 1 (
 			>> miner.cfg ECHO eexit        3
 			>> miner.cfg ECHO tempunits    c
 			>> miner.cfg ECHO log          2
-			>> miner.cfg ECHO logfile      miner.log
+			>> miner.cfg ECHO logfile      %MinerLog%
 			>> miner.cfg ECHO api          127.0.0.1:42000
 			>> miner.cfg ECHO.
 			>> miner.cfg ECHO # The miner start work from this server
@@ -322,7 +333,7 @@ IF %StartFromBatOrExe% EQU 1 (
 		)
 		ECHO miner.cfg created. Please check it for errors.
 	)
-	START "miner.exe" "%~dp0miner.exe" && ECHO Miner was started at %StartDate% %StartTime%
+	START "%MinerProcess%" "%~dp0%MinerProcess%" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
@@ -350,11 +361,11 @@ IF %StartFromBatOrExe% EQU 1 (
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 )
 timeout /T 5 /nobreak >NUL
-IF NOT EXIST "%~dp0miner.log" (
-	ECHO Error. miner.log is missing.
+IF NOT EXIST "%~dp0%MinerLog%" (
+	ECHO Error. %MinerLog% is missing.
 	ECHO Check permissions in "%~dp0". This script requires permission to create files.
-	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. miner.log is missing.%%0ACheck permissions in "%~dp0". This script requires permission to create files.')" 2>NUL 1>&2
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. miner.log is missing.
+	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. %MinerLog% is missing.%%0ACheck permissions in "%~dp0". This script requires permission to create files.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. %MinerLog% is missing.
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%~dp0". This script requires permission to create files.
 	IF %StartFromBatOrExe% EQU 2 (
 		ECHO Ensure "--log 2" option is added to the miner's command line.
@@ -373,12 +384,12 @@ IF NOT EXIST "%~dp0miner.log" (
 		GOTO start
 	)
 ) ELSE (
-	ECHO Connected to miner.log. Log monitoring started...
+	ECHO Connected to %MinerLog%. Log monitoring started...
 )
 SET FirstRun=0& SET HashrateErrorsCount=0& SET OldHashrate=0& SET InternetErrorsCounter=1
 :check
 IF %FirstRun% EQU 0 timeout /T 15 /nobreak >NUL
-SET Hashcount=0& SET SumHash=0& SET SumResult=0& SET MinHashrate=0
+SET Hashcount=0& SET SumHash=0
 COLOR 1F
 timeout /T 5 /nobreak >NUL
 FOR /F %%F IN ('wmic.exe OS GET localdatetime^| findstr ^[0-9]') DO SET t2=%%F
@@ -442,212 +453,212 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	ECHO ==================================================================
 	GOTO restart
 )
-IF %FirstRun% EQU 1 (
-	timeout /T 2 /nobreak >NUL
-	FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO SET LastHashrate=%%G& SET /A Hashcount+=1& SET /A SumHash=SumHash+%%G& SET /A SumResult=SumHash/Hashcount
-	timeout /T 2 /nobreak >NUL
-	FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T
-	timeout /T 2 /nobreak >NUL
-	FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
-	IF %AverageTotalHashrate% GTR 0 (
-		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
-		IF !MinHashrate! GEQ 100 GOTO passaveragecheck
-		IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
-			:passaveragecheck
-			COLOR 4F
-			IF %EnableGPUOverclockMonitor% NEQ 0 (
-				tasklist /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find /I /N "%GPUOverclockProcess%.exe" >NUL
-				IF ERRORLEVEL ==1 (
-					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %GPUOverclockProcess%.exe crashed. Miner ran for %t3%.
-					IF %EnableGPUOverclockMonitor% EQU 1 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                           +
-					IF %EnableGPUOverclockMonitor% EQU 2 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                   +
-					IF %EnableGPUOverclockMonitor% EQU 3 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                       +
-					IF %EnableGPUOverclockMonitor% EQU 4 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                   +
-					IF %EnableGPUOverclockMonitor% EQU 5 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                            +
-					GOTO error
-				)
-			)
-			IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Low hashrate. Miner ran for %t3%.
-				SET ErrorEcho=+ Warning. Low hashrate...                                       +
-				GOTO error
-			)
-			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
-			ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
-			SET /A HashrateErrorsCount+=1& SET OldHashrate=!SumResult!
-		)
-	)
-	IF %PTOS1% GEQ 59 SET PTOS1=0
-	IF %PTOS1% LSS %X2% (
-		SET PTOS1=%X2%
-		SET LstShareDiff=0
-		timeout /T 2 /nobreak >NUL
-		FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=%%Y
-		IF !LstShareMin! GTR 0 IF %X2% NEQ 0 (
-			IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
-			IF !LstShareMin! GTR %X2% IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
-			IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
-			IF !LstShareDiff! GTR 10 (
-				IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. Long share timeout... Miner ran for %t3%.')" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Long share timeout... Miner ran for %t3%.
-				SET ErrorEcho=+ Error. Long share timeout...                                   +
+timeout /T 2 /nobreak >NUL
+FOR /F "tokens=3 delims= " %%G IN ('findstr /R /C:"Total speed: [0-9]* Sol/s" %MinerLog%') DO SET LastHashrate=%%G& SET /A Hashcount+=1& SET /A SumHash=SumHash+%%G& SET /A SumResult=SumHash/Hashcount
+timeout /T 2 /nobreak >NUL
+FOR /F "delims=" %%T IN ('findstr /R /C:"Temp: GPU.*C.*" %MinerLog%') DO SET CurrentTemp=%%T
+timeout /T 2 /nobreak >NUL
+FOR /F "delims=" %%U IN ('findstr /R /C:"GPU.*: .* Sol/s .*" %MinerLog%') DO SET CurrentSpeed=%%U
+IF %AverageTotalHashrate% GTR 0 (
+	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
+	IF !MinHashrate! GEQ 100 GOTO passaveragecheck
+	IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
+		:passaveragecheck
+		COLOR 4F
+		IF %EnableGPUOverclockMonitor% NEQ 0 (
+			tasklist /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find /I /N "%GPUOverclockProcess%.exe" >NUL
+			IF ERRORLEVEL ==1 (
+				IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
+				>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %GPUOverclockProcess%.exe crashed. Miner ran for %t3%.
+				IF %EnableGPUOverclockMonitor% EQU 1 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                           +
+				IF %EnableGPUOverclockMonitor% EQU 2 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                   +
+				IF %EnableGPUOverclockMonitor% EQU 3 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                       +
+				IF %EnableGPUOverclockMonitor% EQU 4 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                   +
+				IF %EnableGPUOverclockMonitor% EQU 5 SET ErrorEcho=+ Error. Process %GPUOverclockProcess%.exe crashed...                            +
 				GOTO error
 			)
 		)
+		IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Low hashrate. Miner ran for %t3%.
+			SET ErrorEcho=+ Warning. Low hashrate...                                       +
+			GOTO error
+		)
+		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
+		ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
+		SET /A HashrateErrorsCount+=1& SET OldHashrate=!SumResult!
 	)
+)
+IF %PTOS1% GEQ 59 SET PTOS1=0
+IF %PTOS1% LSS %X2% (
+	SET PTOS1=%X2%
+	SET LstShareDiff=0
 	timeout /T 2 /nobreak >NUL
-	FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
-		IF %EnableTelegramNotifications% EQU 1 ECHO %%N| findstr /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-		ECHO %%N| findstr /V %InternetErrorsList% >NUL && >> %~n0.log ECHO [%NowDate%][%NowTime%] %%N
-		IF %EnableInternetConnectivityCheck% EQU 1 (
-			timeout /T 15 /nobreak >NUL
-			FOR /F "delims=" %%M IN ('findstr %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
-			ECHO !LastInternetError!| findstr %InternetErrorsList% >NUL && (
-				ping google.com| find /i "TTL=" >NUL && (
-					ECHO %%N| findstr %InternetErrorsList% 2>NUL && (
-						IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-						COLOR 4F
-						ECHO ==================================================================
-						ECHO +----------------------------------------------------------------+
-						ECHO + Now %NowDate% %NowTime%                                           +
-						ECHO + Miner was started at %StartDate% %StartTime%                          +
-						ECHO + Carefully configure config.bat, miner.cfg or/and miner.bat     +
-						ECHO + Check config file for errors or pool is offline                +
-						ECHO + Miner restarting with default values...                        +
-						ECHO +----------------------------------------------------------------+
-						ECHO ==================================================================
-						SET StartFromBatOrExe=2
-						taskkill /F /IM "miner.exe" 2>NUL 1>&2 && timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-						> miner.bat ECHO @ECHO off
-						>> miner.bat ECHO TITLE miner.bat
-						>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
-						IF %EnableAdditionalServer% EQU 1 (
-							IF %ServerQueue% EQU 1 (
-								>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
-								SET ServerQueue=0& SET SwitchToDefault=1
-							)
-							IF %ServerQueue% EQU 0 (
-								>> miner.bat ECHO %AdditionalServerBatCommand%
-								SET ServerQueue=1& SET SwitchToDefault=1
-							)
-						) ELSE (
+	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
+	IF !LstShareMin! GEQ 0 IF %X2% GEQ 1 (
+		IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
+		IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
+		IF !LstShareMin! GTR %X2% SET /A LstShareDiff=!LstShareMin!-%X2%
+		IF !LstShareMin! GTR 50 IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
+		IF !LstShareDiff! GTR 10 (
+			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. Long share timeout... Miner ran for %t3%.')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Long share timeout... (!LstShareDiff!/!LstShareMin!/%X2%) Miner ran for %t3%.
+			SET ErrorEcho=+ Error. Long share timeout...                                   +
+			GOTO error
+		)
+	)
+)
+timeout /T 2 /nobreak >NUL
+FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% %MinerLog%') DO (
+	IF %EnableTelegramNotifications% EQU 1 ECHO %%N| findstr /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
+	ECHO %%N| findstr /V %InternetErrorsList% >NUL && >> %~n0.log ECHO [%NowDate%][%NowTime%] %%N
+	IF %EnableInternetConnectivityCheck% EQU 1 (
+		timeout /T 15 /nobreak >NUL
+		FOR /F "delims=" %%M IN ('findstr %InternetErrorsList% %InternetErrorsCancel% %MinerLog%') DO SET LastInternetError=%%M
+		ECHO !LastInternetError!| findstr %InternetErrorsList% >NUL && (
+			ping google.com| find /i "TTL=" >NUL && (
+				ECHO %%N| findstr %InternetErrorsList% 2>NUL && (
+					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
+					COLOR 4F
+					ECHO ==================================================================
+					ECHO +----------------------------------------------------------------+
+					ECHO + Now %NowDate% %NowTime%                                           +
+					ECHO + Miner was started at %StartDate% %StartTime%                          +
+					ECHO + Carefully configure config.bat, miner.cfg or/and miner.bat     +
+					ECHO + Check config file for errors or pool is offline                +
+					ECHO + Miner restarting with default values...                        +
+					ECHO +----------------------------------------------------------------+
+					ECHO ==================================================================
+					SET StartFromBatOrExe=2
+					taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+					> miner.bat ECHO @ECHO off
+					>> miner.bat ECHO TITLE miner.bat
+					>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
+					IF %EnableAdditionalServer% EQU 1 (
+						IF %ServerQueue% EQU 1 (
 							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
-							SET SwitchToDefault=1
+							SET ServerQueue=0& SET SwitchToDefault=1
 						)
-						>> miner.bat ECHO EXIT
-						IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
-						>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-						ECHO Warning. Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-						ECHO Default miner.bat created. Please check it for errors.
+						IF %ServerQueue% EQU 0 (
+							>> miner.bat ECHO %AdditionalServerBatCommand%
+							SET ServerQueue=1& SET SwitchToDefault=1
+						)
+					) ELSE (
+						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+						SET SwitchToDefault=1
+					)
+					>> miner.bat ECHO EXIT
+					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+					ECHO Warning. Pool server was switched. Please check your config.bat, miner.cfg or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+					ECHO Default miner.bat created. Please check it for errors.
+					SET /A ErrorsCounter+=1
+					GOTO start
+				)
+			) || (
+				ECHO %%N| findstr %InternetErrorsList% 2>NUL && (
+					COLOR 4F
+					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%NowDate%][%NowTime%] %%N
+					>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Something is wrong with your Internet. Please check your connection. Miner ran for %t3%.
+					ECHO ==================================================================
+					ECHO +----------------------------------------------------------------+
+					ECHO + Now %NowDate% %NowTime%                                           +
+					ECHO + Miner was started at %StartDate% %StartTime%                          +
+					ECHO + Miner ran for %t3%                                         +
+					ECHO + Something is wrong with your Internet...                       +
+					ECHO + Attempting to reconnect...                                     +
+					ECHO +----------------------------------------------------------------+
+					ECHO ==================================================================
+					:tryingreconnect
+					IF %t3h% EQU 0 IF %t3m% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
+					IF %InternetErrorsCounter% GTR 60 GOTO restart
+					SET /A InternetErrorsCounter+=1
+					ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
+					FOR /F "delims=" %%L IN ('findstr %InternetErrorsCancel% %MinerLog%') DO GOTO reconnected
+					ping google.com| find /i "TTL=" >NUL || (
+						CHOICE /C yn /T 60 /D n /M "Restart miner manually"
+						IF ERRORLEVEL ==2 GOTO tryingreconnect
 						SET /A ErrorsCounter+=1
 						GOTO start
 					)
-				) || (
-					ECHO %%N| findstr %InternetErrorsList% 2>NUL && (
-						COLOR 4F
-						IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-						>> %~n0.log ECHO [%NowDate%][%NowTime%] %%N
-						>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Something is wrong with your Internet. Please check your connection. Miner ran for %t3%.
-						ECHO ==================================================================
-						ECHO +----------------------------------------------------------------+
-						ECHO + Now %NowDate% %NowTime%                                           +
-						ECHO + Miner was started at %StartDate% %StartTime%                          +
-						ECHO + Miner ran for %t3%                                         +
-						ECHO + Something is wrong with your Internet...                       +
-						ECHO + Attempting to reconnect...                                     +
-						ECHO +----------------------------------------------------------------+
-						ECHO ==================================================================
-						:tryingreconnect
-						IF %t3h% EQU 0 IF %t3m% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
-						IF %InternetErrorsCounter% GTR 60 GOTO restart
-						SET /A InternetErrorsCounter+=1
-						ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
-						FOR /F "delims=" %%L IN ('findstr %InternetErrorsCancel% miner.log') DO GOTO reconnected
-						ping google.com| find /i "TTL=" >NUL || (
-							CHOICE /C yn /T 60 /D n /M "Restart miner manually"
-							IF ERRORLEVEL ==2 GOTO tryingreconnect
-							SET /A ErrorsCounter+=1
-							GOTO start
-						)
-						:reconnected
-						IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting...')" 2>NUL 1>&2
-						>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
-						ECHO ==================================================================
-						ECHO +----------------------------------------------------------------+
-						ECHO + Now %NowDate% %NowTime%                                           +
-						ECHO + Miner was started at %StartDate% %StartTime%                          +
-						ECHO + Something was wrong with your Internet.                        +
-						ECHO + Connection has been restored.                                  +
-						ECHO + Miner restarting...                                            +
-						ECHO +----------------------------------------------------------------+
-						ECHO ==================================================================
-						GOTO start
-					)
+					:reconnected
+					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting...')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%NowDate%][%NowTime%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
+					ECHO ==================================================================
+					ECHO +----------------------------------------------------------------+
+					ECHO + Now %NowDate% %NowTime%                                           +
+					ECHO + Miner was started at %StartDate% %StartTime%                          +
+					ECHO + Something was wrong with your Internet.                        +
+					ECHO + Connection has been restored.                                  +
+					ECHO + Miner restarting...                                            +
+					ECHO +----------------------------------------------------------------+
+					ECHO ==================================================================
+					GOTO start
 				)
 			)
 		)
-		ECHO %%N| findstr %MinerErrorsList% 2>NUL && (
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
-			SET ErrorEcho=+ Error from GPU. Voltage or Overclock issue...                  +
-			GOTO error
-		)
-		ECHO %%N| findstr %CriticalErrorsList% 2>NUL && (
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
-			GOTO restart
-		)
-		ECHO %%N| findstr /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% 2>NUL && (
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Unknown error found. Please send this error to developer. Miner ran for %t3%.
-			SET ErrorEcho=+ Unknown error found...                                         +
-			GOTO error
-		)
-		ECHO %%N| findstr %MinerWarningsList% 2>NUL && (
-			IF %t3h% EQU 0 IF %t3m% LSS 10 (
-				IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
-				>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
-				tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-				taskkill /F /IM "miner.exe" 2>NUL 1>&2 && ECHO Process miner.exe was successfully killed. && timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-				ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
-				ECHO Waiting for users input...
-				PAUSE
-				GOTO hardstart
-			)
-			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer.')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
-			ECHO Temperature limit reached. Fans may be stuck. Miner ran for %t3%.
-			ECHO Computer restarting...
-			GOTO restart
-		)
-		ECHO %%N| findstr /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% 2>NUL && (
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Unknown warning found. Please send this warning to developer. Miner ran for %t3%.
-			SET ErrorEcho=+ Unknown warning found...                                       +
-			GOTO error
-		)
 	)
-	timeout /T 5 /nobreak >NUL
-	tasklist /FI "IMAGENAME eq miner.exe" 2>NUL| find /I /N "miner.exe" >NUL
-	IF ERRORLEVEL ==1 (
-		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process *miner.exe* crashed.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process miner.exe crashed. Miner ran for %t3%.
-		SET ErrorEcho=+ Error. Process miner.exe crashed...                            +
+	ECHO %%N| findstr %MinerErrorsList% 2>NUL && (
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
+		SET ErrorEcho=+ Error from GPU. Voltage or Overclock issue...                  +
 		GOTO error
 	)
-	IF %EnableAPAutorun% EQU 1 (
-		timeout /T 5 /nobreak >NUL
-		tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL| find /I /N "%APProcessName%" >NUL
-		IF ERRORLEVEL ==1 (
-			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
-			SET ErrorEcho=+ Error. Additional program crashed...                           +
-			GOTO error
-		)
+	ECHO %%N| findstr %CriticalErrorsList% 2>NUL && (
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %t3%.
+		GOTO restart
 	)
-) ELSE (
+	ECHO %%N| findstr /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% 2>NUL && (
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Unknown error found. Please send this error to developer. Miner ran for %t3%.
+		SET ErrorEcho=+ Unknown error found...                                         +
+		GOTO error
+	)
+	ECHO %%N| findstr %MinerWarningsList% 2>NUL && (
+		IF %t3h% EQU 0 IF %t3m% LSS 10 (
+			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+			tskill /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+			taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed. && timeout /T 5 /nobreak >NUL & taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+			ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+			ECHO Waiting for users input...
+			PAUSE
+			GOTO hardstart
+		)
+		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
+		ECHO Temperature limit reached. Fans may be stuck. Miner ran for %t3%.
+		ECHO Computer restarting...
+		GOTO restart
+	)
+	ECHO %%N| findstr /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% 2>NUL && (
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Unknown warning found. Please send this warning to developer. Miner ran for %t3%.
+		SET ErrorEcho=+ Unknown warning found...                                       +
+		GOTO error
+	)
+)
+timeout /T 5 /nobreak >NUL
+tasklist /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find /I /N "%MinerProcess%" >NUL
+IF ERRORLEVEL ==1 (
+	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %MinerProcess% crashed. Miner ran for %t3%.
+	SET ErrorEcho=+ Error. Process %MinerProcess% crashed...                            +
+	GOTO error
+)
+IF %EnableAPAutorun% EQU 1 (
+	timeout /T 5 /nobreak >NUL
+	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL| find /I /N "%APProcessName%" >NUL
+	IF ERRORLEVEL ==1 (
+		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. %APProcessName% crashed. Miner ran for %t3%.
+		SET ErrorEcho=+ Error. Additional program crashed...                           +
+		GOTO error
+	)
+)
+IF %FirstRun% EQU 0 (
 	SET GPUCount=0
 	IF %NumberOfGPUs% GEQ 1 (
 		timeout /T 10 /nobreak >NUL
-		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" miner.log') DO SET /A GPUCount+=1
+		FOR /F "delims=" %%I IN ('findstr /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %MinerLog%') DO SET /A GPUCount+=1
 		IF %NumberOfGPUs% GTR !GPUCount! (
 			IF %AllowRestartGPU% EQU 1 (
 				IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*.')" 2>NUL 1>&2
@@ -680,54 +691,26 @@ IF %FirstRun% EQU 1 (
 	)
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
-	ECHO + Process miner.exe is running - do not worry                    +
-	IF %EnableGPUOverclockMonitor% NEQ 0 (
-		IF %EnableGPUOverclockMonitor% EQU 1 (
-			ECHO + Process %GPUOverclockProcess%.exe is running...                               +
-		)
-		IF %EnableGPUOverclockMonitor% EQU 2 (
-			ECHO + Process %GPUOverclockProcess%.exe is running...                       +
-		)
-		IF %EnableGPUOverclockMonitor% EQU 3 (
-			ECHO + Process %GPUOverclockProcess%.exe is running...                           +
-		)
-		IF %EnableGPUOverclockMonitor% EQU 4 (
-			ECHO + Process %GPUOverclockProcess%.exe is running...                       +
-		)
-		IF %EnableGPUOverclockMonitor% EQU 5 (
-			ECHO + Process %GPUOverclockProcess%.exe is running...                                +
-		)
-		IF %EnableGPUOverclockMonitor% GEQ 6 (
-			ECHO + GPU Overclock monitor: Wrong config.                           +
-		)
-	) ELSE (
-		ECHO + GPU Overclock monitor: Disabled                                +
+	ECHO + Process %MinerProcess% is running - do not worry                    +
+	IF %EnableGPUOverclockMonitor% GTR 0 (
+		IF %EnableGPUOverclockMonitor% EQU 1 ECHO + Process %GPUOverclockProcess%.exe is running...                               +
+		IF %EnableGPUOverclockMonitor% EQU 2 ECHO + Process %GPUOverclockProcess%.exe is running...                       +
+		IF %EnableGPUOverclockMonitor% EQU 3 ECHO + Process %GPUOverclockProcess%.exe is running...                           +
+		IF %EnableGPUOverclockMonitor% EQU 4 ECHO + Process %GPUOverclockProcess%.exe is running...                       +
+		IF %EnableGPUOverclockMonitor% EQU 5 ECHO + Process %GPUOverclockProcess%.exe is running...                                +
+		IF %EnableGPUOverclockMonitor% GEQ 6 ECHO + GPU Overclock monitor: Wrong config.                           +
 	)
-	IF %MidnightAutoRestart% EQU 0 (
-		ECHO + Autorestart at 00:00: Disabled                                 +
-	) ELSE (
-		ECHO + Autorestart at 00:00: Enabled                                  +
-	)
-	IF %MiddayAutoRestart% EQU 0 (
-		ECHO + Autorestart at 12:00: Disabled                                 +
-	) ELSE (
-		ECHO + Autorestart at 12:00: Enabled                                  +
-	)
-	IF %EveryHourAutoRestart% EQU 0 (
-		ECHO + Autorestart every hour: Disabled                               +
-	) ELSE (
-		ECHO + Autorestart every hour: Enabled                                +
-	)
-	IF %EnableTelegramNotifications% EQU 0 (
-		ECHO + Telegram notifications: Disabled                               +
-	) ELSE (
-		ECHO + Telegram notifications: Enabled                                +
-	)
-	IF %EnableAPAutorun% EQU 1 (
-		ECHO + Additional program autorun: Enabled                            +
-	) ELSE (
-		ECHO + Additional program autorun: Disabled                           +
-	)
+	IF %EnableGPUOverclockMonitor% LEQ 0 ECHO + GPU Overclock monitor: Disabled                                +
+	IF %MidnightAutoRestart% LEQ 0  ECHO + Autorestart at 00:00: Disabled                                 +
+	IF %MidnightAutoRestart% GTR 0	ECHO + Autorestart at 00:00: Enabled                                  +
+	IF %MiddayAutoRestart% LEQ 0 ECHO + Autorestart at 12:00: Disabled                                 +
+	IF %MiddayAutoRestart% GTR 0 ECHO + Autorestart at 12:00: Enabled                                  +
+	IF %EveryHourAutoRestart% LEQ 0 ECHO + Autorestart every hour: Disabled                               +
+	IF %EveryHourAutoRestart% GTR 0 ECHO + Autorestart every hour: Enabled                                +
+	IF %EnableTelegramNotifications% LEQ 0 ECHO + Telegram notifications: Disabled                               +
+	IF %EnableTelegramNotifications% GTR 0 ECHO + Telegram notifications: Enabled                                +
+	IF %EnableAPAutorun% LEQ 0 ECHO + Additional program autorun: Disabled                           +
+	IF %EnableAPAutorun% EQU 1 ECHO + Additional program autorun: Enabled                            +
 	ECHO + Number of errors: [%ErrorsCounter%/%ErrorsAmount%], GPUs: [!GPUCount!/%NumberOfGPUs%]                           +
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
