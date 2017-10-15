@@ -54,14 +54,14 @@ SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /
 SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool" /C:"No properly configured pool"
 SET Web=https://api.telegram.org/bot405371799:AAFq9-W91wg2vtDsuqHmSfZujNpStSDo3OE/sendMessage?parse_mode=markdown
 :checkconfig
-IF EXIST %~dp0config.bat (
+IF EXIST "config.bat" (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"Configuration file v." config.bat') DO (
 		IF "%%B" == "%Version%" (
 			FOR %%C IN (config.bat) DO (
 				IF %%~ZC LSS 4200 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 50030 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 49960 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
@@ -134,6 +134,7 @@ IF EXIST %~dp0config.bat (
 >> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files (x86)\TeamViewer\TeamViewer.exe)
 >> config.bat ECHO SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
+pause
 GOTO checkconfig
 :restart
 COLOR 4F
@@ -243,10 +244,9 @@ IF %EnableGPUOverclockMonitor% GTR 0 (
 	)
 )
 IF %EnableGPUOverclockMonitor% LEQ 0 ECHO ECHO Overclock control monitor was disabled.& SET EnableGPUOverclockMonitor=0
-IF NOT EXIST "%~dp0%MinerProcess%" ECHO Error. "%MinerProcess%" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
-IF NOT EXIST "%~dp0cudart64_80.dll" ECHO Error. "cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
-IF EXIST "%~dp0Logs" ECHO Folder Logs exist.
-IF NOT EXIST "%~dp0Logs" MD Logs && ECHO Folder Logs created.
+IF NOT EXIST "%MinerProcess%" ECHO Error. "%MinerProcess%" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
+IF NOT EXIST "cudart64_80.dll" ECHO Error. "cudart64_80.dll" is missing. Please check the directory for missing files. Exiting...& PAUSE & EXIT
+IF NOT EXIST "Logs" MD Logs && ECHO Folder Logs created.
 IF %EnableAPAutorun% EQU 1 (
 	tasklist /FI "IMAGENAME eq %APProcessName%" 2>NUL| find /I /N "%APProcessName%" >NUL
 	IF ERRORLEVEL ==1 (
@@ -276,22 +276,23 @@ taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
 	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Process %MinerProcess% was successfully killed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcess% was successfully killed.
 )
-IF EXIST "%MinerLog%" MOVE /Y %MinerLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2
-IF ERRORLEVEL ==1 (
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access %MinerLog%. Attempting to delete %MinerLog% and continue...
-	DEL /Q /F "%~dp0%MinerLog%" >NUL || (
-		ECHO Error. Unable to rename or access %MinerLog%.
-		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Unable to delete %MinerLog%.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. Unable to delete %MinerLog%.
-		GOTO hardstart
+IF EXIST "%MinerLog%" (
+	MOVE /Y %MinerLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2 && (
+		ECHO %MinerLog% renamed and moved to Logs folder.
+	) || (
+		>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access %MinerLog%. Attempting to delete %MinerLog% and continue...
+		DEL /Q /F "%MinerLog%" >NUL || (
+			ECHO Error. Unable to rename or access %MinerLog%.
+			IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Unable to delete %MinerLog%.')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. Unable to delete %MinerLog%.
+			GOTO hardstart
+		)
 	)
-) ELSE (
-	ECHO %MinerLog% renamed and moved to Logs folder.
 )
 timeout /T 5 /nobreak >NUL
 IF %StartFromBatOrExe% EQU 1 (
-	IF NOT EXIST "%~dp0%MinerProcess%" ECHO Mining is impossible, %MinerProcess% is missing. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.& PAUSE & EXIT
-	IF NOT EXIST "%~dp0miner.cfg" (
+	IF NOT EXIST "%MinerProcess%" ECHO Mining is impossible, %MinerProcess% is missing. Please ensure you've placed autorun.bat in the same directory as the EWBF miner.& PAUSE & EXIT
+	IF NOT EXIST "miner.cfg" (
 		FOR /F "tokens=3,5,7,9 delims= " %%W IN ("%MainServerBatCommand%") DO (
 			> miner.cfg ECHO # Common parameters
 			>> miner.cfg ECHO # All the parameters here are similar to the command line arguments
@@ -331,11 +332,11 @@ IF %StartFromBatOrExe% EQU 1 (
 		)
 		ECHO miner.cfg created. Please check it for errors.
 	)
-	START "%MinerProcess%" "%~dp0%MinerProcess%" && ECHO Miner was started at %StartDate% %StartTime%
+	START "%MinerProcess%" "%MinerProcess%" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 ) ELSE (
-	IF NOT EXIST "%~dp0miner.bat" (
+	IF NOT EXIST "miner.bat" (
 		> miner.bat ECHO @ECHO off
 		>> miner.bat ECHO TITLE miner.bat
 		>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
@@ -354,17 +355,17 @@ IF %StartFromBatOrExe% EQU 1 (
 			)
 		)
 	)
-	START "miner.bat" "%~dp0miner.bat" && ECHO Miner was started at %StartDate% %StartTime%
+	START "miner.bat" "miner.bat" && ECHO Miner was started at %StartDate% %StartTime%
 	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 )
 timeout /T 5 /nobreak >NUL
-IF NOT EXIST "%~dp0%MinerLog%" (
+IF NOT EXIST "%MinerLog%" (
 	ECHO Error. %MinerLog% is missing.
-	ECHO Check permissions in "%~dp0". This script requires permission to create files.
-	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. %MinerLog% is missing.%%0ACheck permissions in "%~dp0". This script requires permission to create files.')" 2>NUL 1>&2
+	ECHO Check permissions of this folder. This script requires permission to create files.
+	IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Error. %MinerLog% is missing.%%0ACheck permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Error. %MinerLog% is missing.
-	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions in "%~dp0". This script requires permission to create files.
+	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions of this folder. This script requires permission to create files.
 	IF %StartFromBatOrExe% EQU 2 (
 		ECHO Ensure "--log 2" option is added to the miner's command line.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "--log 2" option is added to the miner's command line.
@@ -378,7 +379,7 @@ IF NOT EXIST "%~dp0%MinerLog%" (
 	) ELSE (
 		ECHO Ensure "log 2" option is added in your miner.cfg file.
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "log 2" option is added in your miner.cfg file.
-		DEL /Q /F "%~dp0miner.cfg" >NUL
+		DEL /Q /F "miner.cfg" >NUL
 		GOTO start
 	)
 ) ELSE (
@@ -714,12 +715,12 @@ IF %FirstRun% EQU 0 (
 	ECHO +----------------------------------------------------------------+
 	ECHO ==================================================================
 	SET FirstRun=1
-	IF EXIST "%~dp0Logs\miner_*.log" (
+	IF EXIST "Logs\miner_*.log" (
 		CHOICE /C yn /T 60 /D n /M "Clean Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		) ELSE (
-			DEL /F /Q "%~dp0Logs\*" && ECHO Clean Logs folder finished.
+			DEL /F /Q "Logs\*" && ECHO Clean Logs folder finished.
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		)
 		GOTO check
