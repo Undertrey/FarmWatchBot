@@ -12,7 +12,7 @@ ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
 ECHO +          AutoRun for EWBF 0.3.4.b Miner - by Acrefawn          +
 ECHO +                 acrefawn@gmail.com [v. %Version%]                  +
-ECHO +                    Donation deposit adress:                    +
+ECHO +                   Donation deposit address:                    +
 ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
 ECHO +             BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB             +
 ECHO +----------------------------------------------------------------+
@@ -495,6 +495,7 @@ IF %PTOS1% LSS %X2% (
 	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
 	IF !LstShareMin! GEQ 0 IF %X2% GEQ 1 (
 		IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
+		IF !LstShareMin! EQU 0 SET LstShareMin=59
 		IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
 		IF !LstShareMin! GTR %X2% SET /A LstShareDiff=!LstShareMin!-%X2%
 		IF !LstShareMin! GTR 50 IF %X2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%X2%
