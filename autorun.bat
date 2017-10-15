@@ -486,14 +486,14 @@ IF %AverageTotalHashrate% GTR 0 (
 		SET /A HashrateErrorsCount+=1& SET OldHashrate=!SumResult!
 	)
 )
-IF %PTOS1% GEQ 59 SET PTOS1=0
-IF %PTOS1% LSS %X2% (
+IF !PTOS1! GEQ 59 SET PTOS1=0
+IF !PTOS1! LSS %X2% (
 	SET PTOS1=%X2%
-	SET LstShareDiff=0&	SET LstShareMin=-1
+	SET LstShareDiff=0& SET LstShareMin=-1
 	timeout /T 2 /nobreak >NUL
 	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
+	IF !LstShareMin! GEQ 0 IF "!LstShareMin:~0,1!" =="0" SET LstShareMin=!LstShareMin:~1!
 	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
-		IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
 		IF !LstShareMin! EQU 0 SET LstShareMin=59
 		IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
 		IF !LstShareMin! GTR %X2% SET /A LstShareDiff=!LstShareMin!-%X2%
