@@ -44,6 +44,7 @@ SET ServerQueue=0
 SET MinHashrate=0
 SET ErrorsCounter=0
 SET SwitchToDefault=0
+SET PTOS=0& SET LastBot=1
 SET OtherErrorsList=/C:"ERROR:"
 SET OtherWarningsList=/C:"WARNING:"
 SET InternetErrorsCancel=/C:"Connection restored"
@@ -134,7 +135,6 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files (x86)\TeamViewer\TeamViewer.exe)
 >> config.bat ECHO SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
-pause
 GOTO checkconfig
 :restart
 COLOR 4F
@@ -230,7 +230,7 @@ IF %D1:~0,1% ==0 SET D1=%D1:~1%
 IF %H1:~0,1% ==0 SET H1=%H1:~1%
 IF %X1:~0,1% ==0 SET X1=%X1:~1%
 IF %C1:~0,1% ==0 SET C1=%C1:~1%
-SET /A s1=H1*60*60+X1*60+C1& SET /A RestartHour=%H1%+2
+SET /A s1=H1*60*60+X1*60+C1& SET /A RestartHour=%H1%+2& SET WaitUserInput=0
 IF %EnableGPUOverclockMonitor% GTR 0 (
 	IF %AverageTotalHashrate% EQU 0 ECHO Error. Average hashrate = 0. This must be set to a number higher than 0 in your config.bat file under AverageTotalHashrate.& ECHO GPUOverclockControl will be disabled...& SET EnableGPUOverclockMonitor=0
 	IF %EnableGPUOverclockMonitor% EQU 1 SET GPUOverclockProcess=Xtreme& SET GPUOverclockPath=\GIGABYTE\XTREME GAMING ENGINE\
@@ -277,9 +277,7 @@ taskkill /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcess% was successfully killed.
 )
 IF EXIST "%MinerLog%" (
-	MOVE /Y %MinerLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2 && (
-		ECHO %MinerLog% renamed and moved to Logs folder.
-	) || (
+	MOVE /Y %MinerLog% Logs\miner_%Y0%.%M0%.%D0%_%H0%.%X0%.%C0%.log 2>NUL 1>&2 && ECHO %MinerLog% renamed and moved to Logs folder. || (
 		>> %~n0.log ECHO [%StartDate%][%StartTime%] Warning. Unable to rename or access %MinerLog%. Attempting to delete %MinerLog% and continue...
 		DEL /Q /F "%MinerLog%" >NUL || (
 			ECHO Error. Unable to rename or access %MinerLog%.
@@ -494,7 +492,7 @@ IF %PTOS1% LSS %X2% (
 	SET LstShareDiff=0
 	timeout /T 2 /nobreak >NUL
 	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
-	IF !LstShareMin! GEQ 0 IF %X2% GEQ 1 (
+	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
 		IF !LstShareMin! LSS 10 SET LstShareMin=!LstShareMin:~1!
 		IF !LstShareMin! EQU 0 SET LstShareMin=59
 		IF !LstShareMin! LSS %X2% SET /A LstShareDiff=%X2%-!LstShareMin!
