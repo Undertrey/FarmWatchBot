@@ -62,7 +62,7 @@ IF EXIST "config.bat" (
 				IF %%~ZC LSS 4200 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 49960 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 50000 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
@@ -489,8 +489,7 @@ IF %AverageTotalHashrate% GTR 0 (
 IF %PTOS1% GEQ 59 SET PTOS1=0
 IF %PTOS1% LSS %X2% (
 	SET PTOS1=%X2%
-	SET LstShareDiff=0
-	SET LstShareMin=-1
+	SET LstShareDiff=0&	SET LstShareMin=-1
 	timeout /T 2 /nobreak >NUL
 	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
 	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
