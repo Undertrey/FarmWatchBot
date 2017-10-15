@@ -490,6 +490,7 @@ IF %PTOS1% GEQ 59 SET PTOS1=0
 IF %PTOS1% LSS %X2% (
 	SET PTOS1=%X2%
 	SET LstShareDiff=0
+	SET LstShareMin=-1
 	timeout /T 2 /nobreak >NUL
 	FOR /F "tokens=3 delims=: " %%Y IN ('findstr /R /C:"INFO .* share .*" %MinerLog%') DO SET LstShareMin=%%Y
 	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
