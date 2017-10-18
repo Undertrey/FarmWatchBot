@@ -18,7 +18,7 @@ START "" "cmd" /c SET qedit_val=%qedit_val% ^& call "%~dpnx0"&EXIT
 FOR /F %%A IN ('wmic.exe OS GET localdatetime^| findstr ^[0-9]') DO SET t0=%%A
 SET Y0=%t0:~0,4%& SET M0=%t0:~4,2%& SET D0=%t0:~6,2%& SET H0=%t0:~8,2%& SET X0=%t0:~10,2%& SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.7.1
+SET Version=1.7.0
 :hardstart
 CLS
 COLOR 2F
@@ -70,10 +70,10 @@ IF EXIST "config.bat" (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr /C:"Configuration file v." config.bat') DO (
 		IF "%%B" == "%Version%" (
 			FOR %%C IN (config.bat) DO (
-				IF %%~ZC LSS 4200 (
+				IF %%~ZC LSS 4700 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 49100 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48800 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
@@ -474,7 +474,7 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 					ECHO +----------------------------------------------------------------+
 					ECHO + Now %NowDate% %NowTime%                                           +
 					ECHO + Miner was started at %StartDate% %StartTime%                          +
-					ECHO + Carefully configure config.bat or miner.bat                    +
+					ECHO + Carefully configure config.bat                                 +
 					ECHO + Check config file for errors or pool is offline                +
 					ECHO + Miner restarting with default values...                        +
 					ECHO +----------------------------------------------------------------+
@@ -509,9 +509,9 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 						SET SwitchToDefault=1
 					)
 					>> miner.bat ECHO EXIT
-					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched. Please check your config.bat or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-					ECHO Warning. Pool server was switched. Please check your config.bat or miner.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+					IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+					ECHO Warning. Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 					ECHO Default miner.bat created. Please check it for errors.
 					SET /A ErrorsCounter+=1
 					GOTO start
@@ -537,7 +537,7 @@ FOR /F "delims=" %%N IN ('findstr %InternetErrorsList% %MinerErrorsList% %Critic
 					SET /A InternetErrorsCounter+=1
 					ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
 					FOR /F "delims=" %%L IN ('findstr %InternetErrorsCancel% miner.log') DO GOTO reconnected
-					ping google.com| find /i "TTL=" >NUL || (
+					ping google.com| find /i "TTL=" >NUL && GOTO reconnected || (
 						CHOICE /C yn /T 60 /D n /M "Restart miner manually"
 						IF ERRORLEVEL ==2 GOTO tryingreconnect
 						SET /A ErrorsCounter+=1
