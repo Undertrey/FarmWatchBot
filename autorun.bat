@@ -1,4 +1,5 @@
-@ECHO OFF& SETLOCAL ENABLEDELAYEDEXPANSION
+@ECHO OFF
+SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=100 lines=35
 shutdown /A 2>NUL 1>&2
 SET reg50=::&SET reg51=::&(REG /?>NUL 2>&1 && SET reg51=)
@@ -435,7 +436,8 @@ IF %AverageTotalHashrate% GTR 0 (
 		IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('%Web%&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
 		ECHO [%NowDate%][%NowTime%] Warning. Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%
-		SET /A HashrateErrorsCount+=1& SET OldHashrate=!SumResult!
+		SET /A HashrateErrorsCount+=1
+		SET OldHashrate=!SumResult!
 	)
 )
 IF !PTOS1! GEQ 59 SET PTOS1=0
