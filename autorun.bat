@@ -32,6 +32,8 @@ REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=miner.exe
+REM Name start mining .bat file. (in English, without special symbols and spaces)
+SET MinerBat=miner.bat
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
 SET EnableDoubleWindowCheck=1
 REM Attention. Do not touch the options below in any case.
@@ -62,6 +64,31 @@ SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped"
 SET CriticalErrorsList=/C:"Cannot initialize NVML. Temperature monitor will not work" /C:"no CUDA-capable device is detected"
 SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
 SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool" /C:"No properly configured pool"
+SET EnableGPUOverclockMonitor=0
+SET AutorunMSIAWithProfile=0
+SET RestartGPUOverclockMonitor=0
+SET NumberOfGPUs=0
+SET AllowRestartGPU=1
+SET AverageTotalHashrate=0
+SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET EnableAdditionalServer=0
+SET AdditionalServer1BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET AdditionalServer2BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET AdditionalServer3BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET AdditionalServer4BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET EveryHourAutoRestart=0
+SET MiddayAutoRestart=0
+SET MidnightAutoRestart=0
+SET SkipBeginMiningConfirmation=0
+SET EnableInternetConnectivityCheck=1
+SET EnableGPUEnvironments=0
+SET EnableTelegramNotifications=0
+SET RigName=Zcash Farm
+SET ChatId=000000000
+SET EnableEveryHourInfoSend=0
+SET EnableAPAutorun=0
+SET APProcessName=TeamViewer.exe
+SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr.exe /C:"Configuration file v." config.bat') DO (
@@ -77,6 +104,7 @@ IF EXIST "config.bat" (
 			)
 		) ELSE (
 			ECHO Your config.bat is out of date.
+			CALL config.bat
 		)
 		CHOICE /C yn /T 15 /D y /M "Backup existing and create an updated (default) config.bat"
 		IF ERRORLEVEL ==2 EXIT
@@ -88,61 +116,61 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM =================================================== [Overclock program]
 >> config.bat ECHO REM Enable GPU Overclock control monitor. (0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE)
 >> config.bat ECHO REM Autorun and run-check of GPU Overclock programs.
->> config.bat ECHO SET EnableGPUOverclockMonitor=0
+>> config.bat ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
 >> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. (0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5)
->> config.bat ECHO SET AutorunMSIAWithProfile=0
+>> config.bat ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
 >> config.bat ECHO REM Allow Overclock programs to be restarted when miner is restarted. (0 - false, 1 - true)
 >> config.bat ECHO REM Please, do not use this option if it is not needed.
->> config.bat ECHO SET RestartGPUOverclockMonitor=0
+>> config.bat ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
 >> config.bat ECHO REM =================================================== [GPU]
 >> config.bat ECHO REM Set how many GPU devices are enabled.
->> config.bat ECHO SET NumberOfGPUs=0
+>> config.bat ECHO SET NumberOfGPUs=%NumberOfGPUs%
 >> config.bat ECHO REM Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. (0 - false, 1 - true)
->> config.bat ECHO SET AllowRestartGPU=1
+>> config.bat ECHO SET AllowRestartGPU=%AllowRestartGPU%
 >> config.bat ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool)
->> config.bat ECHO SET AverageTotalHashrate=0
+>> config.bat ECHO SET AverageTotalHashrate=%AverageTotalHashrate%
 >> config.bat ECHO REM =================================================== [Miner]
->> config.bat ECHO REM Set miner command here to auto-create miner.bat file if it is missing or wrong. (keep default order)
->> config.bat ECHO SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO REM Set miner command here to auto-create %MinerBat% file if it is missing or wrong. (keep default order)
+>> config.bat ECHO SET MainServerBatCommand=%MainServerBatCommand%
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (0 - false, 1 - true) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET EnableAdditionalServer=0
->> config.bat ECHO REM Configure miner command here. Old miner.bat will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET AdditionalServer1BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
->> config.bat ECHO SET AdditionalServer2BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
->> config.bat ECHO SET AdditionalServer3BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
->> config.bat ECHO SET AdditionalServer4BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+>> config.bat ECHO REM Configure miner command here. Old %MinerBat% will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
+>> config.bat ECHO SET AdditionalServer1BatCommand=%AdditionalServer1BatCommand%
+>> config.bat ECHO SET AdditionalServer2BatCommand=%AdditionalServer2BatCommand%
+>> config.bat ECHO SET AdditionalServer3BatCommand=%AdditionalServer3BatCommand%
+>> config.bat ECHO SET AdditionalServer4BatCommand=%AdditionalServer4BatCommand%
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
->> config.bat ECHO SET EveryHourAutoRestart=0
+>> config.bat ECHO SET EveryHourAutoRestart=%EveryHourAutoRestart%
 >> config.bat ECHO REM Restart miner or computer every day at 12:00. (1 - true miner, 2 - true computer, 0 - false)
->> config.bat ECHO SET MiddayAutoRestart=0
+>> config.bat ECHO SET MiddayAutoRestart=%EveryHourAutoRestart%
 >> config.bat ECHO REM Restart miner or computer every day at 00:00. (1 - true miner, 2 - true computer, 0 - false)
->> config.bat ECHO SET MidnightAutoRestart=0
+>> config.bat ECHO SET MidnightAutoRestart=%EveryHourAutoRestart%
 >> config.bat ECHO REM =================================================== [Other]
 >> config.bat ECHO REM Skip miner startup confirmation. (0 - false, 1 - true)
->> config.bat ECHO SET SkipBeginMiningConfirmation=0
+>> config.bat ECHO SET SkipBeginMiningConfirmation=%SkipBeginMiningConfirmation%
 >> config.bat ECHO REM Enable Internet connectivity check. (0 - false, 1 - true)
 >> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. (ie. high latency, intermittent connectivity)
->> config.bat ECHO SET EnableInternetConnectivityCheck=1
+>> config.bat ECHO SET EnableInternetConnectivityCheck=%EnableInternetConnectivityCheck%
 >> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand it's function. (0 - false, 1 - true)
 >> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
->> config.bat ECHO SET EnableGPUEnvironments=0
+>> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
 >> config.bat ECHO REM =================================================== [Telegram notifications]
 >> config.bat ECHO REM Enable Telegram notifications. Don't forget to add @EwbfWatchBot in Telegram. (0 - false, 1 - true)
->> config.bat ECHO SET EnableTelegramNotifications=0
+>> config.bat ECHO SET EnableTelegramNotifications=%EnableTelegramNotifications%
 >> config.bat ECHO REM Name your Rig. (in English, without special symbols)
->> config.bat ECHO SET RigName=Zcash Farm
+>> config.bat ECHO SET RigName=%RigName%
 >> config.bat ECHO REM Enter here your ChatId, from Telegram @EwbfWatchBot.
->> config.bat ECHO SET ChatId=000000000
+>> config.bat ECHO SET ChatId=%ChatId%
 >> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true, 2 - true in silent mode, 3 - true short, 4 - true short in silent mode)
->> config.bat ECHO SET EnableEveryHourInfoSend=0
+>> config.bat ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
 >> config.bat ECHO REM =================================================== [Additional program]
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (0 - false, 1 - true)
->> config.bat ECHO SET EnableAPAutorun=0
+>> config.bat ECHO SET EnableAPAutorun=%EnableAPAutorun%
 >> config.bat ECHO REM Process name of additional program. (Press CTRL+ALT+DEL to find the process name)
->> config.bat ECHO SET APProcessName=TeamViewer.exe
+>> config.bat ECHO SET APProcessName=%APProcessName%
 >> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files (x86)\TeamViewer\TeamViewer.exe)
->> config.bat ECHO SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
+>> config.bat ECHO SET APProcessPath=%APProcessPath%
 ECHO Default config.bat created. Please check it and restart %~n0.bat.
 GOTO checkconfig
 :restart
@@ -152,7 +180,7 @@ IF ERRORLEVEL ==2 GOTO hardstart
 tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
 timeout.exe /T 5 /nobreak >NUL
-taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 IF %EnableAPAutorun% EQU 1 taskkill.exe /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
 IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Computer restarting...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%NowDate%][%NowTime%] Computer restarting...
@@ -318,7 +346,7 @@ IF %EnableGPUOverclockMonitor% GEQ 1 (
 taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
 	ECHO Process %MinerProcess% was successfully killed.
 	timeout.exe /T 5 /nobreak >NUL
-	taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+	taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 	IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %MinerProcess% was successfully killed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Process %MinerProcess% was successfully killed.
 )
@@ -334,26 +362,26 @@ IF EXIST "miner.log" (
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
-IF NOT EXIST "miner.bat" (
-	> miner.bat ECHO @ECHO off
-	>> miner.bat ECHO TITLE miner.bat
-	>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
-	>> miner.bat ECHO %MainServerBatCommand%
-	>> miner.bat ECHO EXIT
-	ECHO miner.bat created. Please check it for errors.
+IF NOT EXIST "%MinerBat%" (
+	> %MinerBat% ECHO @ECHO off
+	>> %MinerBat% ECHO TITLE %MinerBat%
+	>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+	>> %MinerBat% ECHO %MainServerBatCommand%
+	>> %MinerBat% ECHO EXIT
+	ECHO %MinerBat% created. Please check it for errors.
 	GOTO start
 ) ELSE (
 	IF %SwitchToDefault% EQU 0 (
-		findstr.exe /L /C:"%MainServerBatCommand%" miner.bat 2>NUL 1>&2 || (
-			> miner.bat ECHO @ECHO off
-			>> miner.bat ECHO TITLE miner.bat
-			>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
-			>> miner.bat ECHO %MainServerBatCommand%
-			>> miner.bat ECHO EXIT
+		findstr.exe /L /C:"%MainServerBatCommand%" %MinerBat% 2>NUL 1>&2 || (
+			> %MinerBat% ECHO @ECHO off
+			>> %MinerBat% ECHO TITLE %MinerBat%
+			>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+			>> %MinerBat% ECHO %MainServerBatCommand%
+			>> %MinerBat% ECHO EXIT
 		)
 	)
 )
-START "miner.bat" "miner.bat" && ECHO Miner was started at %StartDate% %StartTime%
+START "%MinerBat%" "%MinerBat%" && ECHO Miner was started at %StartDate% %StartTime%
 IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 >> %~n0.log ECHO [%StartDate%][%StartTime%] Miner was started. Autorun v. %Version%.
 timeout.exe /T 5 /nobreak >NUL
@@ -365,12 +393,12 @@ IF NOT EXIST "miner.log" (
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Check permissions of this folder. This script requires permission to create files.
 	ECHO Ensure "--log 2" option is added to the miner's command line.
 	>> %~n0.log ECHO [%StartDate%][%StartTime%] Ensure "--log 2" option is added to the miner's command line.
-	> miner.bat ECHO @ECHO off
-	>> miner.bat ECHO TITLE miner.bat
-	>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
-	>> miner.bat ECHO %MainServerBatCommand%
-	>> miner.bat ECHO EXIT
-	ECHO miner.bat created. Please check it for errors.
+	> %MinerBat% ECHO @ECHO off
+	>> %MinerBat% ECHO TITLE %MinerBat%
+	>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+	>> %MinerBat% ECHO %MainServerBatCommand%
+	>> %MinerBat% ECHO EXIT
+	ECHO %MinerBat% created. Please check it for errors.
 	GOTO start
 ) ELSE (
 	ECHO Connected to miner.log. Log monitoring started...
@@ -543,40 +571,40 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 					ECHO ==================================================================
 					taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
 					timeout.exe /T 5 /nobreak >NUL
-					taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
-					> miner.bat ECHO @ECHO off
-					>> miner.bat ECHO TITLE miner.bat
-					>> miner.bat ECHO REM Configure miner's command line in config.bat file. Not in miner.bat.
+					taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
+					> %MinerBat% ECHO @ECHO off
+					>> %MinerBat% ECHO TITLE %MinerBat%
+					>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 0 (
-							>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 							SET ServerQueue=1& SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 1 (
-							>> miner.bat ECHO %AdditionalServer1BatCommand%
+							>> %MinerBat% ECHO %AdditionalServer1BatCommand%
 							SET ServerQueue=2& SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 2 (
-							>> miner.bat ECHO %AdditionalServer2BatCommand%
+							>> %MinerBat% ECHO %AdditionalServer2BatCommand%
 							SET ServerQueue=3& SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 3 (
-							>> miner.bat ECHO %AdditionalServer3BatCommand%
+							>> %MinerBat% ECHO %AdditionalServer3BatCommand%
 							SET ServerQueue=4& SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 4 (
-							>> miner.bat ECHO %AdditionalServer4BatCommand%
+							>> %MinerBat% ECHO %AdditionalServer4BatCommand%
 							SET ServerQueue=0& SET SwitchToDefault=1
 						)
 					) ELSE (
-						>> miner.bat ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 						SET SwitchToDefault=1
 					)
-					>> miner.bat ECHO EXIT
+					>> %MinerBat% ECHO EXIT
 					IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
 					>> %~n0.log ECHO [%NowDate%][%NowTime%] Warning. Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 					ECHO Warning. Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-					ECHO Default miner.bat created. Please check it for errors.
+					ECHO Default %MinerBat% created. Please check it for errors.
 					SET /A ErrorsCounter+=1
 					GOTO start
 				)
@@ -645,7 +673,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 			tskill.exe /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
 			timeout.exe /T 5 /nobreak >NUL
-			taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq miner.bat*" 2>NUL 1>&2
+			taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 			ECHO Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			ECHO Waiting for users input...
 			PAUSE
