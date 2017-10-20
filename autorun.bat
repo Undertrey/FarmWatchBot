@@ -67,10 +67,10 @@ IF EXIST "config.bat" (
 	FOR /F "tokens=5 delims= " %%B IN ('findstr.exe /C:"Configuration file v." config.bat') DO (
 		IF "%%B" == "%Version%" (
 			FOR %%C IN (config.bat) DO (
-				IF %%~ZC LSS 4700 (
+				IF %%~ZC LSS 4800 (
 					ECHO Config.bat file error. It is corrupted, check it please.
 				) ELSE (
-					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 48500 EXIT
+					FOR %%z IN (%~n0.bat) DO IF %%~Zz LSS 50900 EXIT
 					CALL config.bat && ECHO Config.bat loaded.
 					GOTO prestart
 				)
