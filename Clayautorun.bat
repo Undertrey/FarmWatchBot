@@ -18,7 +18,7 @@ CLS
 COLOR 1F
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
-ECHO +          AutoRun for EWBF 0.3.4.b Miner - by Acrefawn          +
+ECHO +          AutoRun for Claymore AMD Miner - by Acrefawn          +
 ECHO +                 acrefawn@gmail.com [v. %Version%]                  +
 ECHO +                   Donation deposit address:                    +
 ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
@@ -31,7 +31,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
-SET MinerProcess=miner.exe
+SET MinerProcess=ZecMiner64.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
@@ -62,20 +62,20 @@ SET InternetErrorsCancel=/C:"Connection restored"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped"
 SET CriticalErrorsList=/C:"Cannot initialize NVML. Temperature monitor will not work" /C:"no CUDA-capable device is detected"
-SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
-SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool" /C:"No properly configured pool"
+SET MinerErrorsList=/C:"Thread exited" /C:" 0.000 H/s" /C:"Total Speed: 0.000 H/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
+SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve" /C:"Stratum subscribe timeout" /C:"Cannot connect" /C:"No properly configured pool"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET MainServerBatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
 SET EnableAdditionalServer=0
-SET AdditionalServer1BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
-SET AdditionalServer2BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
-SET AdditionalServer3BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
-SET AdditionalServer4BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 --pass x --log 2 --fee 2 --templimit 90 --eexit 3 --pec
+SET AdditionalServer1BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer2BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer3BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer4BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -487,16 +487,22 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	GOTO restart
 )
 timeout.exe /T 2 /nobreak >NUL
-FOR /F "tokens=3 delims= " %%G IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
+FOR /F "tokens=5 delims=. " %%G IN ('findstr.exe /R /C:"ZEC - Total Speed: .* H/s.*" miner.log') DO (
 	SET LastHashrate=%%G
 	SET /A Hashcount+=1
 	SET /A SumHash=SumHash+%%G
 	SET /A SumResult=SumHash/Hashcount
 )
 timeout.exe /T 2 /nobreak >NUL
-FOR /F "delims=" %%T IN ('findstr.exe /R /C:"Temp: GPU.*C.*" miner.log') DO SET CurrentTemp=%%T
+FOR /F "delims=" %%T IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
+	SET CurrentTemp=%%T
+	SET CurrentTemp=!CurrentTemp:~17!
+)
 timeout.exe /T 2 /nobreak >NUL
-FOR /F "delims=" %%U IN ('findstr.exe /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%U
+FOR /F "delims=" %%U IN ('findstr.exe /R /C:"ZEC: GPU.* .* H/s.*" miner.log') DO (
+	SET CurrentSpeed=%%U
+	SET CurrentSpeed=!CurrentSpeed:~17!
+)
 IF %AverageTotalHashrate% GTR 0 (
 	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 100 GOTO passaveragecheck
@@ -533,7 +539,7 @@ IF !PTOS1! LSS %X2% (
 	SET LstShareDiff=0
 	SET LstShareMin=-1
 	timeout.exe /T 2 /nobreak >NUL
-	FOR /F "tokens=3 delims=: " %%Y IN ('findstr.exe /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=%%Y
+	FOR /F "tokens=7 delims=:- " %%Y IN ('findstr.exe /R /C:".*SHARE FOUND.*" miner.log') DO SET LstShareMin=%%Y
 	IF !LstShareMin! GEQ 0 IF "!LstShareMin:~0,1!" =="0" SET LstShareMin=!LstShareMin:~1!
 	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
 		IF !LstShareMin! EQU 0 SET LstShareMin=59
@@ -577,7 +583,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 					>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 0 (
-							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+							>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 -zpsw x -i 7 -logfile miner.log
 							SET ServerQueue=1
 							SET SwitchToDefault=1
 						)
@@ -602,7 +608,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 							SET SwitchToDefault=1
 						)
 					) ELSE (
-						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+						>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 -zpsw x -i 7 -logfile miner.log
 						SET SwitchToDefault=1
 					)
 					>> %MinerBat% ECHO EXIT
@@ -700,7 +706,7 @@ timeout.exe /T 5 /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%NowDate%][%NowTime%] Error. Process %MinerProcess% crashed. Miner ran for %t3%.
-	SET ErrorEcho=+ Error. Process %MinerProcess% crashed...                            +
+	SET ErrorEcho=+ Error. Process %MinerProcess% crashed...                       +
 	GOTO error
 )
 IF %EnableAPAutorun% EQU 1 (
@@ -716,7 +722,7 @@ IF %FirstRun% EQU 0 (
 	SET GPUCount=0
 	IF %NumberOfGPUs% GEQ 1 (
 		timeout.exe /T 10 /nobreak >NUL
-		FOR /F "delims=" %%I IN ('findstr.exe /R /C:"CUDA: Device: [0-9]* .* PCI: .*" miner.log') DO SET /A GPUCount+=1
+		FOR /F "tokens=3 delims= " %%I IN ('findstr.exe /R /C:"Total cards: .*" miner.log') DO SET /A GPUCount=%%I
 		IF %NumberOfGPUs% GTR !GPUCount! (
 			IF %AllowRestartGPU% EQU 1 (
 				IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/%NumberOfGPUs%*.')" 2>NUL 1>&2
@@ -749,7 +755,7 @@ IF %FirstRun% EQU 0 (
 	)
 	ECHO ==================================================================
 	ECHO +----------------------------------------------------------------+
-	ECHO + Process %MinerProcess% is running - do not worry                    +
+	ECHO + Process %MinerProcess% is running - do not worry               +
 	IF %EnableGPUOverclockMonitor% GTR 0 (
 		IF %EnableGPUOverclockMonitor% EQU 1 ECHO + Process %GPUOverclockProcess%.exe is running...                               +
 		IF %EnableGPUOverclockMonitor% EQU 2 ECHO + Process %GPUOverclockProcess%.exe is running...                       +
