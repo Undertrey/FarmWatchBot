@@ -578,23 +578,28 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 0 (
 							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
-							SET ServerQueue=1& SET SwitchToDefault=1
+							SET ServerQueue=1
+							SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 1 (
 							>> %MinerBat% ECHO %AdditionalServer1BatCommand%
-							SET ServerQueue=2& SET SwitchToDefault=1
+							SET ServerQueue=2
+							SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 2 (
 							>> %MinerBat% ECHO %AdditionalServer2BatCommand%
-							SET ServerQueue=3& SET SwitchToDefault=1
+							SET ServerQueue=3
+							SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 3 (
 							>> %MinerBat% ECHO %AdditionalServer3BatCommand%
-							SET ServerQueue=4& SET SwitchToDefault=1
+							SET ServerQueue=4
+							SET SwitchToDefault=1
 						)
 						IF %ServerQueue% EQU 4 (
 							>> %MinerBat% ECHO %AdditionalServer4BatCommand%
-							SET ServerQueue=0& SET SwitchToDefault=1
+							SET ServerQueue=0
+							SET SwitchToDefault=1
 						)
 					) ELSE (
 						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
@@ -769,7 +774,7 @@ IF %FirstRun% EQU 0 (
 	ECHO ==================================================================
 	SET FirstRun=1
 	IF EXIST "Logs\miner_*.log" (
-		CHOICE /C yn /T 60 /D n /M "Clean Logs folder now"
+		CHOICE /C yn /T 30 /D n /M "Clean Logs folder now"
 		IF ERRORLEVEL ==2 (
 			ECHO Now I will take care of your %RigName% and you can take a rest.
 		) ELSE (
