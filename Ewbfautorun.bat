@@ -156,11 +156,11 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
 >> config.bat ECHO REM =================================================== [Telegram notifications]
->> config.bat ECHO REM Enable Telegram notifications. Don't forget to add @EwbfWatchBot in Telegram. (0 - false, 1 - true)
+>> config.bat ECHO REM Enable Telegram notifications. Don't forget to add @FarmWatchBot in Telegram. (0 - false, 1 - true)
 >> config.bat ECHO SET EnableTelegramNotifications=%EnableTelegramNotifications%
 >> config.bat ECHO REM Name your Rig. (in English, without special symbols)
 >> config.bat ECHO SET RigName=%RigName%
->> config.bat ECHO REM Enter here your ChatId, from Telegram @EwbfWatchBot.
+>> config.bat ECHO REM Enter here your ChatId, from Telegram @FarmWatchBot.
 >> config.bat ECHO SET ChatId=%ChatId%
 >> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true, 2 - true in silent mode, 3 - true short, 4 - true short in silent mode)
 >> config.bat ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
