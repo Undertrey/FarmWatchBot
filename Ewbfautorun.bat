@@ -12,13 +12,13 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.7.0
+SET Version=1.7.1
 :hardstart
 CLS
 COLOR 1F
 ECHO ==================================================================
 ECHO +----------------------------------------------------------------+
-ECHO +          AutoRun for EWBF 0.3.4.b Miner - by Acrefawn          +
+ECHO +              AutoRun for EWBF Miner - by Acrefawn              +
 ECHO +                 acrefawn@gmail.com [v. %Version%]                  +
 ECHO +                   Donation deposit address:                    +
 ECHO +            ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv            +
@@ -58,12 +58,12 @@ SET ErrorsCounter=0
 SET SwitchToDefault=0
 SET OtherErrorsList=/C:"ERROR:"
 SET OtherWarningsList=/C:"WARNING:"
-SET InternetErrorsCancel=/C:"Connection restored"
+SET InternetErrorsCancel=/C:"Connection restored" /C:"Connected" /C:"Authorized"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped"
 SET CriticalErrorsList=/C:"Cannot initialize NVML. Temperature monitor will not work" /C:"no CUDA-capable device is detected"
-SET MinerErrorsList=/C:"Thread exited" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
-SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve hostname" /C:"Stratum subscribe timeout" /C:"Cannot connect to the pool" /C:"No properly configured pool"
+SET MinerErrorsList=/C:"Thread exited" /C:" 0.000 H/s" /C:"Total Speed: 0.000 H/s" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
+SET InternetErrorsList=/C:"Lost connection" /C:"Connection lost" /C:"Cannot resolve" /C:"Stratum subscribe timeout" /C:"Cannot connect" /C:"No properly configured" /C:"Failed to connect"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -577,7 +577,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 					>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 0 (
-							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev171 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 							SET ServerQueue=1
 							SET SwitchToDefault=1
 						)
@@ -602,7 +602,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 							SET SwitchToDefault=1
 						)
 					) ELSE (
-						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
+						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev171 --pass x --log 2 --fee 2 --templimit 90 --eexit 2 --pec
 						SET SwitchToDefault=1
 					)
 					>> %MinerBat% ECHO EXIT

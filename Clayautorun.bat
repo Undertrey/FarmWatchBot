@@ -12,7 +12,7 @@ SET H0=%t0:~8,2%
 SET X0=%t0:~10,2%
 SET C0=%t0:~12,2%
 TITLE Miner-autorun(%Y0%.%M0%.%D0%_%H0%:%X0%:%C0%)
-SET Version=1.7.0
+SET Version=1.7.1
 :hardstart
 CLS
 COLOR 1F
@@ -58,24 +58,24 @@ SET ErrorsCounter=0
 SET SwitchToDefault=0
 SET OtherErrorsList=/C:"ERROR:"
 SET OtherWarningsList=/C:"WARNING:"
-SET InternetErrorsCancel=/C:"Connection restored"
+SET InternetErrorsCancel=/C:"Connection restored" /C:"Connected" /C:"Authorized"
 SET ErrorEcho=+ Unknown error.                                                 +
 SET MinerWarningsList=/C:"Temperature limit are reached, gpu will be stopped"
 SET CriticalErrorsList=/C:"Cannot initialize NVML. Temperature monitor will not work" /C:"no CUDA-capable device is detected"
-SET MinerErrorsList=/C:"Thread exited" /C:" 0.000 H/s" /C:"Total Speed: 0.000 H/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
-SET InternetErrorsList=/C:"Lost connection" /C:"Cannot resolve" /C:"Stratum subscribe timeout" /C:"Cannot connect" /C:"No properly configured pool"
+SET MinerErrorsList=/C:"Thread exited" /C:" 0.000 H/s" /C:"Total Speed: 0.000 H/s" /C:" 0 Sol/s" /C:"Total speed: 0 Sol/s" /C:"benchmark error" /C:"Api bind error" /C:"CUDA error" /C:"Looks like "
+SET InternetErrorsList=/C:"Lost connection" /C:"Connection lost" /C:"Cannot resolve" /C:"Stratum subscribe timeout" /C:"Cannot connect" /C:"No properly configured" /C:"Failed to connect"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET MainServerBatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
+SET MainServerBatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 -zpsw x -i 7 -logfile miner.log
 SET EnableAdditionalServer=0
-SET AdditionalServer1BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
-SET AdditionalServer2BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
-SET AdditionalServer3BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
-SET AdditionalServer4BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def170 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer1BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer2BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer3BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 -zpsw x -i 7 -logfile miner.log
+SET AdditionalServer4BatCommand=ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.def171 -zpsw x -i 7 -logfile miner.log
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -539,7 +539,7 @@ IF !PTOS1! LSS %X2% (
 	SET LstShareDiff=0
 	SET LstShareMin=-1
 	timeout.exe /T 2 /nobreak >NUL
-	FOR /F "tokens=7 delims=:- " %%Y IN ('findstr.exe /R /C:".*SHARE FOUND.*" miner.log') DO SET LstShareMin=%%Y
+	FOR /F "tokens=2 delims=:" %%Y IN ('findstr.exe /R /C:".*SHARE FOUND.*" /C:".*Share accepted.*" miner.log') DO SET LstShareMin=%%Y
 	IF !LstShareMin! GEQ 0 IF "!LstShareMin:~0,1!" =="0" SET LstShareMin=!LstShareMin:~1!
 	IF !LstShareMin! GEQ 0 IF %X2% GTR 0 (
 		IF !LstShareMin! EQU 0 SET LstShareMin=59
@@ -583,7 +583,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 					>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 					IF %EnableAdditionalServer% EQU 1 (
 						IF %ServerQueue% EQU 0 (
-							>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 -zpsw x -i 7 -logfile miner.log
+							>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev171 -zpsw x -i 7 -logfile miner.log
 							SET ServerQueue=1
 							SET SwitchToDefault=1
 						)
@@ -608,7 +608,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 							SET SwitchToDefault=1
 						)
 					) ELSE (
-						>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev170 -zpsw x -i 7 -logfile miner.log
+						>> %MinerBat% ECHO ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dev171 -zpsw x -i 7 -logfile miner.log
 						SET SwitchToDefault=1
 					)
 					>> %MinerBat% ECHO EXIT
@@ -679,8 +679,8 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 	)
 	ECHO %%N| findstr.exe %MinerWarningsList% 2>NUL && (
 		IF %t3h% EQU 0 IF %t3m% LSS 10 (
-			IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
+			IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Current Temp: !CurrentTemp!.%%0A%%0ATemperature limit reached. GPU will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%NowDate%][%NowTime%] Current Temp: !CurrentTemp!. Temperature limit reached. GPU will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %t3%.
 			tskill.exe /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
 			timeout.exe /T 5 /nobreak >NUL
@@ -690,8 +690,8 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 			PAUSE
 			GOTO hardstart
 		)
-		IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Current !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%NowDate%][%NowTime%] Current !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
+		IF %EnableTelegramNotifications% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Current Temp: !CurrentTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%NowDate%][%NowTime%] Current Temp: !CurrentTemp!. Temperature limit reached. Fans may be stuck. Miner ran for %t3%. Computer restarting...
 		ECHO Temperature limit reached. Fans may be stuck. Miner ran for %t3%.
 		ECHO Computer restarting...
 		GOTO restart
@@ -793,8 +793,8 @@ IF %FirstRun% EQU 0 (
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %X2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %X2% GEQ 30 (
-		IF %EnableEveryHourInfoSend% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
-		IF %EnableEveryHourInfoSend% EQU 2 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent !CurrentTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 1 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent Temp: !CurrentTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 2 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&disable_notification=true&text=*%RigName%:* Miner has been running for *%t3h%:%t3m%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!.%%0ACurrent Temp: !CurrentTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
 		IF %EnableEveryHourInfoSend% EQU 3 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Online, *%t3h%:%t3m%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
 		IF %EnableEveryHourInfoSend% EQU 4 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&disable_notification=true&text=*%RigName%:* Online, *%t3h%:%t3m%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
 	)
