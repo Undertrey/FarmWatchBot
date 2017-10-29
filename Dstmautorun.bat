@@ -59,12 +59,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET MainServerBatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --time --temp-target 90
+SET "MainServerBatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90"
 SET EnableAdditionalServer=0
-SET AdditionalServer1BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --time --temp-target 90
-SET AdditionalServer2BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --time --temp-target 90
-SET AdditionalServer3BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --time --temp-target 90
-SET AdditionalServer4BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --time --temp-target 90
+SET "AdditionalServer1BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90"
+SET "AdditionalServer2BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90"
+SET "AdditionalServer3BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90"
+SET "AdditionalServer4BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90"
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -117,14 +117,14 @@ IF EXIST "config.bat" (
 >> config.bat ECHO SET AverageTotalHashrate=%AverageTotalHashrate%
 >> config.bat ECHO REM =================================================== [Miner]
 >> config.bat ECHO REM Set miner command here to auto-create %MinerBat% file if it is missing or wrong. (keep default order)
->> config.bat ECHO SET MainServerBatCommand=%MainServerBatCommand%
+>> config.bat ECHO SET "MainServerBatCommand=%MainServerBatCommand%"
 >> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (0 - false, 1 - true) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET EnableAdditionalServer=0
 >> config.bat ECHO REM Configure miner command here. Old %MinerBat% will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET AdditionalServer1BatCommand=%AdditionalServer1BatCommand%
->> config.bat ECHO SET AdditionalServer2BatCommand=%AdditionalServer2BatCommand%
->> config.bat ECHO SET AdditionalServer3BatCommand=%AdditionalServer3BatCommand%
->> config.bat ECHO SET AdditionalServer4BatCommand=%AdditionalServer4BatCommand%
+>> config.bat ECHO SET "AdditionalServer1BatCommand=%AdditionalServer1BatCommand%"
+>> config.bat ECHO SET "AdditionalServer2BatCommand=%AdditionalServer2BatCommand%"
+>> config.bat ECHO SET "AdditionalServer3BatCommand=%AdditionalServer3BatCommand%"
+>> config.bat ECHO SET "AdditionalServer4BatCommand=%AdditionalServer4BatCommand%"
 >> config.bat ECHO REM =================================================== [Timers]
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
 >> config.bat ECHO SET EveryHourAutoRestart=%EveryHourAutoRestart%
@@ -654,7 +654,7 @@ IF %FirstRun% EQU 0 (
 	IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
 	IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
 	ECHO +================================================================+
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9]*+ .* PCI: .*" miner.log') DO SET /A GPUCount+=1
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9]* connected to.*" miner.log') DO SET /A GPUCount+=1
 	IF %NumberOfGPUs% NEQ 0 (
 		IF %NumberOfGPUs% GTR !GPUCount! (
 			IF %AllowRestartGPU% EQU 1 (
