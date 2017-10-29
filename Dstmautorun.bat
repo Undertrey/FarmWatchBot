@@ -5,9 +5,9 @@ shutdown.exe /A 2>NUL 1>&2
 CLS
 COLOR 1F
 MODE CON cols=67 lines=40
-SET Version=1.7.3
+SET Version=1.7.4
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO            AutoRun v.%Version% for DSTM Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
@@ -17,7 +17,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
-SET MinerProcess=miner.exe
+SET MinerProcess=zm.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
@@ -32,11 +32,13 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 		IF ERRORLEVEL ==2 EXIT
 	)
 )
+SET PTOS=0
 SET PTOS1=0
 SET Mtimer=0
 SET Ctimer=0
 SET rtpt=d2a
 SET FirstRun=0
+SET ServerNum=0
 SET AllowSend=0
 SET tprt=WYHfeJU
 SET ServerQueue=1
@@ -48,6 +50,7 @@ SET tpr=C8go_jp8%tprt%
 SET OtherErrorsList=/C:"ERROR:.*"
 SET /A Num=(3780712+3780711)*6*9
 SET OtherWarningsList=/C:"WARNING:.*"
+SET /A LastBot=(%RANDOM%*5/32768)+1
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
@@ -59,12 +62,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET MainServerBatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET MainServerBatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90
 SET EnableAdditionalServer=0
-SET AdditionalServer1BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET AdditionalServer2BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET AdditionalServer3BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET AdditionalServer4BatCommand=miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET AdditionalServer1BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90
+SET AdditionalServer2BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90
+SET AdditionalServer3BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90
+SET AdditionalServer4BatCommand=^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -75,6 +78,7 @@ SET EnableTelegramNotifications=0
 SET RigName=Zcash Farm
 SET ChatId=000000000
 SET EnableEveryHourInfoSend=0
+SET EnableOnlineStatusSend=0
 SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
@@ -150,6 +154,8 @@ IF EXIST "config.bat" (
 >> config.bat ECHO SET ChatId=%ChatId%
 >> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true, 2 - true in silent mode, 3 - true short, 4 - true short in silent mode)
 >> config.bat ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
+>> config.bat ECHO REM Enable Rig offline notifications through Telegram. (0 - false, 1 - true)
+>> config.bat ECHO SET EnableOnlineStatusSend=%EnableOnlineStatusSend%
 >> config.bat ECHO REM =================================================== [Additional program]
 >> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (0 - false, 1 - true)
 >> config.bat ECHO SET EnableAPAutorun=%EnableAPAutorun%
@@ -330,16 +336,18 @@ IF EXIST "miner.log" (
 IF NOT EXIST "%MinerBat%" (
 	> %MinerBat% ECHO @ECHO off
 	>> %MinerBat% ECHO TITLE %MinerBat%
+	>> %MinerBat% ECHO ECHO All output redirected to miner.log
 	>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 	>> %MinerBat% ECHO %MainServerBatCommand%
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
 	GOTO start
 ) ELSE (
-	IF %SwitchToDefault% EQU 0 (
+	IF %SwitchToDefault% EQU 0 IF %ServerNum% EQU 0 (
 		findstr.exe /L /C:"%MainServerBatCommand%" %MinerBat% 2>NUL 1>&2 || (
 			> %MinerBat% ECHO @ECHO off
 			>> %MinerBat% ECHO TITLE %MinerBat%
+			>> %MinerBat% ECHO ECHO All output redirected to miner.log
 			>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 			>> %MinerBat% ECHO %MainServerBatCommand%
 			>> %MinerBat% ECHO EXIT
@@ -373,12 +381,14 @@ IF NOT EXIST "%MinerBat%" (
 )
 SET InternetErrorsCounter=1
 SET HashrateErrorsCount=0
+SET WaitUserInput=0
 SET OldHashrate=0
 SET FirstRun=0
 :check
 timeout.exe /T 1 /nobreak >NUL
 SET LastInternetError=0
 SET MinHashrate=0
+SET ServerNum=0
 SET Hashcount=0
 SET SumHash=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT2=%%A
@@ -423,7 +433,7 @@ FOR /F "delims=" %%A IN ('findstr.exe /R /C:"Temp: GPU.*C.*" miner.log') DO SET 
 timeout.exe /T 1 /nobreak >NUL
 FOR /F "delims=" %%A IN ('findstr.exe /R /C:"GPU.*: .* Sol/s .*" miner.log') DO SET CurrentSpeed=%%A
 timeout.exe /T 1 /nobreak >NUL
-FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
+FOR /F "tokens=6 delims=. " %%A IN ('findstr.exe /R /C:".*= Sol/s:.*" miner.log') DO (
 	IF %%A LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 50 GOTO passaveragecheck
 	SET LastHashrate=%%A
@@ -451,7 +461,7 @@ IF !PTOS1! LSS %Me2% (
 	SET LstShareDiff=0
 	SET LstShareMin=-1
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=1%%A
+	FOR /F "tokens=4 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*Sol/W:.*Avg:.*I/s:.*Sh/s:.*\+" miner.log') DO SET LstShareMin=1%%A
 	SET /A LstShareMin=!LstShareMin!-100
 	IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
 		IF !LstShareMin! EQU 0 SET LstShareMin=59
@@ -485,10 +495,11 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 				taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
 				> %MinerBat% ECHO @ECHO off
 				>> %MinerBat% ECHO TITLE %MinerBat%
+				>> %MinerBat% ECHO ECHO All output redirected to miner.log
 				>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 				IF %EnableAdditionalServer% EQU 1 (
 					IF %ServerQueue% EQU 0 (
-						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
+						>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90 >> miner.log 
 						SET ServerQueue=1
 						SET SwitchToDefault=1
 					)
@@ -513,7 +524,7 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 						SET SwitchToDefault=1
 					)
 				) ELSE (
-					>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr173 --pass x --log 2 --fee 0 --templimit 90 --pec
+					>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn174 --pass x --time --temp-target 90 >> miner.log 
 					SET SwitchToDefault=1
 				)
 				>> %MinerBat% ECHO EXIT
@@ -651,7 +662,7 @@ IF %FirstRun% EQU 0 (
 	IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
 	IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
 	ECHO +================================================================+
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:"CUDA: Device: [0-9]* .* PCI: .*" miner.log') DO SET /A GPUCount+=1
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9]*+ .* PCI: .*" miner.log') DO SET /A GPUCount+=1
 	IF %NumberOfGPUs% NEQ 0 (
 		IF %NumberOfGPUs% GTR !GPUCount! (
 			IF %AllowRestartGPU% EQU 1 (
@@ -692,7 +703,7 @@ CLS
 COLOR 1F
 MODE CON cols=67 lines=15
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO            AutoRun v.%Version% for DSTM Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
@@ -708,6 +719,124 @@ IF %EnableTelegramNotifications% EQU 1 (
 		IF %EnableEveryHourInfoSend% EQU 2 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&disable_notification=true&text=*%RigName%:* Miner has been running for *%DyDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!%%0ACurrent !CurrentTemp!')" 2>NUL 1>&2 && SET AllowSend=0
 		IF %EnableEveryHourInfoSend% EQU 3 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Online, *%DyDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
 		IF %EnableEveryHourInfoSend% EQU 4 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&disable_notification=true&text=*%RigName%:* Online, *%DyDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
+	)
+	IF %EnableOnlineStatusSend% EQU 1 (
+		IF !PTOS! GEQ 59 SET PTOS=0
+		IF !PTOS! LSS %Me2% (
+			SET /A PTOS=%Me2%+3
+			:bots
+			IF !LastBot! EQU 1 (
+				SET LastBot=2
+				timeout.exe /T 1 /nobreak >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot466765661:AAHvbf66WH5JqdD5yQzCh21nR87aV1zik8I/sendMessage?chat_id=-1001121778849&text=,%ChatId%,%RigName%,')" 2>NUL 1>&2 || GOTO bots
+			)
+			IF !LastBot! EQU 2 (
+				SET LastBot=3
+				timeout.exe /T 1 /nobreak >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot432276393:AAHdnzhf0UCUMJCDT1n2O_FBog7ZI7VbK6I/sendMessage?chat_id=-1001121778849&text=,%ChatId%,%RigName%,')" 2>NUL 1>&2 || GOTO bots
+			)
+			IF !LastBot! EQU 3 (
+				SET LastBot=4
+				timeout.exe /T 1 /nobreak >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot467076517:AAFXjw7wEmJelLDcgVl7AxMZ5fVxFSr1QTU/sendMessage?chat_id=-1001121778849&text=,%ChatId%,%RigName%,')" 2>NUL 1>&2 || GOTO bots
+			)
+			IF !LastBot! EQU 4 (
+				SET LastBot=5
+				timeout.exe /T 1 /nobreak >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot469692661:AAFZkmGACu7WJbOfYLXCf-R2dc41-F_pVto/sendMessage?chat_id=-1001121778849&text=,%ChatId%,%RigName%,')" 2>NUL 1>&2 || GOTO bots
+			)
+			IF !LastBot! GEQ 5 (
+				SET LastBot=1
+				timeout.exe /T 1 /nobreak >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot451219247:AAFESo00xfgBIb2huhx1o7KPtGuS3VgA_fE/sendMessage?chat_id=-1001121778849&text=,%ChatId%,%RigName%,')" 2>NUL 1>&2 || GOTO bots
+			)
+		)
+	)
+	:tcomm
+	FOR /F "delims=" %%a IN ('powershell.exe -command "[int][double]::Parse((Get-Date (get-date).touniversaltime() -UFormat %%s))"') DO (
+		FOR /F "delims=" %%b IN ('powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot466631256:AAGgUyg7qKg1Ne_usUMYQi3x-sxWsEB2Mnw/getUpdates?offset=-50')"^| findstr.exe /R /C:".*channel_post.*text.*%ChatId%.*"') DO (
+			FOR /F "tokens=3,12,16,19 delims=,:}{" %%c IN ("%%b") DO (
+				SET /A Utdiff=%%a-%%d
+				SET MessageId=%%c
+				IF !Utdiff! LEQ 80 (
+					IF %%f GEQ 1 SET UpdateId=%%f& SET OldUpdateId=%%f
+					IF "%%f" == "" SET /A UpdateId=!UpdateId!+1
+					IF !UpdateId! GTR !OldUpdateId! IF !MessageId! NEQ !OldMessageId! (
+						SET OldUpdateId=!UpdateId!
+						SET OldMessageId=!MessageId!
+						ECHO %%e | findstr.exe /I /R /C:"^restart.*%RigName% .*$" /C:"^restart $" >NUL && (
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Command /%%e received.')" 2>NUL 1>&2 && GOTO restart
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^startover.*%RigName% .*$" /C:"^startover $" >NUL && (
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Command /%%e received.')" 2>NUL 1>&2 && GOTO hardstart
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^online.*%RigName% .*$" /C:"^online $" >NUL && (
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%* Online, *%DyDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2 && GOTO check
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^info.*%RigName% .*$" /C:"^info $" >NUL && (
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%DyDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0ACurrent Speed: !CurrentSpeed!%%0ACurrent !CurrentTemp!')" 2>NUL 1>&2 && GOTO check
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^stop.*%RigName% .*$" /C:"^stop $" >NUL && (
+							taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* was successfully *killed* by /stop command. Use /startover command to begin mining again, or restart *%~n0.bat* manually.')" 2>NUL 1>&2 && (
+								>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% was successfully killed by /stop command.
+								ECHO Process %MinerProcess% was successfully killed by /stop command.
+								SET WaitUserInput=1
+								GOTO tcomm
+							)
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^profile.*%RigName% .*[1-5] $" /C:"^profile [1-5] $" >NUL && (
+							SET ProfileNum=%%e
+							SET ProfileNum=!ProfileNum:~-1!
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							IF %EnableGPUOverclockMonitor% EQU 2 "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile!ProfileNum! >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* MSI Afterburner profile switched to *!ProfileNum!* successfully.')" 2>NUL 1>&2 && GOTO check
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^ping.*%RigName% .*$" /C:"^ping $" >NUL && (
+							FOR /F "tokens=3 delims=: " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" %MinerBat%') DO (
+								FOR /F "tokens=3 delims==" %%p IN ('ping.exe -n 1 %%s^| find "TTL="') DO (
+									SET PingAnswer=%%p
+									SET PingAnswer=!PingAnswer:~0,-6!
+									>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+									powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Current ping to %%s is *!PingAnswer!* ms.')" 2>NUL 1>&2 && GOTO check
+								)
+							)
+						)
+						ECHO %%e | findstr.exe /I /R /C:"^pool.*%RigName% .*$" /C:"^pool $" >NUL && (
+							FOR /F "tokens=3 delims=: " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" %MinerBat%') DO SET CurrServerName=%%s
+							FOR /F "tokens=3 delims=: " %%s IN ("%MainServerBatCommand%") DO SET MainServerName=%%s
+							FOR /F "tokens=3 delims=: " %%s IN ("%AdditionalServer1BatCommand%") DO SET Add1ServerName=%%s
+							FOR /F "tokens=3 delims=: " %%s IN ("%AdditionalServer2BatCommand%") DO SET Add2ServerName=%%s
+							FOR /F "tokens=3 delims=: " %%s IN ("%AdditionalServer3BatCommand%") DO SET Add3ServerName=%%s
+							FOR /F "tokens=3 delims=: " %%s IN ("%AdditionalServer4BatCommand%") DO SET Add4ServerName=%%s
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Selected pool server: !CurrServerName!.%%0A%%0APool servers list:%%0A0. !MainServerName!.%%0A1. !Add1ServerName!.%%0A2. !Add2ServerName!.%%0A3. !Add3ServerName!.%%0A4. !Add4ServerName!.')" 2>NUL 1>&2 && GOTO check
+						)
+						ECHO %%e | findstr /I /R /C:"^server.*%RigName% .*[0-4] $" /C:"^server [0-4] $" >NUL && (
+							SET ServerNum=%%e
+							SET ServerNum=!ServerNum:~-1!
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Command /%%e received.& ECHO Command /%%e received.
+							taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
+							timeout /T 5 /nobreak >NUL
+							taskkill /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
+							> %MinerBat% ECHO @ECHO off
+							>> %MinerBat% ECHO TITLE %MinerBat%
+							>> %MinerBat% ECHO ECHO All output redirected to miner.log
+							>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+							IF !ServerNum! EQU 0 >> %MinerBat% ECHO %MainServerBatCommand%
+							IF !ServerNum! EQU 1 >> %MinerBat% ECHO %AdditionalServer1BatCommand%
+							IF !ServerNum! EQU 2 >> %MinerBat% ECHO %AdditionalServer2BatCommand%
+							IF !ServerNum! EQU 3 >> %MinerBat% ECHO %AdditionalServer3BatCommand%
+							IF !ServerNum! EQU 4 >> %MinerBat% ECHO %AdditionalServer4BatCommand%
+							SET SwitchToDefault=0
+							>> %MinerBat% ECHO EXIT
+							IF %EnableTelegramNotifications% EQU 1 powershell -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched by /server command to additional server *!ServerNum!*.')" 2>NUL 1>&2
+							>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] Pool server was switched to additional server !ServerNum!.
+							ECHO Pool server was switched to additional server !ServerNum!.
+							GOTO start
+						)
+					)
+				)
+			)
+		)
+		IF !WaitUserInput! EQU 1 GOTO :tcomm
 	)
 )
 GOTO check
