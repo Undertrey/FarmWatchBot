@@ -77,7 +77,7 @@ SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 37600 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 38000 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4600 (
 				ECHO Config.bat file error. It is corrupted, check it please.
@@ -411,68 +411,70 @@ IF %ErrorsCounter% GEQ %ErrorsAmount% (
 	CALL :log "Too many errors. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
 	GOTO restart
 )
-timeout.exe /T 1 /nobreak >NUL
-FOR /F "tokens=3,5,7,9,11,13,15,17,19,21,23,25,27 delims=:C " %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" miner.log') DO (
-	SET CurTemp=Current temp:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 IF %%A LSS 70 SET CurTemp=!CurTemp! G!GpuNum! %%AC,
-		IF NOT "%%A" == "" IF %%A GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *%%AC*,
-		SET /A GpuNum+=1
-	)
-	SET CurTemp=!CurTemp:~0,-1!
-)
-timeout.exe /T 1 /nobreak >NUL
-FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38 delims=: " %%a IN ('findstr.exe /R /C:"GPU.*: .* Sol/s .*" miner.log') DO (
-	SET CurrSpeed=Current speed:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
-		SET /A GpuNum+=1
-	)
-	SET CurrSpeed=!CurrSpeed:~0,-1!
-)
-timeout.exe /T 1 /nobreak >NUL
-FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
-	IF %%A LSS %AverageTotalHashrate% SET /A MinHashrate+=1
-	IF !MinHashrate! GEQ 50 GOTO passaveragecheck
-	SET LastHashrate=%%A
-	SET /A Hashcount+=1
-	SET /A SumHash=SumHash+%%A
-	SET /A SumResult=SumHash/Hashcount
-)
-timeout.exe /T 1 /nobreak >NUL
-IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
-	IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-		:passaveragecheck
-		CALL :tlg "Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
-		CALL :log "Low hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%."
-		GOTO error
-	)
-	ECHO Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
-	CALL :tlg "Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
-	CALL :log "Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%."
-	SET /A HashrateErrorsCount+=1
-	SET OldHashrate=!SumResult!
-)
-timeout.exe /T 1 /nobreak >NUL
-IF !PTOS1! GEQ 59 SET PTOS1=0
-IF !PTOS1! LSS %Me2% (
-	SET PTOS1=%Me2%
-	SET LstShareDiff=0
-	SET LstShareMin=-1
+IF %FirstRun% EQU 1 (
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=1%%A
-	SET /A LstShareMin=!LstShareMin!-100
-	IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
-		IF !LstShareMin! EQU 0 SET LstShareMin=59
-		IF !LstShareMin! LSS %Me2% SET /A LstShareDiff=%Me2%-!LstShareMin!
-		IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
-		IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
-		IF !LstShareDiff! GTR 10 (
-			CALL :tlg "Long share timeout... !LstShareMin!/!LstShareDiff!."
-			CALL :log "Long share timeout... !LstShareMin!/!LstShareDiff!."
+	FOR /F "tokens=3,5,7,9,11,13,15,17,19,21,23,25,27 delims=:C " %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" miner.log') DO (
+		SET CurTemp=Current temp:
+		SET GpuNum=0
+		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m) DO (
+			IF NOT "%%A" == "" IF %%A GEQ 0 IF %%A LSS 70 SET CurTemp=!CurTemp! G!GpuNum! %%AC,
+			IF NOT "%%A" == "" IF %%A GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *%%AC*,
+			SET /A GpuNum+=1
+		)
+		SET CurTemp=!CurTemp:~0,-1!
+	)
+	timeout.exe /T 1 /nobreak >NUL
+	FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38 delims=: " %%a IN ('findstr.exe /R /C:"GPU.*: .* Sol/s .*" miner.log') DO (
+		SET CurrSpeed=Current speed:
+		SET GpuNum=0
+		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m) DO (
+			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
+			SET /A GpuNum+=1
+		)
+		SET CurrSpeed=!CurrSpeed:~0,-1!
+	)
+	timeout.exe /T 1 /nobreak >NUL
+	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
+		SET LastHashrate=%%A
+		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
+		IF !MinHashrate! GEQ 50 GOTO passaveragecheck
+		SET /A Hashcount+=1
+		SET /A SumHash=SumHash+!LastHashrate!
+		SET /A SumResult=SumHash/Hashcount
+	)
+	timeout.exe /T 1 /nobreak >NUL
+	IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
+		IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
+			:passaveragecheck
+			CALL :tlg "Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
+			CALL :log "Low hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%."
 			GOTO error
+		)
+		ECHO Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
+		CALL :tlg "Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
+		CALL :log "Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%."
+		SET /A HashrateErrorsCount+=1
+		SET OldHashrate=!SumResult!
+	)
+	timeout.exe /T 1 /nobreak >NUL
+	IF !PTOS1! GEQ 59 SET PTOS1=0
+	IF !PTOS1! LSS %Me2% (
+		SET PTOS1=%Me2%
+		SET LstShareDiff=0
+		SET LstShareMin=-1
+		timeout.exe /T 1 /nobreak >NUL
+		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" miner.log') DO SET LstShareMin=1%%A
+		SET /A LstShareMin=!LstShareMin!-100
+		IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
+			IF !LstShareMin! EQU 0 SET LstShareMin=59
+			IF !LstShareMin! LSS %Me2% SET /A LstShareDiff=%Me2%-!LstShareMin!
+			IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
+			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
+			IF !LstShareDiff! GTR 10 (
+				CALL :tlg "Long share timeout... !LstShareMin!/!LstShareDiff!."
+				CALL :log "Long share timeout... !LstShareMin!/!LstShareDiff!."
+				GOTO error
+			)
 		)
 	)
 )
