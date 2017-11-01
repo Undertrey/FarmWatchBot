@@ -446,7 +446,7 @@ IF %FirstRun% EQU 1 (
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurTemp=Current temp:
-		FOR /F "tokens=4,5 delims=.AMGPUC " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
+		FOR /F "tokens=4,5 delims=.AMGPUC>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
 			IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%bC,
 			IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%bC*,
 		)
@@ -457,7 +457,7 @@ IF %FirstRun% EQU 1 (
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
-		FOR /F "tokens=4,7 delims=.AMGPU " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
+		FOR /F "tokens=4,7 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
 			IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData= G%%a %%b Sol/s,
 		)
 		SET CurrSpeed=!CurrSpeed!!SpeedData!
