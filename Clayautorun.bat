@@ -186,7 +186,7 @@ EXIT
 CLS && COLOR 4F && MODE CON cols=67 lines=40
 ECHO +================================================================+
 ECHO           Attempting to switch to the main pool server...
-ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
 CALL :tlg "Attempting to switch to the main pool server..."
@@ -196,33 +196,45 @@ GOTO hardstart
 CLS && COLOR 4F && MODE CON cols=67 lines=40
 ECHO +================================================================+
 ECHO                  Scheduled restart, please wait...
-ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                            Restarting...
 ECHO +================================================================+
 CALL :tlg "Scheduled restart, please wait..."
-CALL :log "Scheduled restart, please wait... Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
+CALL :log "Scheduled restart, please wait... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 IF %~1 EQU 1 GOTO hardstart
 IF %~1 EQU 2 GOTO restart
 :error
 CLS && COLOR 4F && MODE CON cols=67 lines=40
+SET /A ErrorsCounter+=1
+IF %ErrorsCounter% GEQ %ErrorsAmount% (
+	ECHO +================================================================+
+	ECHO              Too many errors, need clear GPU cash...
+	ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
+	ECHO                       Computer restarting...
+	ECHO +================================================================+
+	CALL :log "Too many errors. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
+	GOTO restart
+)
 ECHO +================================================================+
 ECHO                        Something is wrong...
-ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
 CALL :tlg "Miner restarting..."
-CALL :log "Miner restarting... Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
-SET /A ErrorsCounter+=1
+CALL :log "Miner restarting... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 :start
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT1=%%A
 SET Mh1=1%DT1:~4,2%
 SET Dy1=1%DT1:~6,2%
 SET Hr1=1%DT1:~8,2%
 SET Me1=1%DT1:~10,2%
+SET Ss1=1%DT1:~12,2%
 SET /A Mh1=%Mh1%-100
 SET /A Dy1=%Dy1%-100
 SET /A Hr1=%Hr1%-100
 SET /A Me1=%Me1%-100
+SET /A Ss1=%Ss1%-100
+SET /A DTDiff1=%Hr1%*60*60+%Me1%*60+%Ss1%
 IF NOT EXIST "%MinerProcess%" (
 	ECHO "%MinerProcess%" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
@@ -379,17 +391,32 @@ SET Mh2=1%DT2:~4,2%
 SET Dy2=1%DT2:~6,2%
 SET Hr2=1%DT2:~8,2%
 SET Me2=1%DT2:~10,2%
+SET Ss2=1%DT2:~12,2%
 SET /A Mh2=%Mh2%-100
 SET /A Dy2=%Dy2%-100
 SET /A Hr2=%Hr2%-100
 SET /A Me2=%Me2%-100
-SET /A DTDiff=%Me2%+(%Hr2%*60)+(%Dy2%*1440)+(%Mh2%43200)-(%Mh1%43200)-(%Dy1%*1440)-(%Hr1%*60)-%Me1%
-SET /A DyDiff=%DTDiff%/1440
-SET /A HrDiff=(%DTDiff%-%DyDiff%*1440)/60
-SET /A MeDiff=%DTDiff%-%HrDiff%*60-%DyDiff%*1440
-IF %DyDiff% LSS 10 SET DyDiff=0%DyDiff%
+SET /A Ss2=%Ss2%-100
+IF %Mh2% NEQ %Mh1% (
+	CALL :log "Miner must be restarted, please wait..."
+	GOTO hardstart
+)
+SET /A DTDiff2=%Hr2%*60*60+%Me2%*60+%Ss2%
+IF %Dy2% GTR %Dy1% (
+	SET /A DTDiff=^(%Dy2%-%Dy1%^)*86400-%DTDiff1%+%DTDiff2%
+) ELSE (
+	IF %DTDiff2% GEQ %DTDiff1% (
+		SET /A DTDiff=%DTDiff2%-%DTDiff1%
+	) ELSE (
+		SET /A DTDiff=%DTDiff1%-%DTDiff2%
+	)
+)
+SET /A HrDiff=%DTDiff%/60/60
+SET /A MeDiff=%DTDiff% %% 3600/60
+SET /A SsDiff=%DTDiff% %% 60
 IF %HrDiff% LSS 10 SET HrDiff=0%HrDiff%
 IF %MeDiff% LSS 10 SET MeDiff=0%MeDiff%
+IF %SsDiff% LSS 10 SET SsDiff=0%SsDiff%
 IF %MidnightAutoRestart% EQU 1 IF %Dy2% NEQ %Dy1% CALL :shedule "1"
 IF %MidnightAutoRestart% EQU 2 IF %Dy2% NEQ %Dy1% CALL :shedule "2"
 IF %EveryHourAutoRestart% EQU 1 IF %HrDiff% GEQ 1 CALL :shedule "1"
@@ -403,14 +430,6 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 timeout.exe /T 1 /nobreak >NUL
-IF %ErrorsCounter% GEQ %ErrorsAmount% (
-	ECHO              Too many errors, need clear GPU cash...
-	ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
-	ECHO                       Computer restarting...
-	ECHO +================================================================+
-	CALL :log "Too many errors. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
-	GOTO restart
-)
 IF %FirstRun% EQU 1 (
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /F "tokens=2,6,10,14,18,22,26,30,34,38,42,46,50 delims==,tC " %%a IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
@@ -493,12 +512,12 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 				taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 				ECHO +================================================================+
 				ECHO       Check config.bat file for errors or pool is offline...
-				ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+				ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 				ECHO               Miner restarting with default values...
 				ECHO +================================================================+
 				ECHO Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 				CALL :tlg "Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online."
-				CALL :log "Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
+				CALL :log "Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 				SET SwitchToDefault=1
 				IF %EnableAdditionalServer% EQU 1 (
 					IF %ServerQueue% EQU 1 CALL :bat "%Server2BatCommand%" "2"
@@ -515,13 +534,13 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 			) || (
 				ECHO +================================================================+
 				ECHO               Something is wrong with your Internet...
-				ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+				ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 				ECHO                      Attempting to reconnect...
 				ECHO +================================================================+
 				CALL :tlg "Something is wrong with your Internet. Please check your connection."
-				CALL :log "Something is wrong with your Internet. Please check your connection. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
+				CALL :log "Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 				:tryingreconnect
-				IF %DyDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
+				IF %SsDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
 				IF %InternetErrorsCounter% GTR 60 GOTO restart
 				ECHO Attempt !InternetErrorsCounter! to restore Internet connection.
 				SET /A InternetErrorsCounter+=1
@@ -563,23 +582,23 @@ FOR /F "delims=" %%A IN ('findstr.exe /I /R %MinerErrorsList% %MinerWarningsList
 		CLS && COLOR 4F && MODE CON cols=67 lines=40
 		ECHO +================================================================+
 		ECHO                     Temperature limit reached...
-		ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+		ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 		ECHO +================================================================+
 		CALL :log "!CurTemp!"
-		IF %DyDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% LSS 10 (
+		IF %SsDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% LSS 10 (
 			tskill.exe /A /V %GPUOverclockProcess% >NUL
 			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
 			timeout.exe /T 5 /nobreak >NUL
 			taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 			ECHO !CurTemp!& ECHO Please ensure your GPUs have enough air flow.& ECHO GPUs will now STOP MINING.& ECHO Waiting for users input...
 			CALL :tlg "!CurTemp!%%%%0A%%%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*"
-			CALL :log "Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
+			CALL :log "Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 			PAUSE
 			GOTO hardstart
 		) ELSE (
 			ECHO !CurTemp!& ECHO Fans may be stuck.
 			CALL :tlg "!CurTemp!%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..."
-			CALL :log "Temperature limit reached. Fans may be stuck. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%."
+			CALL :log "Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 			GOTO restart
 		)
 	)
@@ -647,16 +666,16 @@ IF %FirstRun% EQU 0 (
 	IF !NumberOfGPUs! GTR !GPUCount! (
 		IF %AllowRestartGPU% EQU 1 (
 			ECHO              Failed load all GPUs. Number of GPUs: !GPUCount!/!NumberOfGPUs!
-			ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+			ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 			ECHO                       Computer restarting...
 			ECHO +================================================================+
 			CALL :tlg "Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*"
-			CALL :log "Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%"
+			CALL :log "Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%"
 			GOTO restart
 		) ELSE (
 			ECHO Failed load all GPUs. Number of GPUs: !GPUCount!/!NumberOfGPUs!
 			CALL :tlg "Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*"
-			CALL :log "Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!. Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%"
+			CALL :log "Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%"
 			IF %AverageTotalHashrate% NEQ 0 SET /A AverageTotalHashrate=%AverageTotalHashrate%/!NumberOfGPUs!*!GPUCount!
 		)
 	)
@@ -687,15 +706,15 @@ ECHO +================================================================+
 ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: %HashrateErrorsCount%/%HashrateErrorsAmount% !MinHashrate!/50
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/10
 ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
-ECHO                      Miner ran for %DyDiff% d. %HrDiff%:%MeDiff%
+ECHO                       Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +============================================================[%Time:~-5,2%]+
 IF %EnableTelegramNotifications% EQU 1 (
 	IF %Me2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %Me2% GEQ 30 (
-		IF %EnableEveryHourInfoSend% EQU 1 CALL :tlg "Miner has been running for *%DyDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!."
-		IF %EnableEveryHourInfoSend% EQU 2 CALL :tlg "Miner has been running for *%DyDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!."
-		IF %EnableEveryHourInfoSend% EQU 3 CALL :tlg "Online, *%DyDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*."
-		IF %EnableEveryHourInfoSend% EQU 4 CALL :tlg "Online, *%DyDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*."
+		IF %EnableEveryHourInfoSend% EQU 1 CALL :tlg "Miner has been running for *%SsDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!."
+		IF %EnableEveryHourInfoSend% EQU 2 CALL :tlg "Miner has been running for *%SsDiff%* d. *%HrDiff%:%MeDiff%* - do not worry.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!."
+		IF %EnableEveryHourInfoSend% EQU 3 CALL :tlg "Online, *%SsDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*."
+		IF %EnableEveryHourInfoSend% EQU 4 CALL :tlg "Online, *%SsDiff%* d. *%HrDiff%:%MeDiff%*, *!LastHashrate!*."
 		SET AllowSend=0
 	)
 )
