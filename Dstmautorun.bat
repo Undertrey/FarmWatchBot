@@ -617,6 +617,7 @@ IF %EnableAPAutorun% EQU 1 (
 	)
 )
 IF %FirstRun% EQU 0 (
+	timeout.exe /T 10 /nobreak >NUL
 	SET FirstRun=1
 	SET GPUCount=0
 	ECHO +================================================================+
