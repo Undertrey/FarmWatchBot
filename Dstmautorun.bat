@@ -538,7 +538,7 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 				CALL :tlg "Something is wrong with your Internet. Please check your connection."
 				CALL :log "Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%."
 				:tryingreconnect
-				IF %SsDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
+				IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
 				IF %InternetErrorsCounter% GTR 60 GOTO restart
 				ECHO Attempt !InternetErrorsCounter! to restore Internet connection.
 				SET /A InternetErrorsCounter+=1
@@ -583,7 +583,7 @@ FOR /F "delims=" %%A IN ('findstr.exe /I /R %MinerErrorsList% %MinerWarningsList
 		ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 		ECHO +================================================================+
 		CALL :log "!CurTemp!"
-		IF %SsDiff% EQU 0 IF %HrDiff% EQU 0 IF %MeDiff% LSS 10 (
+		IF %HrDiff% EQU 0 IF %MeDiff% LSS 10 (
 			tskill.exe /A /V %GPUOverclockProcess% >NUL
 			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
 			timeout.exe /T 5 /nobreak >NUL
