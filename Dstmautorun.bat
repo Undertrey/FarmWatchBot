@@ -158,10 +158,19 @@ GOTO checkconfig
 :bat
 > %MinerBat% ECHO @ECHO off
 >> %MinerBat% ECHO TITLE %MinerBat%
->> %MinerBat% ECHO ECHO All output redirected to miner.log
+>> %MinerBat% ECHO ECHO All output redirected to miner.log. Watcher activated.
 >> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 >> %MinerBat% ECHO ^>^> miner.log %~1
 >> %MinerBat% ECHO EXIT
+> watch%MinerBat% ECHO @ECHO off
+>> watch%MinerBat% ECHO TITLE watch%MinerBat%
+>> watch%MinerBat% ECHO :start
+>> watch%MinerBat% ECHO CLS 
+>> watch%MinerBat% ECHO MODE CON cols=110
+>> watch%MinerBat% ECHO type miner.log
+>> watch%MinerBat% ECHO timeout.exe /T 5 /nobreak ^>NUL
+>> watch%MinerBat% ECHO tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2^>NUL^| find.exe /I /N "%MinerProcess%" ^>NUL ^|^| EXIT
+>> watch%MinerBat% ECHO GOTO start
 SET ServerQueue=%~2
 EXIT /B
 :log
@@ -354,7 +363,8 @@ IF NOT EXIST "%MinerBat%" (
 		findstr.exe /L /C:"EXIT" %MinerBat% 2>NUL 1>&2 || CALL :bat "%Server1BatCommand%" "1"
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	START "%MinerBat%" "%MinerBat%" && (
+	START /MIN "%MinerBat%" "%MinerBat%" && (
+		IF EXIST "watch%MinerBat%" START "watch%MinerBat%" "watch%MinerBat%"
 		ECHO Miner was started.
 		CALL :tlg "Miner was started. v.%Version%."
 		CALL :log "Miner was started. v.%Version%."
@@ -433,31 +443,37 @@ IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 timeout.exe /T 1 /nobreak >NUL
 IF %FirstRun% EQU 1 (
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=4,5 delims=.GPUC " %%a IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*" miner.log') DO (
-		IF %%a EQU 0 SET CurTemp=Current temp:
-		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET CurTemp=!CurTemp! G%%a %%bC,
-		IF NOT "%%b" == "" IF %%b GEQ 70 SET CurTemp=!CurTemp! G%%a *%%bC*,
+	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
+		SET /A Variable=%%A-1
+		IF !Variable! EQU 0 SET CurTemp=Current temp:
+		FOR /F "tokens=4,5 delims=.AMGPUC " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
+			IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%bC,
+			IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%bC*,
+		)
+		SET CurTemp=!CurTemp!!TempData!
 	)
 	SET CurTemp=!CurTemp:~0,-1!
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=4,7 delims=.GPU " %%a IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*" miner.log') DO (
-		IF %%a EQU 0 SET CurrSpeed=Current speed:
-		IF NOT "%%b" == "" IF %%b GEQ 0 SET CurrSpeed=!CurrSpeed! G%%a %%b Sol/s,
+	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
+		SET /A Variable=%%A-1
+		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
+		FOR /F "tokens=4,7 delims=.AMGPU " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
+			IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData= G%%a %%b Sol/s,
+		)
+		SET CurrSpeed=!CurrSpeed!!SpeedData!
 	)
 	SET CurrSpeed=!CurrSpeed:~0,-1!
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=6 delims=. " %%A IN ('findstr.exe /R /C:".*= Sol/s:.*" miner.log') DO (
-		SET LastHashrate=%%A
-		IF !LastHashrate! == "" (
-			FOR /F "tokens=7 delims=.GPU " %%a IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*" miner.log') DO (
-				SET LastHashrate=%%a
-			)
+	FOR /F "tokens=6,7 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" miner.log') DO (
+		IF !NumberOfGPUs! EQU 1 IF %%B GEQ 10 SET LastHashrate=%%B
+		IF !NumberOfGPUs! GEQ 2 IF NOT "%%A" == "Sol/s:" SET LastHashrate=%%A
+		IF DEFINED LastHashrate (
+			IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
+			IF !MinHashrate! GEQ 50 GOTO passaveragecheck
+			SET /A Hashcount+=1
+			SET /A SumHash=SumHash+!LastHashrate!
+			SET /A SumResult=SumHash/Hashcount
 		)
-		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
-		IF !MinHashrate! GEQ 50 GOTO passaveragecheck
-		SET /A Hashcount+=1
-		SET /A SumHash=SumHash+!LastHashrate!
-		SET /A SumResult=SumHash/Hashcount
 	)
 	timeout.exe /T 1 /nobreak >NUL
 	IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
