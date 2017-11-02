@@ -44,6 +44,7 @@ SET tpr=C8go_jp8%tprt%
 SET OtherErrorsList=/C:"ERROR:.*"
 SET /A Num=(3780712+3780711)*6*9
 SET OtherWarningsList=/C:"WARNING:.*"
+SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
@@ -500,11 +501,11 @@ IF %FirstRun% EQU 1 (
 timeout.exe /T 1 /nobreak >NUL
 IF %EnableInternetConnectivityCheck% EQU 1 (
 	FOR /F "delims=" %%A IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%A
-	ECHO "!LastInternetError!"| findstr.exe /I /R %InternetErrorsList% && (
+	ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% && (
 		timeout.exe /T 20 /nobreak >NUL
 		FOR /F "delims=" %%B IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%B
-		ECHO "!LastInternetError!"| findstr.exe /I /R %InternetErrorsList% && (
-			CALL :log "!LastInternetError!"
+		ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% && (
+			>> "%~n0.log" ECHO [%Date%][%Time:~-11,8%] !LastInternetError!
 			CLS && COLOR 4F && MODE CON cols=67 lines=40
 			ping.exe google.com| find.exe /I "TTL=" >NUL && (
 				taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
@@ -545,7 +546,7 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 				ECHO Attempt !InternetErrorsCounter! to restore Internet connection.
 				SET /A InternetErrorsCounter+=1
 				FOR /F "delims=" %%C IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%C
-				ECHO "!LastInternetError!"| findstr.exe /I /R %InternetErrorsCancel% && (
+				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsCancel% && (
 					ECHO +================================================================+
 					ECHO                   Connection has been restored...
 					ECHO                         Continue mining...
@@ -608,7 +609,7 @@ FOR /F "delims=" %%A IN ('findstr.exe /I /R %MinerErrorsList% %MinerWarningsList
 		CALL :log "Critical error from GPU. Voltage or Overclock issue."
 		GOTO restart
 	)
-	ECHO "%%A"| findstr.exe /I /R /V %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %InternetErrorsList% 2>NUL && (
+	ECHO "%%A"| findstr.exe /I /R /V %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %InternetErrorsList% %IgnoreErrorsList% 2>NUL && (
 		CALL :tlg "%%A"
 		CALL :log "%%A"
 		CALL :log "Unknown error or warning found. Please send this message to developer."
