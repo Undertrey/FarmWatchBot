@@ -525,9 +525,9 @@ IF %EnableInternetConnectivityCheck% EQU 1 (
 					IF %ServerQueue% EQU 2 CALL :bat "%Server3BatCommand%" "3"
 					IF %ServerQueue% EQU 3 CALL :bat "%Server4BatCommand%" "4"
 					IF %ServerQueue% EQU 4 CALL :bat "%Server5BatCommand%" "5"
-					IF %ServerQueue% EQU 5 CALL :bat "ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr174 -zpsw x -i 7 -tstop 95 -logfile miner.log" "1"
+					IF %ServerQueue% EQU 5 CALL :bat "miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr174 --pass x --log 2 --fee 0 --templimit 90 --pec" "1"
 				) ELSE (
-					CALL :bat "ZecMiner64.exe -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr174 -zpsw x -i 7 -tstop 95 -logfile miner.log" "1"
+					CALL :bat "miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr174 --pass x --log 2 --fee 0 --templimit 90 --pec" "1"
 				)
 				ECHO Default %MinerBat% created. Please check it for errors.
 				SET /A ErrorsCounter+=1
