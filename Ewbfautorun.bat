@@ -390,13 +390,13 @@ IF NOT EXIST "%MinerBat%" (
 		ECHO Collecting information. Please wait...
 	)
 )
-SET InternetErrorsCounter=1
 SET HashrateErrorsCount=0
 SET OldHashrate=0
 SET FirstRun=0
 SET GPUCount=0
 timeout.exe /T 15 /nobreak >NUL
 :check
+SET InternetErrorsCounter=1
 SET MinHashrate=0
 SET Hashcount=0
 SET SumHash=0
@@ -513,112 +513,115 @@ IF %FirstRun% EQU 1 (
 	timeout.exe /T 5 /nobreak >NUL
 )
 timeout.exe /T 1 /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
-	IF %ChatId% NEQ 0 ECHO %%N| findstr.exe /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-	ECHO %%N| findstr.exe /V %InternetErrorsList% >NUL && >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
+	IF %ChatId% NEQ 0 ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
+	ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% >NUL && >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
 	IF %EnableInternetConnectivityCheck% EQU 1 (
-		ECHO %%N| findstr.exe %InternetErrorsList% 2>NUL && (
-			timeout.exe /T 20 /nobreak >NUL
-			FOR /F "delims=" %%M IN ('findstr.exe %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
-			ECHO !LastInternetError!| findstr.exe %InternetErrorsList% >NUL && (
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
-				ping.exe google.com| find.exe /I "TTL=" >NUL && (
-					CLS
-					COLOR 4F
-					taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
-					timeout.exe /T 5 /nobreak >NUL
-					taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
-					ECHO +================================================================+
-					ECHO       Check config.bat file for errors or pool is offline...
-					ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
-					ECHO               Miner restarting with default values...
-					ECHO +================================================================+
-					ECHO Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-					> %MinerBat% ECHO @ECHO off
-					>> %MinerBat% ECHO TITLE %MinerBat%
-					>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
-					SET SwitchToDefault=1
-					IF %EnableAdditionalServer% EQU 1 (
-						IF %ServerQueue% EQU 1 (
-							>> %MinerBat% ECHO %Server2BatCommand%
-							SET ServerQueue=2
-						)
-						IF %ServerQueue% EQU 2 (
-							>> %MinerBat% ECHO %Server3BatCommand%
-							SET ServerQueue=3
-						)
-						IF %ServerQueue% EQU 3 (
-							>> %MinerBat% ECHO %Server4BatCommand%
-							SET ServerQueue=4
-						)
-						IF %ServerQueue% EQU 4 (
-							>> %MinerBat% ECHO %Server5BatCommand%
-							SET ServerQueue=5
-						)
-						IF %ServerQueue% EQU 5 (
-							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --log 2 --fee 0 --templimit 90 --pec
-							SET ServerQueue=1
-						)
-					) ELSE (
-						>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --log 2 --fee 0 --templimit 90 --pec
-					)
-					>> %MinerBat% ECHO EXIT
-					ECHO Default %MinerBat% created. Please check it for errors.
-					SET /A ErrorsCounter+=1
-					GOTO start
-				) || (
-					CLS
-					COLOR 4F
-					ECHO +================================================================+
-					ECHO               Something is wrong with your Internet...
-					ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
-					ECHO                      Attempting to reconnect...
-					ECHO +================================================================+
+		ECHO %%N| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
+			FOR /F "delims=" %%M IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
+			ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
+				timeout.exe /T 20 /nobreak >NUL
+				FOR /F "delims=" %%M IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
+				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
 					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
-					:tryingreconnect
-					IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
-					IF %InternetErrorsCounter% GTR 60 GOTO restart
-					ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
-					SET /A InternetErrorsCounter+=1
-					FOR /F "delims=" %%C IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%C
-					ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsCancel% && (
+					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
+					ping.exe google.com| find.exe /I "TTL=" >NUL && (
+						CLS
+						COLOR 4F
+						taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
+						timeout.exe /T 5 /nobreak >NUL
+						taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
+						ECHO +================================================================+
+						ECHO       Check config.bat file for errors or pool is offline...
+						ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
+						ECHO               Miner restarting with default values...
+						ECHO +================================================================+
+						ECHO Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
+						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+						> %MinerBat% ECHO @ECHO off
+						>> %MinerBat% ECHO TITLE %MinerBat%
+						>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+						SET SwitchToDefault=1
+						IF %EnableAdditionalServer% EQU 1 (
+							IF %ServerQueue% EQU 1 (
+								>> %MinerBat% ECHO %Server2BatCommand%
+								SET ServerQueue=2
+							)
+							IF %ServerQueue% EQU 2 (
+								>> %MinerBat% ECHO %Server3BatCommand%
+								SET ServerQueue=3
+							)
+							IF %ServerQueue% EQU 3 (
+								>> %MinerBat% ECHO %Server4BatCommand%
+								SET ServerQueue=4
+							)
+							IF %ServerQueue% EQU 4 (
+								>> %MinerBat% ECHO %Server5BatCommand%
+								SET ServerQueue=5
+							)
+							IF %ServerQueue% EQU 5 (
+								>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --log 2 --fee 0 --templimit 90 --pec
+								SET ServerQueue=1
+							)
+						) ELSE (
+							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --log 2 --fee 0 --templimit 90 --pec
+						)
+						>> %MinerBat% ECHO EXIT
+						ECHO Default %MinerBat% created. Please check it for errors.
+						SET /A ErrorsCounter+=1
+						GOTO start
+					) || (
+						CLS
+						COLOR 4F
+						ECHO +================================================================+
+						ECHO               Something is wrong with your Internet...
+						ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
+						ECHO                      Attempting to reconnect...
+						ECHO +================================================================+
+						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
+						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
+						:tryingreconnect
+						IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
+						IF %InternetErrorsCounter% GTR 60 GOTO restart
+						ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
+						SET /A InternetErrorsCounter+=1
+						FOR /F "delims=" %%C IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%C
+						ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsCancel% && (
+							ECHO +================================================================+
+							ECHO                   Connection has been restored...
+							ECHO                         Continue mining...
+							ECHO +================================================================+
+							IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Continue mining...')" 2>NUL 1>&2
+							>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Continue mining...
+							GOTO check
+						)
+						ping.exe google.com| find.exe /I "TTL=" >NUL && GOTO reconnected || (
+							timeout.exe /T 60 /nobreak >NUL
+							GOTO tryingreconnect
+						)
+						:reconnected
 						ECHO +================================================================+
 						ECHO                   Connection has been restored...
-						ECHO                         Continue mining...
+						ECHO                         Miner restarting...
 						ECHO +================================================================+
-						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Continue mining...')" 2>NUL 1>&2
-						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Continue mining...
-						GOTO check
+						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting...')" 2>NUL 1>&2
+						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
+						GOTO start
 					)
-					ping.exe google.com| find.exe /I "TTL=" >NUL && GOTO reconnected || (
-						timeout.exe /T 60 /nobreak >NUL
-						GOTO tryingreconnect
-					)
-					:reconnected
-					ECHO +================================================================+
-					ECHO                   Connection has been restored...
-					ECHO                         Miner restarting...
-					ECHO +================================================================+
-					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting...')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
-					GOTO start
 				)
 			)
 		)
 	)
-	ECHO %%N| findstr.exe %MinerErrorsList% 2>NUL && (
+	ECHO %%N| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Error from GPU. Voltage or Overclock issue.
 		GOTO error
 	)
-	ECHO %%N| findstr.exe %CriticalErrorsList% 2>NUL && (
+	ECHO %%N| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %%N| findstr.exe %MinerWarningsList% 2>NUL && (
+	ECHO %%N| findstr.exe /I /R %MinerWarningsList% 2>NUL && (
 		CLS
 		COLOR 4F
 		ECHO +================================================================+
@@ -645,7 +648,7 @@ FOR /F "delims=" %%N IN ('findstr.exe %InternetErrorsList% %MinerErrorsList% %Cr
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %%N| findstr.exe /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
+	ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unknown error or warning found. Please send this message to developer.
 		GOTO error
 	)
