@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.7.5
+SET Version=1.7.6
 :hardstart
 CLS
 COLOR 1F
@@ -18,6 +18,8 @@ REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
+REM Disable 0Sol/s error. (0 - false, 1 - true)
+SET Disable0SolsError=0
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=zm.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
@@ -57,7 +59,8 @@ SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
+IF %Disable0SolsError% EQU 0 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
+IF %Disable0SolsError% EQU 1 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
 SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed.*" /C:".*not responding.*" /C:".*closed by server.*"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
@@ -65,12 +68,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --time --temp-target 90
+SET Server1BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
 SET EnableAdditionalServer=0
-SET Server2BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --time --temp-target 90
-SET Server3BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --time --temp-target 90
-SET Server4BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --time --temp-target 90
-SET Server5BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr175 --pass x --time --temp-target 90
+SET Server2BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
+SET Server3BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
+SET Server4BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
+SET Server5BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -86,9 +89,9 @@ SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48100 EXIT
 		FOR %%B IN (config.bat) DO (
-			IF %%~ZB LSS 4600 (
+			IF %%~ZB LSS 4500 (
 				ECHO Config.bat file error. It is corrupted.
 			) ELSE (
 				CALL config.bat && ECHO Config.bat loaded.
@@ -237,8 +240,8 @@ IF %EnableGPUEnvironments% EQU 1 (
 	REG DELETE HKCU\Environment /F /V GPU_MAX_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_MAX_ALLOC_PERCENT successfully removed from environments.
 	REG DELETE HKCU\Environment /F /V GPU_SINGLE_ALLOC_PERCENT 2>NUL 1>&2 && ECHO GPU_SINGLE_ALLOC_PERCENT successfully removed from environments.
 )
-ECHO Loading...
-timeout.exe /T 30 /nobreak >NUL
+ECHO Please wait or press any key to continue...
+timeout.exe /T 30 >NUL
 :start
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT1=%%A
 SET Mh1=1%DT1:~4,2%
@@ -324,8 +327,8 @@ taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
 	timeout.exe /T 5 /nobreak >NUL
 	taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% was successfully killed.
-	ECHO Please wait...
-	timeout.exe /T 30 /nobreak >NUL
+	ECHO Please wait or press any key to continue...
+	timeout.exe /T 30 >NUL
 )
 IF EXIST "miner.log" (
 	MOVE /Y miner.log Logs\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.log 2>NUL 1>&2 || (
@@ -443,7 +446,7 @@ IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 IF %FirstRun% EQU 1 (
 	> debug.log echo Algo OK 1
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=6,7 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" miner.log') DO (
+	FOR /F "tokens=5,6 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" miner.log') DO (
 		IF !NumberOfGPUs! EQU 1 IF %%B GEQ 10 SET LastHashrate=%%B
 		IF !NumberOfGPUs! GEQ 2 IF NOT "%%A" == "Sol/s:" SET LastHashrate=%%A
 		IF DEFINED LastHashrate (
@@ -459,7 +462,7 @@ IF %FirstRun% EQU 1 (
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurTemp=Current temp:
-		FOR /F "tokens=4,5 delims=.AMGPUC>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
+		FOR /F "tokens=3,4 delims=.AMGPUC>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
 			IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%bC,
 			IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%bC*,
 		)
@@ -471,7 +474,7 @@ IF %FirstRun% EQU 1 (
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
-		FOR /F "tokens=4,7 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
+		FOR /F "tokens=3,6 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
 			IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData= G%%a %%b Sol/s,
 		)
 		SET CurrSpeed=!CurrSpeed!!SpeedData!
@@ -500,7 +503,7 @@ IF %FirstRun% EQU 1 (
 		SET LstShareDiff=0
 		SET LstShareMin=-1
 		timeout.exe /T 1 /nobreak >NUL
-		FOR /F "tokens=4 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*\+" miner.log') DO SET LstShareMin=1%%A
+		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*\+" miner.log') DO SET LstShareMin=1%%A
 		SET /A LstShareMin=!LstShareMin!-100
 		IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
 			IF !LstShareMin! EQU 0 SET LstShareMin=59
@@ -551,27 +554,27 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 						SET SwitchToDefault=1
 						IF %EnableAdditionalServer% EQU 1 (
 							IF %ServerQueue% EQU 1 (
-								>> %MinerBat% ECHO %Server2BatCommand%
+								>> %MinerBat% ECHO ^>^> miner.log %Server2BatCommand%
 								SET ServerQueue=2
 							)
 							IF %ServerQueue% EQU 2 (
-								>> %MinerBat% ECHO %Server3BatCommand%
+								>> %MinerBat% ECHO ^>^> miner.log %Server3BatCommand%
 								SET ServerQueue=3
 							)
 							IF %ServerQueue% EQU 3 (
-								>> %MinerBat% ECHO %Server4BatCommand%
+								>> %MinerBat% ECHO ^>^> miner.log %Server4BatCommand%
 								SET ServerQueue=4
 							)
 							IF %ServerQueue% EQU 4 (
-								>> %MinerBat% ECHO %Server5BatCommand%
+								>> %MinerBat% ECHO ^>^> miner.log %Server5BatCommand%
 								SET ServerQueue=5
 							)
 							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn176 --pass x --time --temp-target 90
+								>> %MinerBat% ECHO ^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
 								SET ServerQueue=1
 							)
 						) ELSE (
-							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn176 --pass x --time --temp-target 90
+							>> %MinerBat% ECHO ^>^> miner.log zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.
@@ -688,7 +691,7 @@ IF %EnableAPAutorun% EQU 1 (
 IF %FirstRun% EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 10 /nobreak >NUL
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9]* connected to.*" miner.log') DO SET /A GPUCount+=1
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9].*connected to.*" miner.log') DO SET /A GPUCount+=1
 	IF !NumberOfGPUs! EQU 0 SET NumberOfGPUs=!GPUCount!
 	IF !NumberOfGPUs! GTR !GPUCount! (
 		IF %AllowRestartGPU% EQU 1 (
@@ -756,8 +759,8 @@ ECHO Now I will take care of your %RigName% and you can take a rest.
 IF %ChatId% NEQ 0 (
 	IF %Me2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %Me2% GEQ 30 (
-		IF %EnableEveryHourInfoSend% EQU 1 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2
-		IF %EnableEveryHourInfoSend% EQU 2 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&disable_notification=true&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* - do not worry.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2
+		IF %EnableEveryHourInfoSend% EQU 1 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%*.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2
+		IF %EnableEveryHourInfoSend% EQU 2 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&disable_notification=true&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%*.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2
 		IF %EnableEveryHourInfoSend% EQU 3 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2
 		IF %EnableEveryHourInfoSend% EQU 4 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&disable_notification=true&chat_id=%ChatId%&text=*%RigName%:* Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2
 		SET AllowSend=0
