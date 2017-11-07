@@ -18,8 +18,6 @@ REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
-REM Disable 0Sol/s error. (0 - false, 1 - true)
-SET Disable0SolsError=0
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=miner.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
@@ -59,9 +57,8 @@ SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
-IF %Disable0SolsError% EQU 0 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
-IF %Disable0SolsError% EQU 1 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
-SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed.*" /C:".*not responding.*" /C:".*closed by server.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:".* 0C.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
+SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -363,12 +360,12 @@ IF NOT EXIST "%MinerBat%" (
 		)
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	START "%MinerBat%" "%MinerBat%" && (
+	START /HIGH "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started. v.%Version%.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
 		timeout.exe /T 10 /nobreak >NUL
-		IF %EnableGPUOverclockMonitor% EQU 2 IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
+		IF %FirstRun% EQU 1 IF %EnableGPUOverclockMonitor% EQU 2 IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 	) || (
 		ECHO Unable to start miner.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner. v.%Version%.')" 2>NUL 1>&2
@@ -447,10 +444,12 @@ IF %FirstRun% EQU 1 (
 	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
 		SET LastHashrate=%%A
 		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
-		IF !MinHashrate! GEQ 50 GOTO passaveragecheck
+		IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
 		SET /A Hashcount+=1
 		SET /A SumHash=SumHash+!LastHashrate!
 		SET /A SumResult=SumHash/Hashcount
+		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+		
 	)
 	>> debug.log echo Algo OK 2
 	timeout.exe /T 1 /nobreak >NUL
@@ -471,9 +470,11 @@ IF %FirstRun% EQU 1 (
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m) DO (
 			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
+			IF NOT "%%A" == "" IF %%A EQU 0 SET /A MinHashrate+=1
 			SET /A GpuNum+=1
 		)
 		SET CurrSpeed=!CurrSpeed:~0,-1!
+		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	>> debug.log echo Algo OK 4
 	timeout.exe /T 1 /nobreak >NUL
@@ -505,6 +506,7 @@ IF %FirstRun% EQU 1 (
 			IF !LstShareMin! LSS %Me2% SET /A LstShareDiff=%Me2%-!LstShareMin!
 			IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
 			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
+			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
 			IF !LstShareDiff! GTR 10 (
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/!LstShareDiff!.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/!LstShareDiff!.
@@ -744,7 +746,7 @@ IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
 IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
 IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
 ECHO +================================================================+
-ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: %HashrateErrorsCount%/%HashrateErrorsAmount% !MinHashrate!/50
+ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: %HashrateErrorsCount%/%HashrateErrorsAmount% !MinHashrate!/99
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/10
 ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
