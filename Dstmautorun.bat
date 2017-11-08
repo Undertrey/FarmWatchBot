@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.7.6
+SET Version=1.7.7
 :hardstart
 CLS
 COLOR 1F
@@ -57,7 +57,7 @@ SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".* 0C.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:" 0C " /C:".*t=0C.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
 SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
@@ -65,12 +65,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
+SET Server1BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
 SET EnableAdditionalServer=0
-SET Server2BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
-SET Server3BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
-SET Server4BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
-SET Server5BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90
+SET Server2BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
+SET Server3BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
+SET Server4BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
+SET Server5BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -281,6 +281,7 @@ IF %EnableGPUOverclockMonitor% EQU 5 (
 IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 	IF NOT EXIST "%programfiles(x86)%%GPUOverclockPath%" (
 		ECHO Incorrect path to %GPUOverclockProcess%.exe. Default install path required to function. Please reinstall the software using the default path.
+		SET EnableGPUOverclockMonitor=0
 	) ELSE (
 		IF %FirstRun% EQU 1 IF %RestartGPUOverclockMonitor% EQU 1 (
 			tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2
@@ -324,7 +325,8 @@ taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
 	timeout.exe /T 5 /nobreak >NUL
 	taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% was successfully killed.
-	ECHO Please wait or press any key to continue...
+	ECHO Process %MinerProcess% was successfully killed.
+	ECHO Please wait 30 seconds or press any key to continue...
 	timeout.exe /T 30 >NUL
 )
 IF EXIST "miner.log" (
@@ -362,15 +364,19 @@ IF NOT EXIST "%MinerBat%" (
 		)
 	)
 	timeout.exe /T 1 /nobreak >NUL
+	IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
+		ECHO Waiting 2 minutes for the full load of Msi Afterburner...
+		timeout.exe /T 120 /nobreak >NUL
+		"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
+	)
 	START /HIGH "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started. v.%Version%.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
 		timeout.exe /T 10 /nobreak >NUL
-		IF %FirstRun% EQU 1 IF %EnableGPUOverclockMonitor% EQU 2 IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 	) || (
 		ECHO Unable to start miner.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner. v.%Version%.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start miner. v.%Version%.
 		GOTO hardstart
 	)
@@ -441,7 +447,6 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 IF %FirstRun% EQU 1 (
-	> debug.log echo Algo OK 1
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /F "tokens=5,6 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" miner.log') DO (
 		IF !NumberOfGPUs! EQU 1 IF %%B GEQ 10 SET LastHashrate=%%B
@@ -456,7 +461,6 @@ IF %FirstRun% EQU 1 (
 			
 		)
 	)
-	>> debug.log echo Algo OK 2
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
@@ -468,7 +472,6 @@ IF %FirstRun% EQU 1 (
 		SET CurTemp=!CurTemp!!TempData!
 	)
 	SET CurTemp=!CurTemp:~0,-1!
-	>> debug.log echo Algo OK 3
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
@@ -481,7 +484,6 @@ IF %FirstRun% EQU 1 (
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	SET CurrSpeed=!CurrSpeed:~0,-1!
-	>> debug.log echo Algo OK 4
 	timeout.exe /T 1 /nobreak >NUL
 	IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
 		IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
@@ -496,7 +498,6 @@ IF %FirstRun% EQU 1 (
 		SET /A HashrateErrorsCount+=1
 		SET OldHashrate=!SumResult!
 	)
-	>> debug.log echo Algo OK 5
 	timeout.exe /T 1 /nobreak >NUL
 	IF !PTOS1! GEQ 59 SET PTOS1=0
 	IF !PTOS1! LSS %Me2% (
@@ -522,7 +523,6 @@ IF %FirstRun% EQU 1 (
 ) ELSE (
 	timeout.exe /T 5 /nobreak >NUL
 )
->> debug.log echo Algo OK 6
 timeout.exe /T 1 /nobreak >NUL
 FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
 	IF %ChatId% NEQ 0 ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
@@ -572,11 +572,11 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 								SET ServerQueue=5
 							)
 							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90 ^>^> miner.log
+								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
 								SET ServerQueue=1
 							)
 						) ELSE (
-							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr176 --pass x --time --temp-target 90 ^>^> miner.log
+							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.
@@ -664,14 +664,12 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 		GOTO error
 	)
 )
->> debug.log echo Algo OK 7
 timeout.exe /T 1 /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% crashed.
 	GOTO error
 )
->> debug.log echo Algo OK 8
 IF %EnableGPUOverclockMonitor% LEQ 5 IF %EnableGPUOverclockMonitor% GTR 0 (
 	timeout.exe /T 1 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
@@ -680,7 +678,6 @@ IF %EnableGPUOverclockMonitor% LEQ 5 IF %EnableGPUOverclockMonitor% GTR 0 (
 		GOTO error
 	)
 )
->> debug.log echo Algo OK 9
 IF %EnableAPAutorun% EQU 1 (
 	timeout.exe /T 1 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %APProcessName%" 2>NUL| find.exe /I /N "%APProcessName%" >NUL || (
@@ -689,7 +686,6 @@ IF %EnableAPAutorun% EQU 1 (
 		GOTO error
 	)
 )
->> debug.log echo Algo OK 10
 IF %FirstRun% EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 10 /nobreak >NUL
@@ -757,7 +753,6 @@ ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %RigName% and you can take a rest.
->> debug.log echo Algo OK 11
 IF %ChatId% NEQ 0 (
 	IF %Me2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %Me2% GEQ 30 (
