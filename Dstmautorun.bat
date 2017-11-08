@@ -57,8 +57,8 @@ SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:" 0C " /C:".*t=0C.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*"
-SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
+SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -402,6 +402,7 @@ timeout.exe /T 15 /nobreak >NUL
 SET InternetErrorsCounter=1
 SET MinHashrate=0
 SET Hashcount=0
+SET LastError=0
 SET SumHash=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT2=%%A
 SET Mh2=1%DT2:~4,2%
@@ -458,7 +459,7 @@ IF %FirstRun% EQU 1 (
 			SET /A SumHash=SumHash+!LastHashrate!
 			SET /A SumResult=SumHash/Hashcount
 			IF !MinHashrate! GEQ 99 GOTO passaveragecheck
-			
+
 		)
 	)
 	timeout.exe /T 1 /nobreak >NUL
@@ -476,7 +477,7 @@ IF %FirstRun% EQU 1 (
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
-		FOR /F "tokens=3,6 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (	
+		FOR /F "tokens=3,6 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
 			IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData= G%%a %%b Sol/s,
 			IF NOT "%%b" == "" IF %%b EQU 0 SET /A MinHashrate+=1
 		)
@@ -514,8 +515,8 @@ IF %FirstRun% EQU 1 (
 			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
 			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
 			IF !LstShareDiff! GTR 10 (
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/!LstShareDiff!.')" 2>NUL 1>&2
-				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/!LstShareDiff!.
+				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
 				GOTO error
 			)
 		)
@@ -524,18 +525,17 @@ IF %FirstRun% EQU 1 (
 	timeout.exe /T 5 /nobreak >NUL
 )
 timeout.exe /T 1 /nobreak >NUL
-FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %OtherErrorsList% %MinerWarningsList% %OtherWarningsList% miner.log') DO (
-	IF %ChatId% NEQ 0 ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% %MinerWarningsList% >NUL && powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-	ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% >NUL && >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
+FOR /F "tokens=2 delims=>#|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% %OtherErrorsList% miner.log') DO SET LastError=%%N
+IF NOT "!LastError!" == "0" (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
-		ECHO %%N| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
-			FOR /F "tokens=2 delims=|" %%M IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
+		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
+			FOR /F "tokens=2 delims=>#|" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 			ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
 				timeout.exe /T 20 /nobreak >NUL
-				FOR /F "tokens=2 delims=|" %%M IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%M
+				FOR /F "tokens=2 delims=>#|" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
-					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %%N
+					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 					ping.exe google.com| find.exe /I "TTL=" >NUL && (
 						CLS
 						COLOR 4F
@@ -572,11 +572,11 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 								SET ServerQueue=5
 							)
 							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
+								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
 								SET ServerQueue=1
 							)
 						) ELSE (
-							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
+							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.
@@ -590,14 +590,13 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 						ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 						ECHO                      Attempting to reconnect...
 						ECHO +================================================================+
-						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %%N')" 2>NUL 1>&2
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 						:tryingreconnect
 						IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
 						IF %InternetErrorsCounter% GTR 60 GOTO restart
 						ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
 						SET /A InternetErrorsCounter+=1
-						FOR /F "tokens=2 delims=|" %%C IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%C
+						FOR /F "tokens=2 delims=>#|" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 						ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsCancel% && (
 							ECHO +================================================================+
 							ECHO                   Connection has been restored...
@@ -624,15 +623,19 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 			)
 		)
 	)
-	ECHO %%N| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
+	ECHO !LastError!| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Error from GPU. Voltage or Overclock issue.
 		GOTO error
 	)
-	ECHO %%N| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
+	ECHO !LastError!| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %%N| findstr.exe /I /R %MinerWarningsList% 2>NUL && (
+	ECHO !LastError!| findstr.exe /I /R %MinerWarningsList% 2>NUL && (
 		CLS
 		COLOR 4F
 		ECHO +================================================================+
@@ -659,7 +662,9 @@ FOR /F "tokens=2 delims=|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %Mine
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %%N| findstr.exe /I /R /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
+	ECHO !LastError!| findstr.exe /I /R /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unknown error or warning found. Please send this message to developer.
 		GOTO error
 	)
