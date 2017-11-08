@@ -367,7 +367,7 @@ IF NOT EXIST "%MinerBat%" (
 		timeout.exe /T 120 /nobreak >NUL
 		"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 	)
-	START /HIGH "%MinerBat%" "%MinerBat%" && (
+	START "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
@@ -455,7 +455,6 @@ IF %FirstRun% EQU 1 (
 		SET /A SumHash=SumHash+!LastHashrate!
 		SET /A SumResult=SumHash/Hashcount
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
-
 	)
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /F "tokens=3,5,7,9,11,13,15,17,19,21,23,25,27 delims=:C " %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" miner.log') DO (
@@ -551,27 +550,27 @@ IF NOT "!LastError!" == "0" (
 						SET SwitchToDefault=1
 						IF %EnableAdditionalServer% EQU 1 (
 							IF %ServerQueue% EQU 1 (
-								>> %MinerBat% ECHO %Server2BatCommand% ^>^> miner.log
+								>> %MinerBat% ECHO %Server2BatCommand%
 								SET ServerQueue=2
 							)
 							IF %ServerQueue% EQU 2 (
-								>> %MinerBat% ECHO %Server3BatCommand% ^>^> miner.log
+								>> %MinerBat% ECHO %Server3BatCommand%
 								SET ServerQueue=3
 							)
 							IF %ServerQueue% EQU 3 (
-								>> %MinerBat% ECHO %Server4BatCommand% ^>^> miner.log
+								>> %MinerBat% ECHO %Server4BatCommand%
 								SET ServerQueue=4
 							)
 							IF %ServerQueue% EQU 4 (
-								>> %MinerBat% ECHO %Server5BatCommand% ^>^> miner.log
+								>> %MinerBat% ECHO %Server5BatCommand%
 								SET ServerQueue=5
 							)
 							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
+								>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --log 2 --fee 0 --templimit 90 --pec
 								SET ServerQueue=1
 							)
 						) ELSE (
-							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
+							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --log 2 --fee 0 --templimit 90 --pec
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.

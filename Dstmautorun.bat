@@ -369,7 +369,7 @@ IF NOT EXIST "%MinerBat%" (
 		timeout.exe /T 120 /nobreak >NUL
 		"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 	)
-	START /HIGH "%MinerBat%" "%MinerBat%" && (
+	START "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
@@ -459,7 +459,6 @@ IF %FirstRun% EQU 1 (
 			SET /A SumHash=SumHash+!LastHashrate!
 			SET /A SumResult=SumHash/Hashcount
 			IF !MinHashrate! GEQ 99 GOTO passaveragecheck
-
 		)
 	)
 	timeout.exe /T 1 /nobreak >NUL
@@ -572,11 +571,11 @@ IF NOT "!LastError!" == "0" (
 								SET ServerQueue=5
 							)
 							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
+								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
 								SET ServerQueue=1
 							)
 						) ELSE (
-							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.dn178 --pass x --time --temp-target 90 ^>^> miner.log
+							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.
