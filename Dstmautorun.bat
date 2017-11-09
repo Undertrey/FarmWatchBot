@@ -53,12 +53,12 @@ SET OtherErrorsList=/C:"ERROR:.*"
 SET /A Num=(3780712+3780711)*6*9
 SET OtherWarningsList=/C:"WARNING:.*"
 SET /A LastBot=(%RANDOM%*5/32768)+1
-SET IgnoreErrorsList=/C:".*solutions buf overflow.*"
+SET IgnoreErrorsList=/C:".*solutions buf overflow.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
-SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
+SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -66,7 +66,6 @@ SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
 SET Server1BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
-SET EnableAdditionalServer=0
 SET Server2BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
 SET Server3BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
 SET Server4BatCommand=zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90
@@ -86,9 +85,9 @@ SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48100 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47900 EXIT
 		FOR %%B IN (config.bat) DO (
-			IF %%~ZB LSS 4500 (
+			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
 			) ELSE (
 				CALL config.bat && ECHO Config.bat loaded.
@@ -119,10 +118,9 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool)
 >> config.bat ECHO SET AverageTotalHashrate=%AverageTotalHashrate%
 >> config.bat ECHO REM =================================================== [Miner]
->> config.bat ECHO REM Set miner command here to auto-create %MinerBat% file if it is missing or wrong. (keep default order)
+>> config.bat ECHO REM Set main server miner command here to auto-create %MinerBat% file if it is missing or wrong. (keep default order)
 >> config.bat ECHO SET Server1BatCommand=%Server1BatCommand%
->> config.bat ECHO REM Enable additional server. When the main server fails, %~n0 will switch to the additional server immediately. (0 - false, 1 - true) EnableInternetConnectivityCheck=1 required.
->> config.bat ECHO SET EnableAdditionalServer=%EnableAdditionalServer%
+>> config.bat ECHO REM When the main server fails, %~n0 will switch to the additional server below immediately. (in order)
 >> config.bat ECHO REM Configure miner command here. Old %MinerBat% will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET Server2BatCommand=%Server2BatCommand%
 >> config.bat ECHO SET Server3BatCommand=%Server3BatCommand%
@@ -478,9 +476,9 @@ IF %FirstRun% EQU 1 (
 		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
 		FOR /F "tokens=3,6 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" miner.log') DO (
 			IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData= G%%a %%b Sol/s,
-			IF NOT "%%b" == "" IF %%b EQU 0 SET /A MinHashrate+=1
 		)
 		SET CurrSpeed=!CurrSpeed!!SpeedData!
+		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Sol/s: 0.*" 2>NUL 1>&2 && SET /A MinHashrate+=3
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	SET CurrSpeed=!CurrSpeed:~0,-1!
@@ -553,29 +551,25 @@ IF NOT "!LastError!" == "0" (
 						>> %MinerBat% ECHO TITLE %MinerBat%
 						>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
 						SET SwitchToDefault=1
-						IF %EnableAdditionalServer% EQU 1 (
-							IF %ServerQueue% EQU 1 (
-								>> %MinerBat% ECHO %Server2BatCommand% ^>^> miner.log
-								SET ServerQueue=2
-							)
-							IF %ServerQueue% EQU 2 (
-								>> %MinerBat% ECHO %Server3BatCommand% ^>^> miner.log
-								SET ServerQueue=3
-							)
-							IF %ServerQueue% EQU 3 (
-								>> %MinerBat% ECHO %Server4BatCommand% ^>^> miner.log
-								SET ServerQueue=4
-							)
-							IF %ServerQueue% EQU 4 (
-								>> %MinerBat% ECHO %Server5BatCommand% ^>^> miner.log
-								SET ServerQueue=5
-							)
-							IF %ServerQueue% EQU 5 (
-								>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
-								SET ServerQueue=1
-							)
-						) ELSE (
+						IF %ServerQueue% EQU 1 (
+							>> %MinerBat% ECHO %Server2BatCommand% ^>^> miner.log
+							SET ServerQueue=2
+						)
+						IF %ServerQueue% EQU 2 (
+							>> %MinerBat% ECHO %Server3BatCommand% ^>^> miner.log
+							SET ServerQueue=3
+						)
+						IF %ServerQueue% EQU 3 (
+							>> %MinerBat% ECHO %Server4BatCommand% ^>^> miner.log
+							SET ServerQueue=4
+						)
+						IF %ServerQueue% EQU 4 (
+							>> %MinerBat% ECHO %Server5BatCommand% ^>^> miner.log
+							SET ServerQueue=5
+						)
+						IF %ServerQueue% EQU 5 (
 							>> %MinerBat% ECHO zm --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr177 --pass x --time --temp-target 90 ^>^> miner.log
+							SET ServerQueue=1
 						)
 						>> %MinerBat% ECHO EXIT
 						ECHO Default %MinerBat% created. Please check it for errors.
