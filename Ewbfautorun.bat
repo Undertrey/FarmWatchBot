@@ -85,7 +85,7 @@ SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47900 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48000 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
@@ -281,7 +281,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 		ECHO Incorrect path to %GPUOverclockProcess%.exe. Default install path required to function. Please reinstall the software using the default path.
 		SET EnableGPUOverclockMonitor=0
 	) ELSE (
-		IF %FirstRun% EQU 1 IF %RestartGPUOverclockMonitor% EQU 1 (
+		IF !FirstRun! NEQ 0  IF %RestartGPUOverclockMonitor% EQU 1 (
 			tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe was successfully killed.
 		)
@@ -387,13 +387,13 @@ IF NOT EXIST "%MinerBat%" (
 	) ELSE (
 		ECHO Log monitoring started.
 		ECHO Collecting information. Please wait...
+		timeout.exe /T 15 /nobreak >NUL
 	)
 )
 SET HashrateErrorsCount=0
 SET OldHashrate=0
 SET FirstRun=0
 SET GPUCount=0
-timeout.exe /T 15 /nobreak >NUL
 :check
 SET InternetErrorsCounter=1
 SET MinHashrate=0
@@ -443,7 +443,7 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 )
 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
-IF %FirstRun% EQU 1 (
+IF !FirstRun! NEQ 0 (
 	timeout.exe /T 1 /nobreak >NUL
 	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" miner.log') DO (
 		SET LastHashrate=%%A
@@ -478,17 +478,19 @@ IF %FirstRun% EQU 1 (
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	IF !SumResult! NEQ %OldHashrate% IF !SumResult! LSS %AverageTotalHashrate% (
-		IF %HashrateErrorsCount% GEQ %HashrateErrorsAmount% (
-			:passaveragecheck
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Low hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
-			GOTO error
+	IF !SumResult! NEQ !OldHashrate! (
+		IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
+			IF !HashrateErrorsCount! GEQ %HashrateErrorsAmount% (
+				:passaveragecheck
+				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Low hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
+				GOTO error
+			)
+			ECHO Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
+			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
+			SET /A HashrateErrorsCount+=1
 		)
-		ECHO Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
-		SET /A HashrateErrorsCount+=1
 		SET OldHashrate=!SumResult!
 	)
 	timeout.exe /T 1 /nobreak >NUL
@@ -523,7 +525,7 @@ IF NOT "!LastError!" == "0" (
 		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 			ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
-				timeout.exe /T 20 /nobreak >NUL
+				timeout.exe /T 30 /nobreak >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
 					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
@@ -679,7 +681,7 @@ IF %EnableAPAutorun% EQU 1 (
 		GOTO error
 	)
 )
-IF %FirstRun% EQU 0 (
+IF !FirstRun! EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 10 /nobreak >NUL
 	FOR /F "delims=" %%I IN ('findstr.exe /R /C:"CUDA: Device: [0-9]* .* PCI: .*" miner.log') DO SET /A GPUCount+=1
@@ -740,7 +742,7 @@ IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
 IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
 IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
 ECHO +================================================================+
-ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: %HashrateErrorsCount%/%HashrateErrorsAmount% !MinHashrate!/99
+ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/10
 ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
