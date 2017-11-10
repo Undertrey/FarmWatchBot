@@ -85,7 +85,7 @@ SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48081 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
