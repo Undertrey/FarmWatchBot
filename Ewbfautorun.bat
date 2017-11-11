@@ -281,7 +281,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 		ECHO Incorrect path to %GPUOverclockProcess%.exe. Default install path required to function. Please reinstall the software using the default path.
 		SET EnableGPUOverclockMonitor=0
 	) ELSE (
-		IF !FirstRun! NEQ 0  IF %RestartGPUOverclockMonitor% EQU 1 (
+		IF !FirstRun! NEQ 0 IF %RestartGPUOverclockMonitor% EQU 1 (
 			tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe was successfully killed.
 		)
@@ -520,16 +520,16 @@ IF !FirstRun! NEQ 0 (
 )
 timeout.exe /T 1 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% %OtherErrorsList% miner.log') DO SET LastError=%%N
-IF "%LastError%" NEQ "Empty" (
+IF "!LastError!" NEQ "Empty" (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
-		ECHO %LastError%| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
+		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 			ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
 				timeout.exe /T 30 /nobreak >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% miner.log') DO SET LastInternetError=%%n
 				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
-					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %LastError%')" 2>NUL 1>&2
-					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %LastError%
+					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 					ping.exe google.com| find.exe /I "TTL=" >NUL && (
 						CLS
 						COLOR 4F
@@ -613,19 +613,19 @@ IF "%LastError%" NEQ "Empty" (
 			)
 		)
 	)
-	ECHO %LastError%| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %LastError%')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %LastError%
+	ECHO !LastError!| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Error from GPU. Voltage or Overclock issue.
 		GOTO error
 	)
-	ECHO %LastError%| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %LastError%')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %LastError%
+	ECHO !LastError!| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %LastError%| findstr.exe /I /R %MinerWarningsList% 2>NUL && (
+	ECHO !LastError!| findstr.exe /I /R %MinerWarningsList% 2>NUL && (
 		CLS
 		COLOR 4F
 		ECHO +================================================================+
@@ -652,9 +652,9 @@ IF "%LastError%" NEQ "Empty" (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
-	ECHO %LastError%| findstr.exe /I /R /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %LastError%')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %LastError%
+	ECHO !LastError!| findstr.exe /I /R /V %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %IgnoreErrorsList% 2>NUL && (
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unknown error or warning found. Please send this message to developer.
 		GOTO error
 	)
