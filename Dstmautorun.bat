@@ -5,6 +5,7 @@ shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
 SET Version=1.7.8
+SET FirstRun=0
 :hardstart
 CLS
 COLOR 1F
@@ -40,7 +41,6 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 )
 SET PTOS1=0
 SET rtpt=d2a
-SET FirstRun=0
 SET AllowSend=0
 SET tprt=WYHfeJU
 SET ServerQueue=1
@@ -129,9 +129,9 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
 >> config.bat ECHO SET EveryHourAutoRestart=%EveryHourAutoRestart%
 >> config.bat ECHO REM Restart miner or computer every day at 12:00. (1 - true miner, 2 - true computer, 0 - false)
->> config.bat ECHO SET MiddayAutoRestart=%EveryHourAutoRestart%
+>> config.bat ECHO SET MiddayAutoRestart=%MiddayAutoRestart%
 >> config.bat ECHO REM Restart miner or computer every day at 00:00. (1 - true miner, 2 - true computer, 0 - false)
->> config.bat ECHO SET MidnightAutoRestart=%EveryHourAutoRestart%
+>> config.bat ECHO SET MidnightAutoRestart=%MidnightAutoRestart%
 >> config.bat ECHO REM =================================================== [Other]
 >> config.bat ECHO REM Enable Internet connectivity check. (0 - false, 1 - true)
 >> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. (ie. high latency, intermittent connectivity)
@@ -284,17 +284,25 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 			tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe was successfully killed.
 		)
+		timeout.exe /T 5 /nobreak >NUL
 		tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
-			timeout.exe /T 5 /nobreak >NUL
 			START "" "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" && (
 				ECHO %GPUOverclockProcess%.exe was started at %Time:~-11,8%.
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %GPUOverclockProcess%.exe was started.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %GPUOverclockProcess%.exe was started.
+				SET FirstRun=0
 			) || (
 				ECHO Unable to start %GPUOverclockProcess%.exe.
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %GPUOverclockProcess%.exe.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %GPUOverclockProcess%.exe.
 				GOTO hardstart
+			)
+			IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
+				IF !FirstRun! EQU 0 (
+					ECHO Waiting 2 minutes for the full load of Msi Afterburner...
+					timeout.exe /T 120 /nobreak >NUL
+				)
+				"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 			)
 		)
 	)
@@ -361,16 +369,11 @@ IF NOT EXIST "%MinerBat%" (
 		)
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
-		ECHO Waiting 2 minutes for the full load of Msi Afterburner...
-		timeout.exe /T 120 /nobreak >NUL
-		"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
-	)
 	START "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-		timeout.exe /T 15 /nobreak >NUL
+		timeout.exe /T 30 /nobreak >NUL
 	) || (
 		ECHO Unable to start miner.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
@@ -388,7 +391,7 @@ IF NOT EXIST "%MinerBat%" (
 	) ELSE (
 		ECHO Log monitoring started.
 		ECHO Collecting information. Please wait...
-		timeout.exe /T 15 /nobreak >NUL
+		timeout.exe /T 5 /nobreak >NUL
 	)
 )
 SET HashrateErrorsCount=0
@@ -519,8 +522,6 @@ IF !FirstRun! NEQ 0 (
 			)
 		)
 	)
-) ELSE (
-	timeout.exe /T 5 /nobreak >NUL
 )
 timeout.exe /T 1 /nobreak >NUL
 FOR /F "tokens=2 delims=>#|" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% %OtherErrorsList% miner.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
@@ -688,7 +689,7 @@ IF %EnableAPAutorun% EQU 1 (
 )
 IF !FirstRun! EQU 0 (
 	SET FirstRun=1
-	timeout.exe /T 15 /nobreak >NUL
+	timeout.exe /T 20 /nobreak >NUL
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU[0-9]* +.*PCI:.*" miner.log') DO SET /A GPUCount+=1
 	IF !GPUCount! EQU 0 SET GPUCount=1
 	IF !NumberOfGPUs! EQU 0 SET NumberOfGPUs=!GPUCount!
