@@ -58,6 +58,7 @@ SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
 SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
+REM Attention. Change the options below only if it's really needed.
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -81,10 +82,11 @@ SET EnableEveryHourInfoSend=0
 SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
+REM Attention. Do not touch the options below in any case.
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48013 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 48647 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
@@ -299,7 +301,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 			)
 			IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
 				IF !FirstRun! EQU 0 (
-					ECHO Waiting 2 minutes for the full load of Msi Afterburner...
+					ECHO Waiting 2 min. for the full load of Msi Afterburner...
 					timeout.exe /T 120 /nobreak >NUL
 				)
 				"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
@@ -565,6 +567,7 @@ IF "!LastError!" NEQ "Empty" (
 							SET ServerQueue=5
 						)
 						IF %ServerQueue% EQU 5 (
+							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
 							>> %MinerBat% ECHO miner --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
 							SET ServerQueue=1
 						)
