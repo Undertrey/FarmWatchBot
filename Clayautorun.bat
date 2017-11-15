@@ -463,18 +463,22 @@ IF !FirstRun! NEQ 0 (
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims==,tCGPUfan% " %%a IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
+	FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
 		SET CurTemp=Current temp:
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-			IF NOT "%%A" == "" IF %%A GEQ 0 IF %%A LSS 70 SET CurTemp=!CurTemp! G!GpuNum! %%AC,
-			IF NOT "%%A" == "" IF %%A GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *%%AC*,
+			IF NOT "%%A" == "" (
+				SET Cut=%%A
+				SET Cut=!Cut:~-2!
+				IF !Cut! GEQ 0 IF !Cut! LSS 70 SET CurTemp=!CurTemp! G!GpuNum! !Cut!C,
+				IF !Cut! GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *!Cut!C*,
+			)
 			SET /A GpuNum+=1
 		)
 		SET CurTemp=!CurTemp:~0,-1!
 	)
 	timeout.exe /T 1 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/sGPU " %%a IN ('findstr.exe /R /C:"GPU.* .* H/s.*" miner.log') DO (
+	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:"GPU.* .* H/s.*" miner.log') DO (
 		SET CurrSpeed=Current speed:
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
