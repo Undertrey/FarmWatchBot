@@ -86,7 +86,7 @@ REM Attention. Do not touch the options below in any case.
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49797 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49824 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
