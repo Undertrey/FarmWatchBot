@@ -300,13 +300,13 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 				SET EnableGPUOverclockMonitor=0
 				GOTO hardstart
 			)
-			IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
-				IF !FirstRun! EQU 0 (
-					ECHO Waiting 2 min. for the full load of Msi Afterburner...
-					timeout.exe /T 120 /nobreak >NUL
-				)
-				"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
+		)
+		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
+			IF !FirstRun! EQU 0 (
+				ECHO Waiting 2 min. for the full load of Msi Afterburner...
+				timeout.exe /T 120 /nobreak >NUL
 			)
+			"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 		)
 	)
 )
@@ -389,7 +389,7 @@ IF NOT EXIST "%MinerBat%" (
 		ECHO Check permissions of this folder. This script requires permission to create files.
 		ECHO Ensure -logfile miner.log option is added to the miner's command line.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure -logfile miner.log option is added to the miner's command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] miner.log is missing. Ensure -logfile miner.log option is added to the miner's command line. Check permissions of this folder. This script requires permission to create files.
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] miner.log is missing. Check permissions of this folder. This script requires permission to create files.
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile miner.log option is added to the miner's command line.
 		GOTO hardstart
 	) ELSE (
