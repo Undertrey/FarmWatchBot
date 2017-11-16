@@ -14,7 +14,7 @@ ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
-REM Attention. Change the options below only if it's really needed.
+REM Attention. Change the options below only if its really needed.
 REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
@@ -58,7 +58,7 @@ SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
 SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
-REM Attention. Change the options below only if it's really needed.
+REM Attention. Change the options below only if its really needed.
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
 SET RestartGPUOverclockMonitor=0
@@ -73,7 +73,6 @@ SET Server5BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S
 SET EveryHourAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
-SET SkipBeginMiningConfirmation=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=0
 SET RigName=%COMPUTERNAME%
@@ -86,7 +85,7 @@ REM Attention. Do not touch the options below in any case.
 :checkconfig
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49868 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49834 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4400 (
 				ECHO Config.bat file error. It is corrupted.
@@ -138,7 +137,7 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Enable Internet connectivity check. (0 - false, 1 - true)
 >> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. (ie. high latency, intermittent connectivity)
 >> config.bat ECHO SET EnableInternetConnectivityCheck=%EnableInternetConnectivityCheck%
->> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand it's function. (0 - false, 1 - true)
+>> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. (0 - false, 1 - true)
 >> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
 >> config.bat ECHO REM =================================================== [Telegram notifications]
@@ -304,9 +303,10 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
 			IF !FirstRun! EQU 0 (
 				ECHO Waiting 2 min. for the full load of Msi Afterburner...
-				timeout.exe /T 120 /nobreak >NUL
+				timeout.exe /T 120 >NUL
 			)
 			"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
+			SET FirstRun=1
 		)
 	)
 )
@@ -356,7 +356,7 @@ IF EXIST "miner.log" (
 IF NOT EXIST "%MinerBat%" (
 	> %MinerBat% ECHO @ECHO off
 	>> %MinerBat% ECHO TITLE %MinerBat%
-	>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+	>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
 	>> %MinerBat% ECHO %Server1BatCommand%
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
@@ -366,7 +366,7 @@ IF NOT EXIST "%MinerBat%" (
 		findstr.exe /L /C:"%Server1BatCommand%" %MinerBat% 2>NUL 1>&2 || (
 			> %MinerBat% ECHO @ECHO off
 			>> %MinerBat% ECHO TITLE %MinerBat%
-			>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+			>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
 			>> %MinerBat% ECHO %Server1BatCommand%
 			>> %MinerBat% ECHO EXIT
 		)
@@ -387,10 +387,10 @@ IF NOT EXIST "%MinerBat%" (
 	IF NOT EXIST "miner.log" (
 		ECHO miner.log is missing.
 		ECHO Check permissions of this folder. This script requires permission to create files.
-		ECHO Ensure -logfile miner.log option is added to the miner's command line.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure -logfile miner.log option is added to the miner's command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
+		ECHO Ensure -logfile miner.log option is added to the miners command line.
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure -logfile miner.log option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] miner.log is missing. Check permissions of this folder. This script requires permission to create files.
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile miner.log option is added to the miner's command line.
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile miner.log option is added to the miners command line.
 		GOTO hardstart
 	) ELSE (
 		ECHO Log monitoring started.
@@ -556,7 +556,7 @@ IF "!LastError!" NEQ "Empty" (
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 						> %MinerBat% ECHO @ECHO off
 						>> %MinerBat% ECHO TITLE %MinerBat%
-						>> %MinerBat% ECHO REM Configure miner's command line in config.bat file. Not in %MinerBat%.
+						>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
 						SET SwitchToDefault=1
 						IF %ServerQueue% EQU 1 (
 							>> %MinerBat% ECHO %Server2BatCommand%
