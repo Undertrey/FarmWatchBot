@@ -55,7 +55,7 @@ SET OtherWarningsList=/C:"WARNING:.*"
 SET IgnoreErrorsList=/C:".*solutions buf overflow.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
-SET CriticalErrorsList=/C:".*NVML*" /C:".*CUDA-capable*"
+SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
 SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
 REM Attention. Change the options below only if its really needed.
@@ -482,7 +482,7 @@ IF !FirstRun! NEQ 0 (
 			SET /A GpuNum+=1
 		)
 		SET CurrSpeed=!CurrSpeed:~0,-1!
-		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Sol/s: 0.*" 2>NUL 1>&2 && SET /A MinHashrate+=3
+		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Sol/s: 0.*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	timeout.exe /T 1 /nobreak >NUL
@@ -525,7 +525,7 @@ IF !FirstRun! NEQ 0 (
 	)
 )
 timeout.exe /T 1 /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %InternetErrorsList% %MinerErrorsList% %CriticalErrorsList% %MinerWarningsList% %OtherWarningsList% %OtherErrorsList% miner.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% %OtherErrorsList% %OtherWarningsList% miner.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
 IF "!LastError!" NEQ "Empty" (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
 		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
