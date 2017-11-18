@@ -371,7 +371,7 @@ IF NOT EXIST "%MinerBat%" (
 			>> %MinerBat% ECHO EXIT
 		)
 	)
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	START "%MinerBat%" "%MinerBat%" && (
 		ECHO Miner was started at %Time:~-11,8%.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
@@ -452,7 +452,7 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 IF !FirstRun! NEQ 0 (
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	FOR /F "tokens=5,6 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" zm.log') DO (
 		IF !NumberOfGPUs! EQU 1 IF %%B GEQ 10 SET LastHashrate=%%B
 		IF !NumberOfGPUs! GEQ 2 IF NOT "%%A" == "Sol/s:" SET LastHashrate=%%A
@@ -465,7 +465,7 @@ IF !FirstRun! NEQ 0 (
 			IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 		)
 	)
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurTemp=Current temp:
@@ -476,7 +476,7 @@ IF !FirstRun! NEQ 0 (
 		SET CurTemp=!CurTemp!!TempData!
 	)
 	SET CurTemp=!CurTemp:~0,-1!
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET /A Variable=%%A-1
 		IF !Variable! EQU 0 SET CurrSpeed=Current speed:
@@ -488,7 +488,7 @@ IF !FirstRun! NEQ 0 (
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	SET CurrSpeed=!CurrSpeed:~0,-1!
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	IF !SumResult! NEQ !OldHashrate! (
 		IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
 			IF !HashrateErrorsCount! GEQ %HashrateErrorsAmount% (
@@ -504,13 +504,12 @@ IF !FirstRun! NEQ 0 (
 		)
 		SET OldHashrate=!SumResult!
 	)
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	IF !PTOS1! GEQ 59 SET PTOS1=0
 	IF !PTOS1! LSS %Me2% (
 		SET PTOS1=%Me2%
 		SET LstShareDiff=0
 		SET LstShareMin=-1
-		timeout.exe /T 1 /nobreak >NUL
 		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*\+" zm.log') DO SET LstShareMin=1%%A
 		SET /A LstShareMin=!LstShareMin!-100
 		IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
@@ -527,7 +526,7 @@ IF !FirstRun! NEQ 0 (
 		)
 	)
 )
-timeout.exe /T 1 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 FOR /F "tokens=2 delims=>#|" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% %OtherErrorsList% %OtherWarningsList% zm.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
 IF "!LastError!" NEQ "Empty" (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
@@ -669,7 +668,7 @@ IF "!LastError!" NEQ "Empty" (
 		GOTO error
 	)
 )
-timeout.exe /T 1 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% crashed.
@@ -677,7 +676,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProc
 )
 tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
 IF %EnableGPUOverclockMonitor% LEQ 5 IF %EnableGPUOverclockMonitor% GTR 0 (
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe crashed.
@@ -685,7 +684,7 @@ IF %EnableGPUOverclockMonitor% LEQ 5 IF %EnableGPUOverclockMonitor% GTR 0 (
 	)
 )
 IF %EnableAPAutorun% EQU 1 (
-	timeout.exe /T 1 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %APProcessName%" 2>NUL| find.exe /I /N "%APProcessName%" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% crashed.
