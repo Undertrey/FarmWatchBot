@@ -57,7 +57,7 @@ SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
 SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
-SET InternetErrorsList=/C:".*Lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
+SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
 REM Attention. Change the options below only if its really needed.
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
