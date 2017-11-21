@@ -87,7 +87,7 @@ REM Attention. Do not touch the options below in any case.
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 60000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50000 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4350 (
 				ECHO Config.bat file error. It is corrupted.
@@ -157,7 +157,7 @@ IF EXIST "config.bat" (
 >> config.bat ECHO SET EnableAPAutorun=%EnableAPAutorun%
 >> config.bat ECHO REM Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
 >> config.bat ECHO SET APProcessName=%APProcessName%
->> config.bat ECHO REM Path to file of additional program. [ie. C:\Program Files [x86]\TeamViewer\TeamViewer.exe]
+>> config.bat ECHO REM Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
 >> config.bat ECHO SET APProcessPath=%APProcessPath%
 ECHO Default config.bat created.& ECHO Please check it and restart %~n0.bat.
 GOTO checkconfig
