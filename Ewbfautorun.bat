@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.7.8
+SET Version=1.7.9
 SET FirstRun=0
 :hardstart
 CLS
@@ -65,12 +65,13 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
-SET EveryHourAutoRestart=0
+SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
+SET EveryHourMinerAutoRestart=0
+SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
@@ -83,76 +84,80 @@ SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM Attention. Do not touch the options below in any case.
 :checkconfig
+timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49790 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 60000 EXIT
 		FOR %%B IN (config.bat) DO (
-			IF %%~ZB LSS 4400 (
+			IF %%~ZB LSS 4350 (
 				ECHO Config.bat file error. It is corrupted.
 			) ELSE (
-				CALL config.bat && ECHO Config.bat loaded.
+				CALL config.bat
+				ECHO Config.bat loaded.
 				GOTO prestart
 			)
 		)
 	) || (
-		CALL config.bat && ECHO Your config.bat is out of date.
+		CALL config.bat
+		ECHO Your config.bat is out of date.
 	)
 	MOVE /Y config.bat config_backup.bat >NUL && ECHO Created backup of your old config.bat.
 )
 > config.bat ECHO @ECHO off
 >> config.bat ECHO REM Configuration file v. %Version%
 >> config.bat ECHO REM =================================================== [Overclock program]
->> config.bat ECHO REM Enable GPU Overclock control monitor. (0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE)
+>> config.bat ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE]
 >> config.bat ECHO REM Autorun and run-check of GPU Overclock programs.
 >> config.bat ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
->> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. (0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5)
+>> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> config.bat ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
->> config.bat ECHO REM Allow Overclock programs to be restarted when miner is restarted. (0 - false, 1 - true)
->> config.bat ECHO REM Please, do not use this option if it is not needed.
+>> config.bat ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
 >> config.bat ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
 >> config.bat ECHO REM =================================================== [GPU]
 >> config.bat ECHO REM Set how many GPU devices are enabled.
 >> config.bat ECHO SET NumberOfGPUs=%NumberOfGPUs%
->> config.bat ECHO REM Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. (0 - false, 1 - true)
+>> config.bat ECHO REM Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. [0 - false, 1 - true]
 >> config.bat ECHO SET AllowRestartGPU=%AllowRestartGPU%
->> config.bat ECHO REM Set total average hashrate of this Rig. (you can use average hashrate value from your pool)
+>> config.bat ECHO REM Set total average hashrate of this Rig. [you can use average hashrate value from your pool]
 >> config.bat ECHO SET AverageTotalHashrate=%AverageTotalHashrate%
 >> config.bat ECHO REM =================================================== [Miner]
->> config.bat ECHO REM Set main server miner command here to auto-create %MinerBat% file if it is missing or wrong. (keep default order)
+>> config.bat ECHO REM Set main server miner command here to auto-create %MinerBat% file if it is missing or wrong. [keep default order]
 >> config.bat ECHO SET Server1BatCommand=%Server1BatCommand%
->> config.bat ECHO REM When the main server fails, %~n0 will switch to the additional server below immediately. (in order)
->> config.bat ECHO REM Configure miner command here. Old %MinerBat% will be removed and a new one will be created with this value. (keep default order) EnableInternetConnectivityCheck=1 required.
+>> config.bat ECHO REM When the main server fails, %~n0 will switch to the additional server below immediately. [in order]
+>> config.bat ECHO REM Configure miner command here. Old %MinerBat% will be removed and a new one will be created with this value. [keep default order] EnableInternetConnectivityCheck=1 required.
 >> config.bat ECHO SET Server2BatCommand=%Server2BatCommand%
 >> config.bat ECHO SET Server3BatCommand=%Server3BatCommand%
 >> config.bat ECHO SET Server4BatCommand=%Server4BatCommand%
 >> config.bat ECHO SET Server5BatCommand=%Server5BatCommand%
 >> config.bat ECHO REM =================================================== [Timers]
->> config.bat ECHO REM Restart miner or computer every hour. (1 - true miner every One hour, 2 - true miner every Two hours, 3 - true computer every One hour, 4 - true computer every Two hours, 0 - false)
->> config.bat ECHO SET EveryHourAutoRestart=%EveryHourAutoRestart%
->> config.bat ECHO REM Restart miner or computer every day at 12:00. (1 - true miner, 2 - true computer, 0 - false)
+>> config.bat ECHO REM Restart MINER every X hours. Set value of hours delay between miner restarts. [0 - false, 1-999 - scheduled hours delay]
+>> config.bat ECHO SET EveryHourMinerAutoRestart=%EveryHourMinerAutoRestart%
+>> config.bat ECHO REM Restart COMPUTER every X hours. Set value of hours delay between computer restarts. [0 - false, 1-999 - scheduled hours delay]
+>> config.bat ECHO SET EveryHourComputerAutoRestart=%EveryHourComputerAutoRestart%
+>> config.bat ECHO REM Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
 >> config.bat ECHO SET MiddayAutoRestart=%MiddayAutoRestart%
->> config.bat ECHO REM Restart miner or computer every day at 00:00. (1 - true miner, 2 - true computer, 0 - false)
+>> config.bat ECHO REM Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
 >> config.bat ECHO SET MidnightAutoRestart=%MidnightAutoRestart%
 >> config.bat ECHO REM =================================================== [Other]
->> config.bat ECHO REM Enable Internet connectivity check. (0 - false, 1 - true)
->> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. (ie. high latency, intermittent connectivity)
+>> config.bat ECHO REM Enable Internet connectivity check. [0 - false, 1 - true]
+>> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
 >> config.bat ECHO SET EnableInternetConnectivityCheck=%EnableInternetConnectivityCheck%
->> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. (0 - false, 1 - true)
+>> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
 >> config.bat ECHO REM =================================================== [Telegram notifications]
->> config.bat ECHO REM To enable Telegram notifications enter here your ChatId, from Telegram @FarmWatchBot. (0 - disable)
+>> config.bat ECHO REM To enable Telegram notifications enter here your ChatId, from Telegram @FarmWatchBot. [0 - disable]
 >> config.bat ECHO SET ChatId=%ChatId%
->> config.bat ECHO REM Name your Rig. (in English, without special symbols)
+>> config.bat ECHO REM Name your Rig. [in English, without special symbols]
 >> config.bat ECHO SET RigName=%RigName%
->> config.bat ECHO REM Enable hourly statistics through Telegram. (0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode)
+>> config.bat ECHO REM Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode]
 >> config.bat ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
 >> config.bat ECHO REM =================================================== [Additional program]
->> config.bat ECHO REM Enable additional program check on startup. (ie. TeamViewer, Minergate, Storj etc) (0 - false, 1 - true)
+>> config.bat ECHO REM Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
 >> config.bat ECHO SET EnableAPAutorun=%EnableAPAutorun%
->> config.bat ECHO REM Process name of additional program. (Press CTRL+ALT+DEL to find the process name)
+>> config.bat ECHO REM Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
 >> config.bat ECHO SET APProcessName=%APProcessName%
->> config.bat ECHO REM Path to file of additional program. (ie. C:\Program Files (x86)\TeamViewer\TeamViewer.exe)
+>> config.bat ECHO REM Path to file of additional program. [ie. C:\Program Files [x86]\TeamViewer\TeamViewer.exe]
 >> config.bat ECHO SET APProcessPath=%APProcessPath%
 ECHO Default config.bat created.& ECHO Please check it and restart %~n0.bat.
 GOTO checkconfig
@@ -441,10 +446,8 @@ IF %MeDiff% LSS 10 SET MeDiff=0%MeDiff%
 IF %SsDiff% LSS 10 SET SsDiff=0%SsDiff%
 IF %MidnightAutoRestart% EQU 1 IF %Dy2% NEQ %Dy1% GOTO mtimer
 IF %MidnightAutoRestart% EQU 2 IF %Dy2% NEQ %Dy1% GOTO ctimer
-IF %EveryHourAutoRestart% EQU 1 IF %HrDiff% GEQ 1 GOTO mtimer
-IF %EveryHourAutoRestart% EQU 2 IF %HrDiff% GEQ 2 GOTO mtimer
-IF %EveryHourAutoRestart% EQU 3 IF %HrDiff% GEQ 1 GOTO ctimer
-IF %EveryHourAutoRestart% EQU 4 IF %HrDiff% GEQ 2 GOTO ctimer
+IF %EveryHourMinerAutoRestart% GEQ 1 IF %HrDiff% GEQ %EveryHourMinerAutoRestart% GOTO mtimer
+IF %EveryHourComputerAutoRestart% GEQ 1 IF %HrDiff% GEQ %EveryHourComputerAutoRestart% GOTO ctimer
 IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 	IF %MiddayAutoRestart% EQU 1 GOTO mtimer
 	IF %MiddayAutoRestart% EQU 2 GOTO ctimer
@@ -571,7 +574,7 @@ IF "!LastError!" NEQ "Empty" (
 						)
 						IF %ServerQueue% EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr178 --pass x --log 2 --fee 0 --templimit 90 --pec
+							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --log 2 --fee 0 --templimit 90 --pec
 							SET ServerQueue=1
 						)
 						>> %MinerBat% ECHO EXIT
@@ -754,8 +757,10 @@ IF %MidnightAutoRestart% LEQ 0 ECHO Autorestart at 00:00: Disabled
 IF %MidnightAutoRestart% GTR 0 ECHO Autorestart at 00:00: Enabled
 IF %MiddayAutoRestart% LEQ 0 ECHO Autorestart at 12:00: Disabled
 IF %MiddayAutoRestart% GTR 0 ECHO Autorestart at 12:00: Enabled
-IF %EveryHourAutoRestart% LEQ 0 ECHO Autorestart every hour: Disabled
-IF %EveryHourAutoRestart% GTR 0 ECHO Autorestart every hour: Enabled
+IF %EveryHourMinerAutoRestart% LEQ 0 ECHO Autorestart miner every hour: Disabled
+IF %EveryHourMinerAutoRestart% GTR 0 ECHO Autorestart miner every hour: Enabled
+IF %EveryHourComputerAutoRestart% LEQ 0 ECHO Autorestart computer every hour: Disabled
+IF %EveryHourComputerAutoRestart% GTR 0 ECHO Autorestart computer every hour: Enabled
 IF %ChatId% EQU 0 ECHO Telegram notifications: Disabled
 IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
 IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
