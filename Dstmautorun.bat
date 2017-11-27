@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.7.9
+SET Version=1.8.0
 SET FirstRun=0
 :hardstart
 CLS
@@ -19,6 +19,8 @@ REM Amount of errors before computer restart (5 - default)
 SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default)
 SET HashrateErrorsAmount=5
+REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
+SET MSIADelayTimer=120
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=zm.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
@@ -65,11 +67,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --logfile --pass x --time --temp-target 90
-SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --logfile --pass x --time --temp-target 90
-SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --logfile --pass x --time --temp-target 90
-SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --logfile --pass x --time --temp-target 90
-SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --logfile --pass x --time --temp-target 90
+SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --logfile --pass x --time --temp-target 90
+SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --logfile --pass x --time --temp-target 90
+SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --logfile --pass x --time --temp-target 90
+SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --logfile --pass x --time --temp-target 90
+SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --logfile --pass x --time --temp-target 90
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -91,9 +93,11 @@ IF EXIST "config.bat" (
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4350 (
 				ECHO Config.bat file error. It is corrupted.
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat file error. It is corrupted.
 			) ELSE (
 				CALL config.bat
 				ECHO Config.bat loaded.
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
 				GOTO prestart
 			)
 		)
@@ -159,7 +163,9 @@ IF EXIST "config.bat" (
 >> config.bat ECHO SET APProcessName=%APProcessName%
 >> config.bat ECHO REM Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
 >> config.bat ECHO SET APProcessPath=%APProcessPath%
-ECHO Default config.bat created.& ECHO Please check it and restart %~n0.bat.
+ECHO Default config.bat created.
+ECHO Please check it and restart %~n0.bat.
+>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Default config.bat created. Please check it and restart %~n0.bat.
 GOTO checkconfig
 :restart
 COLOR 4F
@@ -307,8 +313,8 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
 		)
 		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
 			IF !FirstRun! EQU 0 (
-				ECHO Waiting 2 min. for the full load of Msi Afterburner...
-				timeout.exe /T 120 >NUL
+				ECHO Waiting %MSIADelayTimer% sec. for the full load of Msi Afterburner...
+				timeout.exe /T %MSIADelayTimer% >NUL
 			)
 			"%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" -Profile%AutorunMSIAWithProfile% >NUL
 			SET FirstRun=1
@@ -365,7 +371,6 @@ IF NOT EXIST "%MinerBat%" (
 	>> %MinerBat% ECHO %Server1BatCommand%
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
-	GOTO start
 ) ELSE (
 	IF %SwitchToDefault% EQU 0 (
 		findstr.exe /L /C:"%Server1BatCommand%" %MinerBat% 2>NUL 1>&2 || (
@@ -376,32 +381,32 @@ IF NOT EXIST "%MinerBat%" (
 			>> %MinerBat% ECHO EXIT
 		)
 	)
-	timeout.exe /T 3 /nobreak >NUL
-	START "%MinerBat%" "%MinerBat%" && (
-		ECHO Miner was started at %Time:~-11,8%.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-		FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" %MinerBat%') DO SET CurrServerName=%%s
-		timeout.exe /T 30 /nobreak >NUL
-	) || (
-		ECHO Unable to start miner.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start miner. v.%Version%.
-		GOTO hardstart
-	)
-	IF NOT EXIST "zm.log" (
-		ECHO zm.log is missing.
-		ECHO Check permissions of this folder. This script requires permission to create files.
-		ECHO Ensure --logfile option is added to the miners command line.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* zm.log is missing. Ensure --logfile option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] zm.log is missing. Check permissions of this folder. This script requires permission to create files.
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --logfile option is added to the miners command line.
-		GOTO hardstart
-	) ELSE (
-		ECHO Log monitoring started.
-		ECHO Collecting information. Please wait...
-		timeout.exe /T 5 /nobreak >NUL
-	)
+)
+timeout.exe /T 3 /nobreak >NUL
+START "%MinerBat%" "%MinerBat%" && (
+	ECHO Miner was started at %Time:~-11,8%.
+	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
+	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" %MinerBat%') DO SET CurrServerName=%%s
+	timeout.exe /T 30 /nobreak >NUL
+) || (
+	ECHO Unable to start miner.
+	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start miner. v.%Version%.
+	GOTO hardstart
+)
+IF NOT EXIST "zm.log" (
+	ECHO zm.log is missing.
+	ECHO Check permissions of this folder. This script requires permission to create files.
+	ECHO Ensure --logfile option is added to the miners command line.
+	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* zm.log is missing. Ensure --logfile option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
+	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] zm.log is missing. Check permissions of this folder. This script requires permission to create files.
+	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --logfile option is added to the miners command line.
+	GOTO hardstart
+) ELSE (
+	ECHO Log monitoring started.
+	ECHO Collecting information. Please wait...
+	timeout.exe /T 5 /nobreak >NUL
 )
 SET HashrateErrorsCount=0
 SET OldHashrate=0
@@ -577,7 +582,7 @@ IF "!LastError!" NEQ "Empty" (
 						)
 						IF %ServerQueue% EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr179 --pass x --time --temp-target 90
+							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 --pass x --time --temp-target 90
 							SET ServerQueue=1
 						)
 						>> %MinerBat% ECHO EXIT
