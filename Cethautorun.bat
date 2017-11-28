@@ -4,14 +4,14 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.0
+SET Version=1.8.1
 SET FirstRun=0
 :hardstart
 CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
 REM Attention. Change the options below only if its really needed.
@@ -22,7 +22,7 @@ SET HashrateErrorsAmount=5
 REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
 SET MSIADelayTimer=120
 REM Name miner process. (in English, without special symbols and spaces)
-SET MinerProcess=ZecMiner64.exe
+SET MinerProcess=EthDcrMiner64.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
@@ -57,7 +57,7 @@ SET OtherWarningsList=/C:"WARNING:.*"
 SET IgnoreErrorsList=/C:".*solutions buf overflow.*" /C:".*cudaMemcpu .* failed.*" /C:".*illegal memory access.*" /C:".*msg buffer full.*"
 SET InternetErrorsCancel=/C:".*Connection restored.*" /C:".*Connected.*"
 SET MinerWarningsList=/C:".*reached.*"
-SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*"
+SET CriticalErrorsList=/C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unresponsive.*" /C:" 0C " /C:".*t=0C.*"
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*Cannot connect.*" /C:".*No properly.*" /C:".*Failed to connect.*" /C:".*not responding.*" /C:".*closed by server.*" /C:".*reconnecting.*" /C:".*connect failed.*"
 REM Attention. Change the options below only if its really needed.
@@ -67,17 +67,17 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
-SET Server2BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
-SET Server3BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
-SET Server4BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
-SET Server5BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
+SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
-SET EnableGPUEnvironments=0
+SET EnableGPUEnvironments=1
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
 SET EnableEveryHourInfoSend=0
@@ -86,7 +86,7 @@ SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM Attention. Do not touch the options below in any case.
 :checkconfig
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50000 EXIT
@@ -461,7 +461,7 @@ IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
 IF !FirstRun! NEQ 0 (
 	timeout.exe /T 3 /nobreak >NUL
-	FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* H/s.*" miner.log') DO (
+	FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*ETH.*- Total Speed: .* Mh/s.*" miner.log') DO (
 		SET LastHashrate=%%A
 		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 		IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
@@ -486,15 +486,15 @@ IF !FirstRun! NEQ 0 (
 		SET CurTemp=!CurTemp:~0,-1!
 	)
 	timeout.exe /T 3 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:"GPU.* .* H/s.*" miner.log') DO (
+	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN ('findstr.exe /R /C:".*ETH.*GPU.* .* Mh/s.*" miner.log') DO (
 		SET CurrSpeed=Current speed:
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
+			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Mh/s,
 			SET /A GpuNum+=1
 		)
 		SET CurrSpeed=!CurrSpeed:~0,-1!
-		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* H/s.*" 2>NUL 1>&2 && SET /A MinHashrate+=1
+		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* Mh/s.*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	timeout.exe /T 3 /nobreak >NUL
@@ -583,7 +583,7 @@ IF "!LastError!" NEQ "Empty" (
 						)
 						IF %ServerQueue% EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr180 -zpsw x -i 7 -tstop 95 -logfile miner.log
+							>> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.dn181 -epsw x -tstop 95 -logfile miner.log
 							SET ServerQueue=1
 						)
 						>> %MinerBat% ECHO EXIT
@@ -747,7 +747,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %MinerProcess% is running...
@@ -777,7 +777,7 @@ IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
 ECHO +================================================================+
 ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/10
-ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
+ECHO                   Average Mh/s: !SumResult! Last Mh/s: !LastHashrate!
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %RigName% and you can take a rest.
