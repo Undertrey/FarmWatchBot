@@ -387,7 +387,7 @@ START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" %MinerBat%') DO SET CurrServerName=%%s
+	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"--server" /C:"-zpool" /C:"-epool" %MinerBat%') DO SET CurrServerName=%%s
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
@@ -490,7 +490,7 @@ IF !FirstRun! NEQ 0 (
 			SET /A GpuNum+=1
 		)
 		SET CurrSpeed=!CurrSpeed:~0,-1!
-		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0.* H/s.*" /C:".* 0 Sol/s.*" /C:".*Sol/s: 0.*" 2>NUL 1>&2 && SET /A MinHashrate+=1
+		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 Sol/s.*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 	timeout.exe /T 3 /nobreak >NUL
