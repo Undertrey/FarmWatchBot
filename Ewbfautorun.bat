@@ -88,10 +88,6 @@ SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM Attention. Do not touch the options below in any case.
-IF %ErrorsCounter% GEQ %ErrorsAmount% (
-	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Too many errors. A restart of the computer to clear GPU cache is required. Restarting...
-	GOTO restart
-)
 :checkconfig
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
