@@ -71,11 +71,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
+SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -115,7 +115,7 @@ IF EXIST "config.bat" (
 > config.bat ECHO @ECHO off
 >> config.bat ECHO REM Configuration file v. %Version%
 >> config.bat ECHO REM =================================================== [Overclock program]
->> config.bat ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE]
+>> config.bat ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
 >> config.bat ECHO REM Autorun and run-check of GPU Overclock programs.
 >> config.bat ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
 >> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
@@ -292,7 +292,11 @@ IF %EnableGPUOverclockMonitor% EQU 5 (
 	SET GPUOverclockProcess=AORUS
 	SET GPUOverclockPath=\GIGABYTE\AORUS GRAPHICS ENGINE\
 )
-IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 5 (
+IF %EnableGPUOverclockMonitor% EQU 6 (
+	SET GPUOverclockProcess=THPanel
+	SET GPUOverclockPath=\Thunder Master\
+)
+IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 	IF NOT EXIST "%programfiles(x86)%%GPUOverclockPath%" (
 		ECHO Incorrect path to %GPUOverclockProcess%.exe. Default install path required to function. Please reinstall the software using the default path.
 		SET EnableGPUOverclockMonitor=0
@@ -594,7 +598,7 @@ IF "!LastError!" NEQ "Empty" (
 						)
 						IF %ServerQueue% EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -tstop 95 -logfile miner.log
+							>> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr181 -epsw x -allpools 1 -tstop 95 -logfile miner.log
 							SET ServerQueue=1
 						)
 						>> %MinerBat% ECHO EXIT
@@ -695,7 +699,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProc
 	GOTO error
 )
 tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
-IF %EnableGPUOverclockMonitor% LEQ 5 IF %EnableGPUOverclockMonitor% GTR 0 (
+IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 	timeout.exe /T 3 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
@@ -767,13 +771,9 @@ IF DEFINED CurrServerName ECHO Server: !CurrServerName!
 IF DEFINED CurTemp ECHO !CurTemp!.
 IF DEFINED CurrSpeed ECHO !CurrSpeed!.
 ECHO +================================================================+
-IF %EnableGPUOverclockMonitor% EQU 1 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% EQU 2 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% EQU 3 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% EQU 4 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% EQU 5 ECHO Process %GPUOverclockProcess%.exe is running...
+IF %EnableGPUOverclockMonitor% GEQ 1 IF %EnableGPUOverclockMonitor% LEQ 6 ECHO Process %GPUOverclockProcess%.exe is running...
 IF %EnableGPUOverclockMonitor% LEQ 0 ECHO GPU Overclock monitor: Disabled
-IF %EnableGPUOverclockMonitor% GEQ 6 ECHO GPU Overclock monitor: Disabled
+IF %EnableGPUOverclockMonitor% GEQ 7 ECHO GPU Overclock monitor: Disabled
 IF %MidnightAutoRestart% LEQ 0 ECHO Autorestart at 00:00: Disabled
 IF %MidnightAutoRestart% GTR 0 ECHO Autorestart at 00:00: Enabled
 IF %MiddayAutoRestart% LEQ 0 ECHO Autorestart at 12:00: Disabled
