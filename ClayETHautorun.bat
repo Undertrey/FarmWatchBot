@@ -7,10 +7,6 @@ TITLE Miner-autorun(%DT0%)
 SET Version=1.8.1
 SET FirstRun=0
 :hardstart
-IF %ErrorsCounter% GEQ %ErrorsAmount% (
-	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Too many errors. A restart of the computer to clear GPU cache is required. Restarting...
-	GOTO restart
-)
 CLS
 COLOR 1F
 ECHO +================================================================+
@@ -46,6 +42,9 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 SET PTOS1=0
+SET HrDiff=00
+SET MeDiff=00
+SET SsDiff=00
 SET rtpt=d2a
 SET AllowSend=0
 SET tprt=WYHfeJU
@@ -93,7 +92,7 @@ REM Attention. Do not touch the options below in any case.
 timeout.exe /T 3 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50900 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4250 (
 				ECHO Config.bat file error. It is corrupted.
@@ -317,8 +316,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %GPUOverclockProcess%.exe.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %GPUOverclockProcess%.exe.
 				SET EnableGPUOverclockMonitor=0
-				SET /A ErrorsCounter+=1
-				GOTO hardstart
+				GOTO error
 			)
 		)
 		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
@@ -347,8 +345,7 @@ IF %EnableAPAutorun% EQU 1 (
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %APProcessName%.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %APProcessName%.
 				SET EnableAPAutorun=0
-				SET /A ErrorsCounter+=1
-				GOTO hardstart
+				GOTO error
 			)
 		)
 	)
@@ -368,8 +365,7 @@ IF EXIST "miner.log" (
 			ECHO Unable to delete miner.log.
 			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to delete miner.log.')" 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to delete miner.log.
-			SET /A ErrorsCounter+=1
-			GOTO hardstart
+			GOTO error
 		)
 	) && (
 		ECHO miner.log renamed and moved to Logs folder.
@@ -405,8 +401,7 @@ START "%MinerBat%" "%MinerBat%" && (
 	ECHO Unable to start miner.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start miner. v.%Version%.
-	SET /A ErrorsCounter+=1
-	GOTO hardstart
+	GOTO error
 )
 IF NOT EXIST "miner.log" (
 	ECHO miner.log is missing.
@@ -415,8 +410,7 @@ IF NOT EXIST "miner.log" (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure -logfile miner.log option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] miner.log is missing. Check permissions of this folder. This script requires permission to create files.
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile miner.log option is added to the miners command line.
-	SET /A ErrorsCounter+=1
-	GOTO hardstart
+	GOTO error
 ) ELSE (
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -721,8 +715,7 @@ IF %EnableAPAutorun% EQU 1 (
 			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %APProcessName%.')" 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %APProcessName%.
 			SET EnableAPAutorun=0
-			SET /A ErrorsCounter+=1
-			GOTO hardstart
+			GOTO error
 		)
 	)
 )
