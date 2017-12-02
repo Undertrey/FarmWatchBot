@@ -102,7 +102,7 @@ IF EXIST "config.bat" (
 				CALL config.bat
 				ECHO Config.bat loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
-				GOTO prestart
+				GOTO start
 			)
 		)
 	) || (
@@ -233,7 +233,7 @@ ECHO                         Miner restarting...
 ECHO +================================================================+
 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner restarting...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner restarting... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
-:prestart
+:start
 SET AverageTotalHashrate=%AverageTotalHashrate: =%
 SET NumberOfGPUs=%NumberOfGPUs: =%
 SET ChatId=%ChatId: =%
@@ -252,7 +252,6 @@ IF %EnableGPUEnvironments% EQU 1 (
 )
 ECHO Please wait or press any key to continue...
 timeout.exe /T 30 >NUL
-:start
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT1=%%A
 SET Mh1=1%DT1:~4,2%
 SET Dy1=1%DT1:~6,2%
