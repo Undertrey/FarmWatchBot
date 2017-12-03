@@ -92,7 +92,7 @@ REM Attention. Do not touch the options below in any case.
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50900 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 50850 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB LSS 4250 (
 				ECHO Config.bat file error. It is corrupted.
@@ -192,6 +192,8 @@ ECHO                         Miner restarting...
 ECHO +================================================================+
 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Attempting to switch to the main pool server...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Attempting to switch to the main pool server...
+SET SwitchToDefault=0
+SET ServerQueue=1
 GOTO start
 :ctimer
 CLS
@@ -608,7 +610,7 @@ IF "!LastError!" NEQ "Empty" (
 						ECHO +================================================================+
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something is wrong with your Internet. Please check your connection. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 						:tryingreconnect
-						IF %HrDiff% EQU 0 IF %MeDiff% GEQ 10 IF %InternetErrorsCounter% GTR 10 GOTO restart
+						IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %InternetErrorsCounter% GTR 10 GOTO restart
 						IF %InternetErrorsCounter% GTR 60 GOTO restart
 						ECHO Attempt %InternetErrorsCounter% to restore Internet connection.
 						SET /A InternetErrorsCounter+=1
