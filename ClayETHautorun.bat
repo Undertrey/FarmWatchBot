@@ -11,7 +11,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
 REM Attention. Change the options below only if its really needed.
@@ -80,14 +80,14 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 :checkconfig
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49500 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB GEQ 4000 (
 				CALL config.bat
-				timeout.exe /T 2 /nobreak >NUL
+				timeout.exe /T 3 /nobreak >NUL
 				ECHO Config.bat loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
 				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED NumberOfGPUs IF DEFINED AllowRestartGPU IF DEFINED AverageTotalHashrate IF DEFINED Server1BatCommand IF DEFINED Server2BatCommand IF DEFINED Server3BatCommand IF DEFINED Server4BatCommand IF DEFINED Server5BatCommand IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
@@ -98,7 +98,7 @@ IF EXIST "config.bat" (
 		)
 	) || (
 		CALL config.bat
-		timeout.exe /T 2 /nobreak >NUL
+		timeout.exe /T 3 /nobreak >NUL
 		ECHO Your config.bat is out of date.
 	)
 	MOVE /Y config.bat config_backup.bat >NUL && ECHO Created backup of your old config.bat.
@@ -381,7 +381,7 @@ IF NOT EXIST "%MinerBat%" (
 		>> %MinerBat% ECHO EXIT
 	)
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
@@ -405,7 +405,7 @@ IF NOT EXIST "miner.log" (
 ) ELSE (
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
-	timeout.exe /T 2 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 )
 SET HashrateErrorsCount=0
 SET OldHashrate=0
@@ -459,7 +459,7 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 )
 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% miner.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
 IF !LastError! NEQ 0 (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
@@ -584,7 +584,7 @@ IF !LastError! NEQ 0 (
 		GOTO hardstart
 	)
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
@@ -592,7 +592,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProc
 	GOTO error
 )
 IF %EnableGPUOverclockMonitor% NEQ 0 (
-	timeout.exe /T 2 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe crashed.
@@ -600,7 +600,7 @@ IF %EnableGPUOverclockMonitor% NEQ 0 (
 	)
 )
 IF %EnableAPAutorun% EQU 1 (
-	timeout.exe /T 2 /nobreak >NUL
+	timeout.exe /T 3 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %APProcessName%" 2>NUL| find.exe /I /N "%APProcessName%" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% crashed.
@@ -653,7 +653,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %MinerProcess% is running...
@@ -682,7 +682,7 @@ IF DEFINED SumResult IF DEFINED LastHashrate ECHO                 Average Sol/s:
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %RigName% and you can take a rest.
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*ETH.*- Total Speed: .* Mh/s.*" miner.log') DO (
 	SET LastHashrate=%%A
 	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
@@ -692,7 +692,7 @@ FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*ETH.*- Total Speed: .*
 	SET /A SumResult=SumHash/Hashcount
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
 	SET CurTemp=Current temp:
 	SET GpuNum=0
@@ -707,7 +707,7 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	)
 	SET CurTemp=!CurTemp:~0,-1!
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN ('findstr.exe /R /C:".*ETH.*GPU.* .* Mh/s.*" miner.log') DO (
 		SET CurrSpeed=Current speed:
 		SET GpuNum=0
@@ -719,7 +719,7 @@ timeout.exe /T 2 /nobreak >NUL
 		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
 		IF !HashrateErrorsCount! GEQ %HashrateErrorsAmount% (
@@ -735,7 +735,7 @@ IF !SumResult! NEQ !OldHashrate! (
 	)
 	SET OldHashrate=!SumResult!
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 IF !PTOS1! GEQ 59 SET PTOS1=0
 IF !PTOS1! LSS %Me2% (
 	SET PTOS1=%Me2%
