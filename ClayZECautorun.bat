@@ -69,7 +69,7 @@ SET ServerVar=/C:"-zpool"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*CUDA error.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:".*t=[0-5]C.*"
+SET MinerErrorsList=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:".*t=[0-5]C.*"
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
@@ -83,7 +83,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 61500 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49500 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB GEQ 4000 (
 				CALL config.bat
@@ -373,7 +373,7 @@ IF NOT EXIST "%MinerBat%" (
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
 ) ELSE (
-	IF %SwitchToDefault% EQU 0 IF !ServerNum! EQU 0 (
+	IF %SwitchToDefault% EQU 0 (
 		> %MinerBat% ECHO @ECHO off
 		>> %MinerBat% ECHO TITLE %MinerBat%
 		>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
@@ -492,7 +492,7 @@ IF !LastError! NEQ 0 (
 						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
 						IF !ServerQueue! EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess%  -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+							>> %MinerBat% ECHO %MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1

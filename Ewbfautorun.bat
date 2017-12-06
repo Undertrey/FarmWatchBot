@@ -373,7 +373,7 @@ IF NOT EXIST "%MinerBat%" (
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
 ) ELSE (
-	IF %SwitchToDefault% EQU 0 IF !ServerNum! EQU 0 (
+	IF %SwitchToDefault% EQU 0 (
 		> %MinerBat% ECHO @ECHO off
 		>> %MinerBat% ECHO TITLE %MinerBat%
 		>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
@@ -398,7 +398,7 @@ IF NOT EXIST "miner.log" (
 	ECHO miner.log is missing.
 	ECHO Check permissions of this folder. This script requires permission to create files.
 	ECHO Ensure --log 2 option is added to the miners command line.
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure --log 2 option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
+	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* miner.log is missing. Ensure *--log 2* option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] miner.log is missing. Check permissions of this folder. This script requires permission to create files.
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --log 2 option is added to the miners command line.
 	GOTO error
@@ -482,9 +482,6 @@ IF !LastError! NEQ 0 (
 						ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 						ECHO               Miner restarting with default values...
 						ECHO +================================================================+
-						ECHO Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
-						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 						> %MinerBat% ECHO @ECHO off
 						>> %MinerBat% ECHO TITLE %MinerBat%
 						>> %MinerBat% ECHO REM Configure miners command line in config.bat file. Not in %MinerBat%.
@@ -499,6 +496,9 @@ IF !LastError! NEQ 0 (
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
+						ECHO Pool server was switched to !ServerQueue!. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
+						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched to *!ServerQueue!*. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
+						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched to !ServerQueue!. Please check your config.bat file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 						IF !ServerQueue! GTR 5 SET ServerQueue=1
 						ECHO Default %MinerBat% created. Please check it for errors.
 						SET /A ErrorsCounter+=1
