@@ -69,7 +69,7 @@ SET ServerVar=/C:"-zpool"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
-SET MinerErrorsList=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:".*t=[0-5]C.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:".*t=[0-5]C.*"
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (

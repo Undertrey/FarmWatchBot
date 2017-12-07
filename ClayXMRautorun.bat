@@ -4,15 +4,17 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.2
+SET Version=1.8.3
 SET FirstRun=0
 :hardstart
 CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+ECHO              XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCn
+ECHO              KBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrE
+ECHO                  DAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J
 ECHO +================================================================+
 REM Attention. Change the options below only if its really needed.
 REM Amount of errors before computer restart (5 - default, only numeric values)
@@ -20,7 +22,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default, only numeric values)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
-SET MinerProcess=EthDcrMiner64.exe
+SET MinerProcess=NsGpuCNMiner.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
@@ -33,11 +35,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server1BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -65,7 +67,7 @@ SET rtp=%rtpt%eV6idp
 SET SwitchToDefault=0
 SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
-SET ServerVar=/C:"-epool"
+SET ServerVar=/C:"-xpool"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
@@ -80,14 +82,14 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 :checkconfig
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 IF EXIST "config.bat" (
 	findstr.exe /C:"%Version%" config.bat >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49500 EXIT
 		FOR %%B IN (config.bat) DO (
 			IF %%~ZB GEQ 4000 (
 				CALL config.bat
-				timeout.exe /T 3 /nobreak >NUL
+				timeout.exe /T 2 /nobreak >NUL
 				ECHO Config.bat loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
 				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED NumberOfGPUs IF DEFINED AllowRestartGPU IF DEFINED AverageTotalHashrate IF DEFINED Server1BatCommand IF DEFINED Server2BatCommand IF DEFINED Server3BatCommand IF DEFINED Server4BatCommand IF DEFINED Server5BatCommand IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
@@ -98,7 +100,7 @@ IF EXIST "config.bat" (
 		)
 	) || (
 		CALL config.bat
-		timeout.exe /T 3 /nobreak >NUL
+		timeout.exe /T 2 /nobreak >NUL
 		ECHO Your config.bat is out of date.
 	)
 	MOVE /Y config.bat config_backup.bat >NUL && ECHO Created backup of your old config.bat.
@@ -109,7 +111,7 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
 >> config.bat ECHO REM Autorun and run-check of GPU Overclock programs.
 >> config.bat ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
->> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
+>> config.bat ECHO REM Additional option to auto-xnable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> config.bat ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
 >> config.bat ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
 >> config.bat ECHO SET MSIADelayTimer=%MSIADelayTimer%
@@ -381,7 +383,7 @@ IF NOT EXIST "%MinerBat%" (
 		>> %MinerBat% ECHO EXIT
 	)
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
@@ -405,7 +407,7 @@ IF NOT EXIST "miner.log" (
 ) ELSE (
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
-	timeout.exe /T 3 /nobreak >NUL
+	timeout.exe /T 2 /nobreak >NUL
 )
 SET HashrateErrorsCount=0
 SET OldHashrate=0
@@ -459,8 +461,8 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 )
 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
 IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
-timeout.exe /T 3 /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% miner.log ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*"') DO SET LastError=%%N
+timeout.exe /T 2 /nobreak >NUL
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% miner.log ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
 IF !LastError! NEQ 0 (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
 		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
@@ -492,7 +494,7 @@ IF !LastError! NEQ 0 (
 						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
 						IF !ServerQueue! EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr182 -epsw x -allpools 1 -tstop 80 -logfile miner.log
+							>> %MinerBat% ECHO %MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.dn183 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
@@ -584,7 +586,7 @@ IF !LastError! NEQ 0 (
 		GOTO hardstart
 	)
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
@@ -592,7 +594,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProc
 	GOTO error
 )
 IF %EnableGPUOverclockMonitor% NEQ 0 (
-	timeout.exe /T 3 /nobreak >NUL
+	timeout.exe /T 2 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe crashed.
@@ -600,7 +602,7 @@ IF %EnableGPUOverclockMonitor% NEQ 0 (
 	)
 )
 IF %EnableAPAutorun% EQU 1 (
-	timeout.exe /T 3 /nobreak >NUL
+	timeout.exe /T 2 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %APProcessName%" 2>NUL| find.exe /I /N "%APProcessName%" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% crashed.
@@ -653,8 +655,10 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO          AutoRun v.%Version% for Claymore Miner - by Acrefawn
-ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+ECHO              XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCn
+ECHO              KBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrE
+ECHO                  DAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %MinerProcess% is running...
 IF DEFINED CurrServerName ECHO Server: !CurrServerName!
@@ -682,8 +686,8 @@ IF DEFINED SumResult IF DEFINED LastHashrate ECHO                   Average H/s:
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %RigName% and you can take a rest.
-timeout.exe /T 3 /nobreak >NUL
-FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* Mh/s.*" miner.log ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*"') DO (
+timeout.exe /T 2 /nobreak >NUL
+FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*XMR.*- Total Speed: .* H/s.*" miner.log') DO (
 	SET LastHashrate=%%A
 	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 	IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
@@ -692,7 +696,7 @@ FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* Mh/s
 	SET /A SumResult=SumHash/Hashcount
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('findstr.exe /R /C:"GPU.* t=.*C fan=.*" miner.log') DO (
 	SET CurTemp=Current temp:
 	SET GpuNum=0
@@ -707,8 +711,8 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	)
 	SET CurTemp=!CurTemp:~0,-1!
 )
-timeout.exe /T 3 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" miner.log ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*"') DO (
+timeout.exe /T 2 /nobreak >NUL
+	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:".*XMR.*GPU.* .* H/s.*" miner.log') DO (
 		SET CurrSpeed=Current speed:
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
@@ -719,7 +723,7 @@ timeout.exe /T 3 /nobreak >NUL
 		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
 		IF !HashrateErrorsCount! GEQ %HashrateErrorsAmount% (
@@ -735,7 +739,7 @@ IF !SumResult! NEQ !OldHashrate! (
 	)
 	SET OldHashrate=!SumResult!
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 IF !PTOS1! GEQ 59 SET PTOS1=0
 IF !PTOS1! LSS %Me2% (
 	SET PTOS1=%Me2%
