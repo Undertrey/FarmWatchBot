@@ -65,6 +65,10 @@ SET rtp=%rtpt%eV6idp
 SET SwitchToDefault=0
 SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
+SET LstShareDiff=0
+SET CurrServerName=Server: Loading...
+SET CurTemp=Current temp: Calculating...
+SET CurrSpeed=Current speed: Calculating...
 SET ServerVar=/C:"--server"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*server set difficulty.*"
@@ -566,11 +570,11 @@ IF !LastError! NEQ 0 (
 		ECHO                     Temperature limit reached...
 		ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 		ECHO +================================================================+
-		IF DEFINED CurTemp ECHO !CurTemp!.
-		IF DEFINED CurTemp >> %~n0.log ECHO [%Date%][%Time:~-11,8%] !CurTemp!.
+		ECHO !CurTemp!.
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !CurTemp!.
 		IF %HrDiff% EQU 0 IF %MeDiff% GTR 10 (
 			ECHO Fans may be stuck.
-			IF DEFINED CurTemp IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 			GOTO restart
 		)
@@ -581,7 +585,7 @@ IF !LastError! NEQ 0 (
 		ECHO Please ensure your GPUs have enough air flow.
 		ECHO GPUs will now STOP MINING.
 		ECHO Waiting for users input...
-		IF DEFINED CurTemp IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		PAUSE
 		GOTO hardstart
@@ -652,39 +656,6 @@ IF !FirstRun! EQU 0 (
 		IF %AllowRestartGPU% EQU 1 GOTO restart
 	)
 )
-CLS
-COLOR 1F
-ECHO +================================================================+
-ECHO           AutoRun v.%Version% for DSTM Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
-ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +============================================================[%Time:~-5,2%]+
-ECHO Process %MinerProcess% is running...
-IF DEFINED CurrServerName ECHO Server: !CurrServerName!
-IF DEFINED CurTemp ECHO !CurTemp!.
-IF DEFINED CurrSpeed ECHO !CurrSpeed!.
-ECHO +================================================================+
-IF %EnableGPUOverclockMonitor% NEQ 0 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% EQU 0 ECHO GPU Overclock monitor: Disabled
-IF %MidnightAutoRestart% LEQ 0 ECHO Autorestart at 00:00: Disabled
-IF %MidnightAutoRestart% GTR 0 ECHO Autorestart at 00:00: Enabled
-IF %MiddayAutoRestart% LEQ 0 ECHO Autorestart at 12:00: Disabled
-IF %MiddayAutoRestart% GTR 0 ECHO Autorestart at 12:00: Enabled
-IF %EveryHourMinerAutoRestart% LEQ 0 ECHO Autorestart miner every hour: Disabled
-IF %EveryHourMinerAutoRestart% GTR 0 ECHO Autorestart miner every hour: Enabled
-IF %EveryHourComputerAutoRestart% LEQ 0 ECHO Autorestart computer every hour: Disabled
-IF %EveryHourComputerAutoRestart% GTR 0 ECHO Autorestart computer every hour: Enabled
-IF %ChatId% EQU 0 ECHO Telegram notifications: Disabled
-IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
-IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
-IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
-ECHO +================================================================+
-ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
-IF DEFINED LstShareDiff ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/15
-IF DEFINED SumResult IF DEFINED LastHashrate ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
-ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
-ECHO +================================================================+
-ECHO Now I will take care of your %RigName% and you can take a rest.
 timeout.exe /T 5 /nobreak >NUL
 FOR /F "tokens=5,6 delims=.AMGPU>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" zm.log') DO (
 	IF !NumberOfGPUs! EQU 1 IF %%B GEQ 10 SET LastHashrate=%%B
@@ -705,7 +676,7 @@ FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET CurrSpeed=Current speed:
 		SET CurTemp=Current temp:
 	)
-	FOR /F "tokens=3,4,6 delims=.AMGPU>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" zm.log') DO (
+	FOR /F "tokens=3,4,6 delims=.AMGPUC>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" zm.log') DO (
 		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%bC,
 		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%bC*,
 		IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData= G%%a %%c Sol/s,
@@ -737,7 +708,6 @@ timeout.exe /T 5 /nobreak >NUL
 IF !PTOS1! GEQ 59 SET PTOS1=0
 IF !PTOS1! LSS %Me2% (
 	SET PTOS1=%Me2%
-	SET LstShareDiff=0
 	SET LstShareMin=1%DT1:~10,2%
 	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*\+" zm.log') DO SET LstShareMin=1%%A
 	SET /A LstShareMin=!LstShareMin!-100
@@ -754,6 +724,39 @@ IF !PTOS1! LSS %Me2% (
 		)
 	)
 )
+CLS
+COLOR 1F
+ECHO +================================================================+
+ECHO           AutoRun v.%Version% for DSTM Miner - by Acrefawn
+ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+ECHO +============================================================[%Time:~-5,2%]+
+ECHO Process %MinerProcess% is running...
+ECHO Server: !CurrServerName!
+ECHO !CurTemp!.
+ECHO !CurrSpeed!.
+ECHO +================================================================+
+IF %EnableGPUOverclockMonitor% NEQ 0 ECHO Process %GPUOverclockProcess%.exe is running...
+IF %EnableGPUOverclockMonitor% EQU 0 ECHO GPU Overclock monitor: Disabled
+IF %MidnightAutoRestart% LEQ 0 ECHO Autorestart at 00:00: Disabled
+IF %MidnightAutoRestart% GTR 0 ECHO Autorestart at 00:00: Enabled
+IF %MiddayAutoRestart% LEQ 0 ECHO Autorestart at 12:00: Disabled
+IF %MiddayAutoRestart% GTR 0 ECHO Autorestart at 12:00: Enabled
+IF %EveryHourMinerAutoRestart% LEQ 0 ECHO Autorestart miner every hour: Disabled
+IF %EveryHourMinerAutoRestart% GTR 0 ECHO Autorestart miner every hour: Enabled
+IF %EveryHourComputerAutoRestart% LEQ 0 ECHO Autorestart computer every hour: Disabled
+IF %EveryHourComputerAutoRestart% GTR 0 ECHO Autorestart computer every hour: Enabled
+IF %ChatId% EQU 0 ECHO Telegram notifications: Disabled
+IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
+IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
+IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
+ECHO +================================================================+
+ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
+ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/15
+IF DEFINED SumResult IF DEFINED LastHashrate ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
+ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
+ECHO +================================================================+
+ECHO Now I will take care of your %RigName% and you can take a rest.
 IF %ChatId% NEQ 0 (
 	IF %Me2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %Me2% GEQ 30 (
