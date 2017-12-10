@@ -75,7 +75,7 @@ SET ServerVar=/C:"-xpool"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:".*t=[0-5]C.*"
+SET MinerErrorsList=/C:".*t=[0-5]C.*"
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
@@ -659,7 +659,7 @@ IF !FirstRun! EQU 0 (
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*XMR.*- Total Speed: .* H/s.*" miner.log') DO (
+FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* H/s.*" miner.log') DO (
 	SET LastHashrate=%%A
 	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 	IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
@@ -684,7 +684,7 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	SET CurTemp=!CurTemp:~0,-1!
 )
 timeout.exe /T 5 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:".*XMR.*GPU.* .* H/s.*" miner.log') DO (
+	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:".*GPU.* .* H/s.*" miner.log') DO (
 		SET CurrSpeed=Current speed:
 		SET GpuNum=0
 		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
