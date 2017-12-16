@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.2
+SET Version=1.8.3
 SET FirstRun=0
 :hardstart
 CLS
@@ -33,11 +33,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -499,7 +499,7 @@ IF !LastError! NEQ 0 (
 						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
 						IF !ServerQueue! EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr182 --pass x --log 2 --fee 0 --templimit 80 --pec
+							>> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 --pass x --log 2 --fee 0 --templimit 80 --pec
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
@@ -572,7 +572,7 @@ IF !LastError! NEQ 0 (
 		ECHO +================================================================+
 		ECHO !CurTemp!.
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !CurTemp!.
-		IF %HrDiff% EQU 0 IF %MeDiff% GTR 10 (
+		IF %HrDiff% EQU 0 IF %MeDiff% LEQ 10 (
 			ECHO Fans may be stuck.
 			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
