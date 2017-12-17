@@ -576,22 +576,22 @@ IF !LastError! NEQ 0 (
 		ECHO !CurTemp!.
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !CurTemp!.
 		IF %HrDiff% EQU 0 IF %MeDiff% LEQ 10 (
-			ECHO Fans may be stuck.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
-			GOTO restart
+			tskill.exe /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
+			timeout.exe /T 5 /nobreak >NUL
+			taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
+			ECHO Please ensure your GPUs have enough air flow.
+			ECHO GPUs will now STOP MINING.
+			ECHO Waiting for users input...
+			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
+			PAUSE
+			GOTO hardstart
 		)
-		tskill.exe /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-		taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
-		timeout.exe /T 5 /nobreak >NUL
-		taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
-		ECHO Please ensure your GPUs have enough air flow.
-		ECHO GPUs will now STOP MINING.
-		ECHO Waiting for users input...
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
-		PAUSE
-		GOTO hardstart
+		ECHO Fans may be stuck.
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
+		GOTO restart
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
