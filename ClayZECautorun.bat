@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.3
+SET Version=1.8.4
 SET FirstRun=0
 :hardstart
 CLS
@@ -33,17 +33,18 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server2BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server3BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server4BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
-SET Server5BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server1BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=1
+SET EnableLastShareDiffCheck=1
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
 SET EnableEveryHourInfoSend=0
@@ -151,6 +152,8 @@ IF EXIST "config.bat" (
 >> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
+>> config.bat ECHO REM Enable last share timeout check. [0 - false, 1 - true]
+>> config.bat ECHO SET EnableLastShareDiffCheck=%EnableLastShareDiffCheck%
 >> config.bat ECHO REM =================================================== [Telegram notifications]
 >> config.bat ECHO REM To enable Telegram notifications enter here your ChatId, from Telegram @FarmWatchBot. [0 - disable]
 >> config.bat ECHO SET ChatId=%ChatId%
@@ -502,7 +505,7 @@ IF !LastError! NEQ 0 (
 						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
 						IF !ServerQueue! EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr183 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
+							>> %MinerBat% ECHO %MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr184 -zpsw x -allpools 1 -tstop 80 -logfile miner.log
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
@@ -712,23 +715,26 @@ IF !SumResult! NEQ !OldHashrate! (
 	)
 	SET OldHashrate=!SumResult!
 )
-timeout.exe /T 5 /nobreak >NUL
-IF !PTOS1! GEQ 59 SET PTOS1=0
-IF !PTOS1! LSS %Me2% (
-	SET PTOS1=%Me2%
-	SET LstShareMin=1%DT1:~10,2%
-	FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*SHARE FOUND.*" /C:".*Share accepted.*" miner.log') DO SET LstShareMin=1%%A
-	SET /A LstShareMin=!LstShareMin!-100
-	IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
-		IF !LstShareMin! EQU 0 SET LstShareMin=59
-		IF !LstShareMin! LSS %Me2% SET /A LstShareDiff=%Me2%-!LstShareMin!
-		IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
-		IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
-		IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
-		IF !LstShareDiff! GTR 15 (
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
-			GOTO error
+IF %EnableLastShareDiffCheck% EQU 1 (
+	timeout.exe /T 5 /nobreak >NUL
+	IF !PTOS1! GEQ 59 SET PTOS1=0
+	IF !PTOS1! LSS %Me2% (
+		SET PTOS1=%Me2%
+		SET LstShareDiff=0
+		SET LstShareMin=1%DT1:~10,2%
+		FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*SHARE FOUND.*" /C:".*Share accepted.*" miner.log') DO SET LstShareMin=1%%A
+		SET /A LstShareMin=!LstShareMin!-100
+		IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
+			IF !LstShareMin! EQU 0 SET LstShareMin=59
+			IF !LstShareMin! LSS %Me2% SET /A LstShareDiff=%Me2%-!LstShareMin!
+			IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
+			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
+			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
+			IF !LstShareDiff! GTR 15 (
+				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
+				GOTO error
+			)
 		)
 	)
 )
