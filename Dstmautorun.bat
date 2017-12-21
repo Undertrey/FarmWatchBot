@@ -73,7 +73,7 @@ SET CurrSpeed=Current speed: Calculating...
 SET ServerVar=/C:"--server"
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*server set difficulty.*"
-SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:"MB: 0 "
+SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:"MB: 0 " /C:".*the launch timed out and was terminated" /C:".*cudaGetDeviceCount failed"
 SET MinerErrorsList=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:" [0-5]C "
 SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
