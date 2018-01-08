@@ -81,7 +81,7 @@ SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*t=[0-5]C.*"
-SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe timeout.*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
+SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -94,9 +94,9 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 49500 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 52100 EXIT
 		FOR %%B IN (%Configfile%) DO (
-			IF %%~ZB GEQ 4000 (
+			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
 				timeout.exe /T 2 /nobreak >NUL
 				ECHO Config.bat loaded.
@@ -116,16 +116,6 @@ IF EXIST "%Configfile%" (
 )
 > %Configfile% ECHO @ECHO off
 >> %Configfile% ECHO REM Configuration file v. %Version%
->> %Configfile% ECHO REM =================================================== [Overclock program]
->> %Configfile% ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
->> %Configfile% ECHO REM Autorun and run-check of GPU Overclock programs.
->> %Configfile% ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
->> %Configfile% ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
->> %Configfile% ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
->> %Configfile% ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
->> %Configfile% ECHO SET MSIADelayTimer=%MSIADelayTimer%
->> %Configfile% ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
->> %Configfile% ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
 >> %Configfile% ECHO REM =================================================== [GPU]
 >> %Configfile% ECHO REM Set how many GPU devices are enabled.
 >> %Configfile% ECHO SET NumberOfGPUs=%NumberOfGPUs%
@@ -142,6 +132,17 @@ IF EXIST "%Configfile%" (
 >> %Configfile% ECHO SET Server3BatCommand=%Server3BatCommand%
 >> %Configfile% ECHO SET Server4BatCommand=%Server4BatCommand%
 >> %Configfile% ECHO SET Server5BatCommand=%Server5BatCommand%
+>> %Configfile% ECHO REM =================================================== [Overclock program]
+>> %Configfile% ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
+>> %Configfile% ECHO REM Autorun and run-check of GPU Overclock programs.
+>> %Configfile% ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
+>> %Configfile% ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
+>> %Configfile% ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
+>> %Configfile% ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
+IF %NumberOfGPUs% GEQ 1 SET /A MSIADelayTimer=%NumberOfGPUs%*15
+>> %Configfile% ECHO SET MSIADelayTimer=%MSIADelayTimer%
+>> %Configfile% ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
+>> %Configfile% ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
 >> %Configfile% ECHO REM =================================================== [Timers]
 >> %Configfile% ECHO REM Restart MINER every X hours. Set value of hours delay between miner restarts. [0 - false, 1-999 - scheduled hours delay]
 >> %Configfile% ECHO SET EveryHourMinerAutoRestart=%EveryHourMinerAutoRestart%
@@ -177,6 +178,7 @@ IF EXIST "%Configfile%" (
 ECHO Default %Configfile% created.
 ECHO Please check it and restart %~n0.bat.
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Default %Configfile% created. Please check it and restart %~n0.bat.
+timeout.exe /T 5 /nobreak >NUL
 GOTO hardstart
 :ctimer
 CLS
@@ -393,7 +395,7 @@ IF NOT EXIST "%MinerBat%" (
 	>> %MinerBat% ECHO EXIT
 	ECHO %MinerBat% created. Please check it for errors.
 ) ELSE (
-	IF %SwitchToDefault% EQU 0 (
+	IF %SwitchToDefault% EQU 0 IF !ServerQueue! EQU 1 (
 		> %MinerBat% ECHO @ECHO off
 		>> %MinerBat% ECHO TITLE %MinerBat%
 		>> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
@@ -477,8 +479,7 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 	IF %MiddayAutoRestart% EQU 1 GOTO mtimer
 	IF %MiddayAutoRestart% EQU 2 GOTO ctimer
 )
-IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Hr2% NEQ %Hr1% GOTO switch
-IF %HrDiff% EQU 0 IF %MeDiff% GEQ 15 IF %SwitchToDefault% EQU 1 IF %Me2% EQU 30 GOTO switch
+IF %HrDiff% EQU 0 IF %MeDiff% GEQ 30 IF %SwitchToDefault% EQU 1 GOTO switch
 timeout.exe /T 5 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %CriticalErrorsList% %MinerErrorsList% %MinerWarningsList% %InternetErrorsList% %Logfile% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
 IF !LastError! NEQ 0 (
@@ -773,6 +774,8 @@ IF %ChatId% EQU 0 ECHO Telegram notifications: Disabled
 IF %ChatId% NEQ 0 ECHO Telegram notifications: Enabled
 IF %EnableAPAutorun% LEQ 0 ECHO Additional program autorun: Disabled
 IF %EnableAPAutorun% EQU 1 ECHO Additional program autorun: Enabled
+IF %EnableLastShareDiffCheck% EQU 0 ECHO Last share timeout: Disabled
+IF %EnableLastShareDiffCheck% EQU 1 ECHO Last share timeout: Enabled
 ECHO +================================================================+
 ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/15
