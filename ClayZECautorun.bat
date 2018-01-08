@@ -92,7 +92,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 52100 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 51650 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -385,22 +385,13 @@ IF EXIST "%Logfile%" (
 		)
 	)
 )
-IF NOT EXIST "%MinerBat%" (
-	> %MinerBat% ECHO @ECHO off
-	>> %MinerBat% ECHO TITLE %MinerBat%
-	>> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
-	>> %MinerBat% ECHO %Server1BatCommand%
-	>> %MinerBat% ECHO EXIT
-	ECHO %MinerBat% created. Please check it for errors.
-) ELSE (
-	IF %SwitchToDefault% EQU 0 IF !ServerQueue! EQU 1 (
-		> %MinerBat% ECHO @ECHO off
-		>> %MinerBat% ECHO TITLE %MinerBat%
-		>> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
-		>> %MinerBat% ECHO %Server1BatCommand%
-		>> %MinerBat% ECHO EXIT
-	)
-)
+> %MinerBat% ECHO @ECHO off
+>> %MinerBat% ECHO TITLE %MinerBat%
+>> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
+IF !ServerQueue! LSS 6 >> %MinerBat% ECHO %%Server!ServerQueue!BatCommand%%
+REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr186 --pass x --log 2 --fee 0 --templimit 80 --pec
+>> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
@@ -501,25 +492,12 @@ IF !LastError! NEQ 0 (
 						ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 						ECHO               Miner restarting with default values...
 						ECHO +================================================================+
-						> %MinerBat% ECHO @ECHO off
-						>> %MinerBat% ECHO TITLE %MinerBat%
-						>> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
 						SET SwitchToDefault=1
-						IF !ServerQueue! EQU 1 >> %MinerBat% ECHO %Server2BatCommand%
-						IF !ServerQueue! EQU 2 >> %MinerBat% ECHO %Server3BatCommand%
-						IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server4BatCommand%
-						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
-						IF !ServerQueue! EQU 5 (
-							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr186 -zpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-						)
-						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
 						ECHO Pool server was switched to !ServerQueue!. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched to *!ServerQueue!*. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched to !ServerQueue!. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-						IF !ServerQueue! GTR 5 SET ServerQueue=1
-						ECHO Default %MinerBat% created. Please check it for errors.
+						IF !ServerQueue! GTR 6 SET ServerQueue=1
 						SET /A ErrorsCounter+=1
 						GOTO start
 					) || (
