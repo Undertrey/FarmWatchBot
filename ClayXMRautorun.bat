@@ -4,7 +4,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.5
+SET Version=1.8.6
 SET FirstRun=0
 :hardstart
 CLS
@@ -39,21 +39,21 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server2BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server3BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server4BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server5BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server1BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server2BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server3BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server4BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server5BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=1
-SET EnableLastShareDiffCheck=1
+SET EnableLastShareDiffCheck=0
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
-SET EnableEveryHourInfoSend=0
+SET EnableEveryHourInfoSend=2
 SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
@@ -120,7 +120,7 @@ IF EXIST "%Configfile%" (
 >> %Configfile% ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
 >> %Configfile% ECHO REM Autorun and run-check of GPU Overclock programs.
 >> %Configfile% ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
->> %Configfile% ECHO REM Additional option to auto-xnable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
+>> %Configfile% ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> %Configfile% ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
 >> %Configfile% ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
 >> %Configfile% ECHO SET MSIADelayTimer=%MSIADelayTimer%
@@ -373,6 +373,7 @@ IF EXIST "%Logfile%" (
 	MOVE /Y %Logfile% Logs\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.log 2>NUL 1>&2 && (
 		ECHO %Logfile% renamed and moved to Logs folder.
 		FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~i"
+		FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~i"
 		timeout.exe /T 5 /nobreak >NUL
 	) || (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to rename or access %Logfile%. Attempting to delete %Logfile% and continue...
@@ -511,7 +512,7 @@ IF !LastError! NEQ 0 (
 						IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server5BatCommand%
 						IF !ServerQueue! EQU 5 (
 							REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-							>> %MinerBat% ECHO %MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr185 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+							>> %MinerBat% ECHO %MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr186 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
 						)
 						>> %MinerBat% ECHO EXIT
 						SET /A ServerQueue+=1
