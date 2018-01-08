@@ -71,7 +71,7 @@ SET SwitchToDefault=0
 SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
 SET LstShareDiff=0
-SET CurrServerName=Server: Loading...
+SET CurrServerName=Loading...
 SET CurTemp=Current temp: Calculating...
 SET CurrSpeed=Current speed: Calculating...
 SET ServerVar=/C:"-epool"
@@ -388,9 +388,13 @@ IF EXIST "%Logfile%" (
 > %MinerBat% ECHO @ECHO off
 >> %MinerBat% ECHO TITLE %MinerBat%
 >> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
-IF !ServerQueue! LSS 6 >> %MinerBat% ECHO %%Server!ServerQueue!BatCommand%%
+IF !ServerQueue! EQU 1 >> %MinerBat% ECHO %Server1BatCommand%
+IF !ServerQueue! EQU 2 >> %MinerBat% ECHO %Server2BatCommand%
+IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
+IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
+IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr186 --pass x --log 2 --fee 0 --templimit 80 --pec
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
