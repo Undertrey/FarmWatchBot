@@ -372,8 +372,8 @@ timeout.exe /T 30 >NUL
 IF EXIST "%Logfile%" (
 	MOVE /Y %Logfile% Logs\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.log 2>NUL 1>&2 && (
 		ECHO %Logfile% renamed and moved to Logs folder.
-		FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~i"
-		FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~i"
+		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~i"
+		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~i"
 		timeout.exe /T 5 /nobreak >NUL
 	) || (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to rename or access %Logfile%. Attempting to delete %Logfile% and continue...
