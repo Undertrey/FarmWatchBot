@@ -1,7 +1,12 @@
+# **Donations:**
+* **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
+* **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
+* **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
+
 # **Functions:**
 * Fine tuning of mining process by using of config.bat file.
 * Control of the mining process.
-* Activity monitoring of GPU OC software such as MSI Afterburner, GIGABYTE Xtreme Gaming Engine, ASUS GPU Tweak II, EVGA Precision X, AORUS Gaming Engine and auto restart of it, if necessary. Ability to auto enable specified Overclock Profile for MSI Afterburner.
+* Activity monitoring of GPU OC software such as MSI Afterburner, GIGABYTE Xtreme Gaming Engine, ASUS GPU Tweak II, EVGA Precision X, AORUS Gaming Engine, Palit Thunder Master and auto restart of it, if necessary. Ability to auto enable specified Overclock Profile for MSI Afterburner.
 * Average hashrate monitoring and control. Average hashrate hourly report in Telegram.
 * The ability to run and activity control of another miner or any other program (Minergate, TeamViewer, Storj etc).
 * Control of active GPUs number, based on settings in config.bat.
@@ -16,6 +21,7 @@
 * Telegram notifications in case of any problems, corrective actions taken, hourly activity report.
 * Bot commands for premium users with ability to administrate your Rigs through Telegram.
 * Notifications for premium users about Rigs offline through Telegram.
+
 
 # **Instruction:**
 1. Create a blank .txt file and rename it to autorun.bat.
@@ -50,8 +56,10 @@
 5. Right click on the window of CMD prompt, then select “Properties” and remove the tick for “Quick Edit”.
 6. Attention and lack of desire to put your hands into the code yourself, write to me, I will do everything. Then to disassemble, that there was, and that became, it is long and it is not interesting!
 7. Powershell (for premium users).
+8. Use 24 hours format. (OS date/time settings)
 
 
 # **Donations:**
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
 * **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
+* **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
