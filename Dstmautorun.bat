@@ -360,12 +360,20 @@ IF %EnableAPAutorun% EQU 1 (
 		)
 	)
 )
+tskill.exe /A /V WerFault 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
+taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL && (
-	taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2
-	timeout.exe /T 5 /nobreak >NUL
-	taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
-	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% was successfully killed.
-	ECHO Process %MinerProcess% was successfully killed.
+	taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && (
+		timeout.exe /T 5 /nobreak >NUL
+		taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% was successfully killed.
+		ECHO Process %MinerProcess% was successfully killed.
+	) || (
+		ECHO Unable to kill %MinerProcess%. Retrying...
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to kill %MinerProcess%. Retrying...')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to kill %MinerProcess%. Retrying...
+		GOTO start
+	)
 )
 ECHO Please wait 30 seconds or press any key to continue...
 timeout.exe /T 30 >NUL
@@ -586,7 +594,10 @@ IF !LastError! NEQ 0 (
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
-tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
+tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && (
+	tskill.exe /A /V WerFault 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
+	taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
+)
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% crashed.
@@ -651,7 +662,7 @@ IF !FirstRun! EQU 0 (
 	)
 )
 timeout.exe /T 2 /nobreak >NUL
-FOR /F "tokens=5,6 delims=AMGPUSolWs/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %Logfile%') DO (
+FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %Logfile%') DO (
 	IF !NumberOfGPUs! EQU 1 IF NOT "%%B" == ":" (
 		SET LastHashrate=%%B
 		SET LastHashrate=!LastHashrate:~0,-2!
@@ -676,7 +687,7 @@ FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
 		SET CurrSpeed=Current speed:
 		SET CurTemp=Current temp:
 	)
-	FOR /F "tokens=3,4,6 delims=AMGPUC>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" %Logfile%') DO (
+	FOR /F "tokens=3,4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" %Logfile%') DO (
 		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%b
 		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%b*
 		IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData= G%%a %%c
