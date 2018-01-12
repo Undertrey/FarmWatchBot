@@ -27,7 +27,7 @@ REM Name miner .log file. (in English, without special symbols and spaces)
 SET Logfile=miner.log
 REM Name config .bat file. (in English, without special symbols and spaces)
 SET Configfile=config.bat
-REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
+REM Check to see if autorun.bat has already been started. (0 - false, 1 - true)
 SET EnableDoubleWindowCheck=1
 REM Default config.
 SET EnableGPUOverclockMonitor=0
@@ -72,14 +72,13 @@ SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
 SET LstShareDiff=0
 SET CurrServerName=Loading...
-SET CurTemp=Current temp: Calculating...
-SET CurrSpeed=Current speed: Calculating...
-SET ServerVar=/C:"-zpool"
+SET CurTemp=Current temp: No data...
+SET CurrSpeed=Current speed: No data...
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*t=[0-5]C.*"
-SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*"
+SET InternetErrorsList=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -92,7 +91,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 51530 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 52000 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -409,7 +408,7 @@ START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe %ServerVar% %MinerBat%') DO SET CurrServerName=%%s
+	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO SET CurrServerName=%%s
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
@@ -687,17 +686,17 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	SET CurTemp=!CurTemp:~0,-1!
 )
 timeout.exe /T 5 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:"GPU.* .* H/s.*" %Logfile%') DO (
-		SET CurrSpeed=Current speed:
-		SET GpuNum=0
-		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
-			SET /A GpuNum+=1
-		)
-		SET CurrSpeed=!CurrSpeed:~0,-1!
-		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
-		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,H/s " %%a IN ('findstr.exe /R /C:"GPU.* .* H/s.*" %Logfile%') DO (
+	SET CurrSpeed=Current speed:
+	SET GpuNum=0
+	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
+		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
+		SET /A GpuNum+=1
 	)
+	SET CurrSpeed=!CurrSpeed:~0,-1!
+	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
+	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+)
 timeout.exe /T 5 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (

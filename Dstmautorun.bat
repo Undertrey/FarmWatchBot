@@ -27,7 +27,7 @@ REM Name miner .log file. (in English, without special symbols and spaces)
 SET Logfile=zm.log
 REM Name config .bat file. (in English, without special symbols and spaces)
 SET Configfile=config.bat
-REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
+REM Check to see if autorun.bat has already been started. (0 - false, 1 - true)
 SET EnableDoubleWindowCheck=1
 REM Default config.
 SET EnableGPUOverclockMonitor=0
@@ -72,14 +72,13 @@ SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
 SET LstShareDiff=0
 SET CurrServerName=Loading...
-SET CurTemp=Current temp: Calculating...
-SET CurrSpeed=Current speed: Calculating...
-SET ServerVar=/C:"--server"
+SET CurTemp=Current temp: No data...
+SET CurrSpeed=Current speed: No data...
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*server set difficulty.*"
 SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:"MB: 0 " /C:".*the launch timed out and was terminated" /C:".*cudaGetDeviceCount failed" /C:".*protocol version .* not supported.*"
 SET MinerErrorsList=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*cuda.*failed.*" /C:".*unresponsive.*" /C:" [0-5]C "
-SET InternetErrorsList=/C:".*Lost connection.*" /C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*" /C:".*authorization failed.*"
+SET InternetErrorsList=/C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*" /C:".*authorization failed.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -92,7 +91,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 51530 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 52000 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -409,7 +408,7 @@ START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe %ServerVar% %MinerBat%') DO SET CurrServerName=%%s
+	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO SET CurrServerName=%%s
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
@@ -434,6 +433,7 @@ SET HashrateErrorsCount=0
 SET OldHashrate=0
 SET FirstRun=0
 SET GPUCount=0
+SET TotalGPUCount=0
 :check
 SET InternetErrorsCounter=1
 SET MinHashrate=0
@@ -633,6 +633,7 @@ IF !FirstRun! EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 5 /nobreak >NUL
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.*\+.*PCI:.*" %Logfile%') DO SET /A GPUCount+=1
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.*PCI:.*" %Logfile%') DO SET /A TotalGPUCount+=1
 	IF !GPUCount! EQU 0 SET GPUCount=1
 	IF !NumberOfGPUs! EQU 0 SET NumberOfGPUs=!GPUCount!
 	IF !NumberOfGPUs! GTR !GPUCount! (
@@ -681,25 +682,32 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 	)
 )
 timeout.exe /T 2 /nobreak >NUL
-FOR /L %%A IN (1,1,!NumberOfGPUs!) DO (
-	SET /A Variable=%%A-1
-	IF !Variable! EQU 0 (
+FOR /L %%A IN (0,1,!TotalGPUCount!) DO (
+	IF %%A EQU 0 (
 		SET CurrSpeed=Current speed:
 		SET CurTemp=Current temp:
 	)
-	FOR /F "tokens=3,4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU!Variable! .*C.*Sol/s:.*" %Logfile%') DO (
-		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData= G%%a %%b
-		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData= G%%a *%%b*
-		IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData= G%%a %%c
+	SET SpeedData=0
+	SET TempData=0
+	FOR /F "tokens=3,4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %Logfile%') DO (
+		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData=%%a %%b
+		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData=%%a *%%b*
+		IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%a %%c
 	)
-	SET SpeedData=!SpeedData:~0,-2!
-	SET CurrSpeed=!CurrSpeed!!SpeedData! Sol/s,
-	SET CurTemp=!CurTemp!!TempData!C,
+	IF !SpeedData! NEQ 0 (
+		SET SpeedData=!SpeedData:~0,-2!
+		SET CurrSpeed=!CurrSpeed! G!SpeedData! Sol/s,
+	)
+	IF !TempData! NEQ 0 SET CurTemp=!CurTemp! G!TempData!C,
 	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+	IF %%A EQU !TotalGPUCount! (
+		IF "!CurrSpeed!" NEQ "Current speed:" IF "!CurrSpeed!" NEQ "Current speed: No data..." SET CurrSpeed=!CurrSpeed:~0,-1!
+		IF "!CurTemp!" NEQ "Current temp:" IF "!CurTemp!" NEQ "Current temp: No data..." SET CurTemp=!CurTemp:~0,-1!
+		IF "!CurTemp!" EQU "Current temp:" SET CurTemp=Current temp: No data...
+		IF "!CurrSpeed!" EQU "Current speed:" SET CurrSpeed=Current speed: No data...
+	)
 )
-SET CurrSpeed=!CurrSpeed:~0,-1!
-SET CurTemp=!CurTemp:~0,-1!
 timeout.exe /T 5 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
