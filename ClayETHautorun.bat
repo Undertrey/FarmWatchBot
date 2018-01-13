@@ -1,10 +1,11 @@
+REM Developer acrefawn. Contact me: acrefawn@gmail.com, t.me/acrefawn
 @ECHO OFF
 SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.6
+SET Version=1.8.7
 SET FirstRun=0
 :hardstart
 CLS
@@ -37,11 +38,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -72,8 +73,8 @@ SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
 SET LstShareDiff=0
 SET CurrServerName=Loading...
-SET CurTemp=Current temp: No data...
-SET CurrSpeed=Current speed: No data...
+SET CurTemp=Current temp: No data..
+SET CurrSpeed=Current speed: No data..
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
@@ -91,7 +92,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 52000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 53000 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -401,7 +402,7 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr186 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
@@ -425,6 +426,11 @@ IF NOT EXIST "%Logfile%" (
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile %Logfile% option is added to the miners command line.
 	GOTO error
 ) ELSE (
+	findstr.exe /R /C:"%MinerProcess% -epool.*-tstop.*-logfile %Logfile%.*" %MinerBat% 2>NUL 1>&2 || (
+		ECHO Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in correct order.
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *-epool* *-tstop* *-logfile %Logfile%* options added to the miners command line in correct order.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in correct order.
+	)
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
 	timeout.exe /T 5 /nobreak >NUL
@@ -574,7 +580,7 @@ IF !LastError! NEQ 0 (
 		ECHO !CurTemp!.
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !CurTemp!.
 		IF %HrDiff% EQU 0 IF %MeDiff% LEQ 10 (
-			tskill.exe /A /V %GPUOverclockProcess% >NUL && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+			tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 			taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
 			timeout.exe /T 5 /nobreak >NUL
 			taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %MinerBat%*" 2>NUL 1>&2
