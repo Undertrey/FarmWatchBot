@@ -688,8 +688,11 @@ FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 	)
 	SET SpeedData=0
 	SET TempData=0
-	FOR /F "tokens=6,11 delims=:#,. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*GB,.*" %Logfile%') DO (
-		IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%a %%b
+	FOR /F "tokens=6,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*GTX.*,.*" %Logfile%') DO (
+		SET LastSymb=%%b
+		SET LastSymb=!LastSymb:~-1!
+		IF "!LastSymb!" NEQ "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%a %%b
+		IF "!LastSymb!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%a %%c
 	)
 	FOR /F "tokens=5,10 delims=GPUMHzWCFAN:#/ " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*C FAN.*" %Logfile%') DO (
 		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData=%%a %%b
