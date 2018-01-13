@@ -11,7 +11,7 @@ SET FirstRun=0
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO              AutoRun v.%Version% for CCMiner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
@@ -21,7 +21,7 @@ SET ErrorsAmount=5
 REM Amount of hashrate errors before miner restart (5 - default, only numeric values)
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
-SET MinerProcess=miner.exe
+SET MinerProcess=ccminer-x64.exe
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Name miner .log file. (in English, without special symbols and spaces)
@@ -38,18 +38,18 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server1BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server2BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server3BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server4BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server5BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=0
-SET EnableLastShareDiffCheck=0
+SET EnableLastShareDiffCheck=1
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
 SET EnableEveryHourInfoSend=2
@@ -75,11 +75,11 @@ SET LstShareDiff=0
 SET CurrServerName=Loading...
 SET CurTemp=Current temp: No data..
 SET CurrSpeed=Current speed: No data..
-SET MinerWarningsList=/C:".*reached.*"
-SET InternetErrorsCancel=/C:".*Connection restored.*"
-SET CriticalErrorsList=/C:".*NVML.*" /C:".*CUDA-capable.*"
-SET MinerErrorsList=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:" [0-5]C "
-SET InternetErrorsList=/C:".*Lost connection.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*"
+SET MinerWarningsList=/C:".*temperature too high.*" /C:".*thermal limit.*"
+SET InternetErrorsCancel=/C:".*accepted:.*"
+SET CriticalErrorsList=/C:".*CUDA-capable.*"
+SET MinerErrorsList=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:" [0-5]C "
+SET InternetErrorsList=/C:".*connection .*ed.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*authorization failed.*" /C:".*Unknown algo parameter.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -396,20 +396,21 @@ IF EXIST "%Logfile%" (
 > %MinerBat% ECHO @ECHO off
 >> %MinerBat% ECHO TITLE %MinerBat%
 >> %MinerBat% ECHO REM Configure miners command line in %Configfile% file. Not in %MinerBat%.
-IF !ServerQueue! EQU 1 >> %MinerBat% ECHO %Server1BatCommand%
-IF !ServerQueue! EQU 2 >> %MinerBat% ECHO %Server2BatCommand%
-IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
-IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
-IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
+>> %MinerBat% ECHO ECHO Output from miner redirected into %Logfile% file. Miner working OK. Do not worry.
+IF !ServerQueue! EQU 1 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server1BatCommand%
+IF !ServerQueue! EQU 2 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server2BatCommand%
+IF !ServerQueue! EQU 3 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server3BatCommand%
+IF !ServerQueue! EQU 4 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server4BatCommand%
+IF !ServerQueue! EQU 5 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO ^>^> miner.log %MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3,4 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+	FOR /F "tokens=8,9 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
 		SET CurrServerName=%%b
 		IF NOT "%%a" == "stratum+tcp" SET CurrServerName=%%a
 	)
@@ -423,16 +424,16 @@ START "%MinerBat%" "%MinerBat%" && (
 IF NOT EXIST "%Logfile%" (
 	ECHO %Logfile% is missing.
 	ECHO Check permissions of this folder. This script requires permission to create files.
-	ECHO Ensure --log 2 option is added to the miners command line.
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %Logfile% is missing. Ensure *--log 2* option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
+	ECHO Ensure ^>^> miner.log option is added to the miners command line.
+	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %Logfile% is missing. Ensure *^>^> miner.log* option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Logfile% is missing. Check permissions of this folder. This script requires permission to create files.
-	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --log 2 option is added to the miners command line.
+	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure ^>^> miner.log option is added to the miners command line.
 	GOTO error
 ) ELSE (
-	findstr.exe /R /C:"%MinerProcess% --server.*--log 2.*--templimit.*" %MinerBat% 2>NUL 1>&2 || (
-		ECHO Ensure --server --log 2 --templimit options added to the miners command line in correct order.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *--server* *--log 2* *--templimit* options added to the miners command line in correct order.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --server --log 2 --templimit options added to the miners command line in correct order.
+	findstr.exe /R /C:"%MinerProcess% .*--no-color.*" %MinerBat% 2>NUL 1>&2 || (
+		ECHO Ensure --no-color option is added to the miners command line in correct order.
+		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *--no-color* option is added to the miners command line in correct order.')" 2>NUL 1>&2
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --no-color option is added to the miners command line in correct order.
 	)
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -640,7 +641,7 @@ IF %EnableAPAutorun% EQU 1 (
 IF !FirstRun! EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 5 /nobreak >NUL
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %Logfile%') DO SET /A GPUCount+=1
+	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:".* miner threads started, using .* algorithm.*" %Logfile%') DO SET /A GPUCount=%%A
 	IF !GPUCount! EQU 0 SET GPUCount=1
 	IF !NumberOfGPUs! EQU 0 SET NumberOfGPUs=!GPUCount!
 	IF !NumberOfGPUs! GTR !GPUCount! (
@@ -670,7 +671,7 @@ IF !FirstRun! EQU 0 (
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" %Logfile%') DO (
+FOR /F "tokens=9 delims=dif:,.( " %%A IN ('findstr.exe /R /C:".*accepted: [0-9]*/[0-9]*.*" /C:".*S/A/T.* [0-9]*/[0-9]*/[0-9]*.*" %Logfile%') DO (
 	SET LastHashrate=%%A
 	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
 	IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
@@ -680,27 +681,30 @@ FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 delims=:C " %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
-	SET CurTemp=Current temp:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 IF %%A LSS 70 SET CurTemp=!CurTemp! G!GpuNum! %%AC,
-		IF NOT "%%A" == "" IF %%A GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *%%AC*,
-		SET /A GpuNum+=1
+FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
+	IF %%A EQU 0 (
+		SET CurrSpeed=Current speed:
+		SET CurTemp=Current temp:
 	)
-	SET CurTemp=!CurTemp:~0,-1!
-)
-timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=2,4,6,8,10,12,14,16,18,20,22,24,26,28,30 delims=:Sol/s " %%a IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %Logfile%') DO (
-	SET CurrSpeed=Current speed:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
-		SET /A GpuNum+=1
+	SET SpeedData=0
+	SET TempData=0
+	FOR /F "tokens=6,11 delims=:#,. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*GB,.*" %Logfile%') DO (
+		IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%a %%b
 	)
-	SET CurrSpeed=!CurrSpeed:~0,-1!
+	FOR /F "tokens=5,10 delims=GPUMHzWCFAN:#/ " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*C FAN.*" %Logfile%') DO (
+		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData=%%a %%b
+		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData=%%a *%%b*
+	)
+	IF !SpeedData! NEQ 0 SET CurrSpeed=!CurrSpeed! G!SpeedData! S/s,
+	IF !TempData! NEQ 0 SET CurTemp=!CurTemp! G!TempData!C,
 	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+	IF %%A EQU !NumberOfGPUs! (
+		IF "!CurrSpeed!" NEQ "Current speed:" IF "!CurrSpeed!" NEQ "Current speed: No data.." SET CurrSpeed=!CurrSpeed:~0,-1!
+		IF "!CurTemp!" NEQ "Current temp:" IF "!CurTemp!" NEQ "Current temp: No data.." SET CurTemp=!CurTemp:~0,-1!
+		IF "!CurTemp!" EQU "Current temp:" SET CurTemp=Current temp: No data..
+		IF "!CurrSpeed!" EQU "Current speed:" SET CurrSpeed=Current speed: No data..
+	)
 )
 timeout.exe /T 5 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
@@ -725,7 +729,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 		SET PTOS1=%Me2%
 		SET LstShareDiff=0
 		SET LstShareMin=1%DT1:~10,2%
-		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" %Logfile%') DO SET LstShareMin=1%%A
+		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:".*accepted: [0-9]*/[0-9]*.*" /C:".*S/A/T.* [0-9]*/[0-9]*/[0-9]*.*" %Logfile%') DO SET LstShareMin=1%%A
 		SET /A LstShareMin=!LstShareMin!-100
 		IF !LstShareMin! GEQ 0 IF %Me2% GTR 0 (
 			IF !LstShareMin! EQU 0 SET LstShareMin=59
@@ -744,7 +748,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO              AutoRun v.%Version% for CCMiner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
@@ -772,7 +776,7 @@ IF %EnableLastShareDiffCheck% EQU 1 ECHO Last share timeout: Enabled
 ECHO +================================================================+
 ECHO            Runtime errors: %ErrorsCounter%/%ErrorsAmount% Hashrate errors: !HashrateErrorsCount!/%HashrateErrorsAmount% !MinHashrate!/99
 ECHO                 GPUs: !GPUCount!/!NumberOfGPUs! Last share timeout: !LstShareDiff!/15
-IF DEFINED SumResult IF DEFINED LastHashrate ECHO                 Average Sol/s: !SumResult! Last Sol/s: !LastHashrate!
+IF DEFINED SumResult IF DEFINED LastHashrate ECHO                    Average S/s: !SumResult! Last S/s: !LastHashrate!
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %RigName% and you can take a rest.

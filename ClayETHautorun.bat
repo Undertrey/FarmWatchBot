@@ -38,11 +38,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -79,7 +79,7 @@ SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
 SET MinerErrorsList=/C:".*t=[0-5]C.*"
-SET InternetErrorsList=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*"
+SET InternetErrorsList=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -402,14 +402,17 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -allpools 1 -tstop 80 -logfile %Logfile%
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr187 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr187 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO SET CurrServerName=%%s
+	FOR /F "tokens=3,4 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+		SET CurrServerName=%%b
+		IF NOT "%%a" == "stratum+tcp" SET CurrServerName=%%a
+	)
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
@@ -692,17 +695,17 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	SET CurTemp=!CurTemp:~0,-1!
 )
 timeout.exe /T 5 /nobreak >NUL
-	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" %Logfile% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*"') DO (
-		SET CurrSpeed=Current speed:
-		SET GpuNum=0
-		FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-			IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A H/s,
-			SET /A GpuNum+=1
-		)
-		SET CurrSpeed=!CurrSpeed:~0,-1!
-		ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
-		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" %Logfile% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*"') DO (
+	SET CurrSpeed=Current speed:
+	SET GpuNum=0
+	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
+		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A H/s,
+		SET /A GpuNum+=1
 	)
+	SET CurrSpeed=!CurrSpeed:~0,-1!
+	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
+	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
+)
 timeout.exe /T 5 /nobreak >NUL
 IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (

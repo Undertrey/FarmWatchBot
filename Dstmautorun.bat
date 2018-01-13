@@ -409,7 +409,10 @@ START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3 delims= " %%s IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO SET CurrServerName=%%s
+	FOR /F "tokens=3,4 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+		SET CurrServerName=%%b
+		IF NOT "%%a" == "stratum+tcp" SET CurrServerName=%%a
+	)
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
