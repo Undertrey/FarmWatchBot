@@ -22,6 +22,8 @@ REM Amount of hashrate errors before miner restart (5 - default, only numeric va
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=ccminer-x64.exe
+IF EXIST "ccminer.exe" RENAME ccminer.exe %MinerProcess%
+IF EXIST "ccminer-x64.exe" RENAME ccminer-x64.exe %MinerProcess%
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Name miner .log file. (in English, without special symbols and spaces)
@@ -430,7 +432,7 @@ IF NOT EXIST "%Logfile%" (
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure ^>^> miner.log option is added to the miners command line.
 	GOTO error
 ) ELSE (
-	findstr.exe /R /C:"%MinerProcess% .*--no-color.*" %MinerBat% 2>NUL 1>&2 || (
+	findstr.exe /R /C:".*--no-color.*" %MinerBat% 2>NUL 1>&2 || (
 		ECHO Ensure --no-color option is added to the miners command line in correct order.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *--no-color* option is added to the miners command line in correct order.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --no-color option is added to the miners command line in correct order.

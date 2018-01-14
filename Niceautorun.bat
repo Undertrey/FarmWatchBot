@@ -1,10 +1,11 @@
+REM Developer acrefawn. Contact me: acrefawn@gmail.com, t.me/acrefawn
 @ECHO OFF
 SETLOCAL ENABLEDELAYEDEXPANSION
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.1
+SET Version=1.8.7
 SET FirstRun=0
 :hardstart
 CLS
@@ -15,50 +16,20 @@ ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
 REM Attention. Change the options below only if its really needed.
-REM Amount of errors before computer restart (5 - default)
+REM Amount of errors before computer restart (5 - default, only numeric values)
 SET ErrorsAmount=5
-REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
-SET MSIADelayTimer=120
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess1=NiceHash Miner 2.exe
 SET MinerProcess2=excavator.exe
 SET MinerProcess3=xmr-stak-cpu.exe
-REM Check to see if %~n0.bat has already been started. (0 - false, 1 - true)
+REM Name config .bat file. (in English, without special symbols and spaces)
+SET Configfile=config.bat
+REM Check to see if autorun.bat has already been started. (0 - false, 1 - true)
 SET EnableDoubleWindowCheck=1
-REM Attention. Do not touch the options below in any case.
-IF "%PROCESSOR_ARCHITECTURE%" == "x86" IF NOT DEFINED PROCESSOR_ARCHITEW6432 (
-	ECHO Your OS Architecture is %PROCESSOR_ARCHITECTURE%. Only x64 required.
-	PAUSE
-	EXIT
-)
-IF %EnableDoubleWindowCheck% EQU 1 (
-	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
-		ECHO This script is already running...
-		ECHO Current window will close in 10 seconds.
-		timeout.exe /T 10 /nobreak >NUL
-		EXIT
-	)
-)
-SET PTOS=0
-SET HrDiff=00
-SET MeDiff=00
-SET SsDiff=00
-SET /A BotNum=(%RANDOM%*5/32768)+1
-SET rtpt=d2a
-SET AllowSend=0
-SET tprt=WYHfeJU
-SET prt=AAFWKz6wv7
-SET ErrorsCounter=0
-SET rtp=%rtpt%eV6idp
-SET tpr=C8go_jp8%tprt%
-SET /A Num=(3780712+3780711)*6*9
-SET InternetErrorsCancel=/C:".* Connected.*" /C:".* Sending method.*" /C:".* Recived method.*"
-SET CriticalErrorsList=/C:".*child process exited.*"
-SET MinerErrorsList=/C:".*Failed for sendData.*" /C:".*Connection ERROR Error.*" /C:".*Connection closed.*"
-SET InternetErrorsList=/C:".*Connection lost.*" /C:".*Failed to resolve.*" /C:".*error = Error: getaddrinfo ENOENT.*"
-REM Attention. Change the options below only if its really needed.
+REM Default config.
 SET EnableGPUOverclockMonitor=0
 SET AutorunMSIAWithProfile=0
+SET MSIADelayTimer=120
 SET RestartGPUOverclockMonitor=0
 SET EveryHourMinerAutoRestart=0
 SET EveryHourComputerAutoRestart=0
@@ -73,85 +44,102 @@ SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM Attention. Do not touch the options below in any case.
+SET rtpt=d2a
+SET HrDiff=00
+SET MeDiff=00
+SET SsDiff=00
+SET AllowSend=0
+SET tprt=WYHfeJU
+SET prt=AAFWKz6wv7
+SET ErrorsCounter=0
+SET rtp=%rtpt%eV6idp
+SET tpr=C8go_jp8%tprt%
+SET /A Num=(3780712+3780711)*6*9
+SET InternetErrorsCancel=/C:".* Connected.*" /C:".* Sending method.*" /C:".* Recived method.*"
+SET CriticalErrorsList=/C:".*child process exited.*"
+SET MinerErrorsList=/C:".*Failed for sendData.*" /C:".*Connection ERROR Error.*" /C:".*Connection closed.*"
+SET InternetErrorsList=/C:".*Connection lost.*" /C:".*Failed to resolve.*" /C:".*error = Error: getaddrinfo ENOENT.*"
+IF %EnableDoubleWindowCheck% EQU 1 (
+	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
+		ECHO This script is already running...
+		ECHO Current window will close in 10 seconds.
+		timeout.exe /T 10 /nobreak >NUL
+		EXIT
+	)
+)
 :checkconfig
 timeout.exe /T 2 /nobreak >NUL
-IF EXIST "config.bat" (
-	findstr.exe /C:"%Version%" config.bat >NUL && (
+IF EXIST "%Configfile%" (
+	findstr.exe /C:"%Version%" %Configfile% >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 33000 EXIT
-		FOR %%B IN (config.bat) DO (
-			IF %%~ZB LSS 2800 (
-				ECHO Config.bat file error. It is corrupted.
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Config.bat file error. It is corrupted. Check it...')" 2>NUL 1>&2
-				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat file error. It is corrupted.
-			) ELSE (
-				CALL config.bat
+		FOR %%B IN (%Configfile%) DO (
+			IF %%~ZB GEQ 2800 (
+				CALL %Configfile%
+				timeout.exe /T 2 /nobreak >NUL
 				ECHO Config.bat loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
-				GOTO start
+				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
 			)
+			ECHO Config.bat file error. It is corrupted.
+			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Config.bat file error. It is corrupted. Please check it...')" 2>NUL 1>&2
+			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat file error. It is corrupted.
 		)
 	) || (
-		CALL config.bat
-		ECHO Your config.bat is out of date.
+		CALL %Configfile%
+		timeout.exe /T 2 /nobreak >NUL
+		ECHO Your %Configfile% is out of date.
 	)
-	MOVE /Y config.bat config_backup.bat >NUL && ECHO Created backup of your old config.bat.
+	MOVE /Y %Configfile% config_backup.bat >NUL && ECHO Created backup of your old %Configfile%.
 )
-> config.bat ECHO @ECHO off
->> config.bat ECHO REM Configuration file v. %Version%
->> config.bat ECHO REM =================================================== [Overclock program]
->> config.bat ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
->> config.bat ECHO REM Autorun and run-check of GPU Overclock programs.
->> config.bat ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
->> config.bat ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
->> config.bat ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
->> config.bat ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
->> config.bat ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
->> config.bat ECHO REM =================================================== [Timers]
->> config.bat ECHO REM Restart MINER every X hours. Set value of hours delay between miner restarts. [0 - false, 1-999 - scheduled hours delay]
->> config.bat ECHO SET EveryHourMinerAutoRestart=%EveryHourMinerAutoRestart%
->> config.bat ECHO REM Restart COMPUTER every X hours. Set value of hours delay between computer restarts. [0 - false, 1-999 - scheduled hours delay]
->> config.bat ECHO SET EveryHourComputerAutoRestart=%EveryHourComputerAutoRestart%
->> config.bat ECHO REM Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
->> config.bat ECHO SET MiddayAutoRestart=%MiddayAutoRestart%
->> config.bat ECHO REM Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
->> config.bat ECHO SET MidnightAutoRestart=%MidnightAutoRestart%
->> config.bat ECHO REM =================================================== [Other]
->> config.bat ECHO REM Enable Internet connectivity check. [0 - false, 1 - true]
->> config.bat ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
->> config.bat ECHO SET EnableInternetConnectivityCheck=%EnableInternetConnectivityCheck%
->> config.bat ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
->> config.bat ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
->> config.bat ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
->> config.bat ECHO REM =================================================== [Telegram notifications]
->> config.bat ECHO REM To enable Telegram notifications enter here your ChatId, from Telegram @FarmWatchBot. [0 - disable]
->> config.bat ECHO SET ChatId=%ChatId%
->> config.bat ECHO REM Name your Rig. [in English, without special symbols]
->> config.bat ECHO SET RigName=%RigName%
->> config.bat ECHO REM Enable hourly statistics through Telegram. [0 - false, 1 - true short, 2 - true short in silent mode]
->> config.bat ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
->> config.bat ECHO REM =================================================== [Additional program]
->> config.bat ECHO REM Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
->> config.bat ECHO SET EnableAPAutorun=%EnableAPAutorun%
->> config.bat ECHO REM Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
->> config.bat ECHO SET APProcessName=%APProcessName%
->> config.bat ECHO REM Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
->> config.bat ECHO SET APProcessPath=%APProcessPath%
-ECHO Default config.bat created.
+> %Configfile% ECHO @ECHO off
+>> %Configfile% ECHO REM Configuration file v. %Version%
+>> %Configfile% ECHO REM =================================================== [Overclock program]
+>> %Configfile% ECHO REM Enable GPU Overclock control monitor. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
+>> %Configfile% ECHO REM Autorun and run-check of GPU Overclock programs.
+>> %Configfile% ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
+>> %Configfile% ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
+>> %Configfile% ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
+>> %Configfile% ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
+>> %Configfile% ECHO SET MSIADelayTimer=%MSIADelayTimer%
+>> %Configfile% ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
+>> %Configfile% ECHO SET RestartGPUOverclockMonitor=%RestartGPUOverclockMonitor%
+>> %Configfile% ECHO REM =================================================== [Timers]
+>> %Configfile% ECHO REM Restart MINER every X hours. Set value of hours delay between miner restarts. [0 - false, 1-999 - scheduled hours delay]
+>> %Configfile% ECHO SET EveryHourMinerAutoRestart=%EveryHourMinerAutoRestart%
+>> %Configfile% ECHO REM Restart COMPUTER every X hours. Set value of hours delay between computer restarts. [0 - false, 1-999 - scheduled hours delay]
+>> %Configfile% ECHO SET EveryHourComputerAutoRestart=%EveryHourComputerAutoRestart%
+>> %Configfile% ECHO REM Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
+>> %Configfile% ECHO SET MiddayAutoRestart=%MiddayAutoRestart%
+>> %Configfile% ECHO REM Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
+>> %Configfile% ECHO SET MidnightAutoRestart=%MidnightAutoRestart%
+>> %Configfile% ECHO REM =================================================== [Other]
+>> %Configfile% ECHO REM Enable Internet connectivity check. [0 - false, 1 - true]
+>> %Configfile% ECHO REM Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
+>> %Configfile% ECHO SET EnableInternetConnectivityCheck=%EnableInternetConnectivityCheck%
+>> %Configfile% ECHO REM Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
+>> %Configfile% ECHO REM GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
+>> %Configfile% ECHO SET EnableGPUEnvironments=%EnableGPUEnvironments%
+>> %Configfile% ECHO REM Enable last share timeout check. [0 - false, 1 - true]
+>> %Configfile% ECHO SET EnableLastShareDiffCheck=%EnableLastShareDiffCheck%
+>> %Configfile% ECHO REM =================================================== [Telegram notifications]
+>> %Configfile% ECHO REM To enable Telegram notifications enter here your ChatId, from Telegram @FarmWatchBot. [0 - disable]
+>> %Configfile% ECHO SET ChatId=%ChatId%
+>> %Configfile% ECHO REM Name your Rig. [in English, without special symbols]
+>> %Configfile% ECHO SET RigName=%RigName%
+>> %Configfile% ECHO REM Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode]
+>> %Configfile% ECHO SET EnableEveryHourInfoSend=%EnableEveryHourInfoSend%
+>> %Configfile% ECHO REM =================================================== [Additional program]
+>> %Configfile% ECHO REM Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
+>> %Configfile% ECHO SET EnableAPAutorun=%EnableAPAutorun%
+>> %Configfile% ECHO REM Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
+>> %Configfile% ECHO SET APProcessName=%APProcessName%
+>> %Configfile% ECHO REM Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
+>> %Configfile% ECHO SET APProcessPath=%APProcessPath%
+ECHO Default %Configfile% created.
 ECHO Please check it and restart %~n0.bat.
->> %~n0.log ECHO [%Date%][%Time:~-11,8%] Default config.bat created. Please check it and restart %~n0.bat.
-GOTO checkconfig
-:restart
-COLOR 4F
-ECHO Computer restarting...
-tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
-taskkill.exe /F /IM "%MinerProcess1%" 2>NUL 1>&2 && ECHO Process %MinerProcess1% was successfully killed.
-taskkill.exe /F /IM "%MinerProcess2%" 2>NUL 1>&2
-taskkill.exe /F /IM "%MinerProcess3%" 2>NUL 1>&2
-IF %EnableAPAutorun% EQU 1 taskkill.exe /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Computer restarting...')" 2>NUL 1>&2
->> %~n0.log ECHO [%Date%][%Time:~-11,8%] Computer restarting...
-shutdown.exe /T 30 /R /F /C "Your computer will restart after 30 seconds. To cancel restart, close this window and start %~n0.bat manually."
-EXIT
+>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Default %Configfile% created. Please check it and restart %~n0.bat.
+timeout.exe /T 5 /nobreak >NUL
+GOTO hardstart
 :ctimer
 CLS
 ECHO +================================================================+
@@ -161,7 +149,19 @@ ECHO                            Restarting...
 ECHO +================================================================+
 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Scheduled computer restart, please wait...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Scheduled computer restart, please wait... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
-GOTO restart
+:restart
+powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; Add-type -AssemblyName System.Drawing; $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; $bitmap = New-Object System.Drawing.Bitmap $Screen.Width, $Screen.Height; $graphic = [System.Drawing.Graphics]::FromImage($bitmap); $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size); $bitmap.Save('%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.jpg');" 2>NUL 1>&2
+COLOR 4F
+ECHO Computer restarting...
+IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Computer restarting...')" 2>NUL 1>&2
+>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Computer restarting...
+tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
+taskkill.exe /F /IM "%MinerProcess1%" 2>NUL 1>&2 && ECHO Process %MinerProcess1% was successfully killed.
+taskkill.exe /F /IM "%MinerProcess2%" 2>NUL 1>&2
+taskkill.exe /F /IM "%MinerProcess3%" 2>NUL 1>&2
+IF %EnableAPAutorun% EQU 1 taskkill.exe /F /IM "%APProcessName%" 2>NUL 1>&2 && ECHO Process %APProcessName% was successfully killed.
+shutdown.exe /T 30 /R /F /C "Your computer will restart after 30 seconds. To cancel restart, close this window and start %~n0.bat manually."
+EXIT
 :mtimer
 CLS
 ECHO +================================================================+
@@ -190,6 +190,7 @@ ECHO                        Something is wrong...
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
+powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; Add-type -AssemblyName System.Drawing; $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; $bitmap = New-Object System.Drawing.Bitmap $Screen.Width, $Screen.Height; $graphic = [System.Drawing.Graphics]::FromImage($bitmap); $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size); $bitmap.Save('%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.jpg');" 2>NUL 1>&2
 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner restarting...')" 2>NUL 1>&2
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner restarting... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 :start
@@ -225,6 +226,7 @@ IF NOT EXIST "%MinerProcess1%" (
 	EXIT
 )
 IF NOT EXIST "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs" MD %HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs && ECHO Folder Logs created.
+IF NOT EXIST "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots" MD %HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots && ECHO Folder Screenshots created.
 IF %EnableGPUOverclockMonitor% EQU 1 (
 	SET GPUOverclockProcess=Xtreme
 	SET GPUOverclockPath=\GIGABYTE\XTREME GAMING ENGINE\
@@ -273,7 +275,7 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 				GOTO error
 			)
 		)
-		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF %EnableGPUOverclockMonitor% EQU 2 (
+		IF %AutorunMSIAWithProfile% GEQ 1 IF %AutorunMSIAWithProfile% LEQ 5 IF !EnableGPUOverclockMonitor! EQU 2 (
 			IF !FirstRun! EQU 0 (
 				ECHO Waiting %MSIADelayTimer% sec. for the full load of Msi Afterburner...
 				timeout.exe /T %MSIADelayTimer% >NUL
@@ -282,6 +284,8 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 			SET FirstRun=1
 		)
 	)
+) ELSE (
+	SET EnableGPUOverclockMonitor=0
 )
 IF %EnableAPAutorun% EQU 1 (
 	IF NOT EXIST "%APProcessPath%" (
@@ -304,6 +308,8 @@ IF %EnableAPAutorun% EQU 1 (
 		)
 	)
 )
+tskill.exe /A /V WerFault 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
+taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
 taskkill.exe /F /IM "%MinerProcess1%" 2>NUL 1>&2 && ECHO Process %MinerProcess1% was successfully killed.
 taskkill.exe /F /IM "%MinerProcess2%" 2>NUL 1>&2
 taskkill.exe /F /IM "%MinerProcess3%" 2>NUL 1>&2
@@ -352,7 +358,7 @@ IF NOT EXIST "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\log.txt" (
 SET FirstRun=0
 :check
 SET InternetErrorsCounter=1
-SET LastError=Empty
+SET LastError=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT2=%%A
 SET Mh2=1%DT2:~4,2%
 SET Dy2=1%DT2:~6,2%
@@ -395,7 +401,7 @@ IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
 )
 timeout.exe /T 2 /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %MinerErrorsList% %InternetErrorsList% %HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\log.txt ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET LastError=%%N
-IF "!LastError!" NEQ "Empty" (
+IF !LastError! NEQ 0 (
 	IF %EnableInternetConnectivityCheck% EQU 1 (
 		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% %HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\log.txt') DO SET LastInternetError=%%n
@@ -466,7 +472,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess1%" 2>NUL| find.exe /I /N "%MinerPro
 	GOTO error
 )
 tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe" >NUL && taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2
-IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
+IF %EnableGPUOverclockMonitor% NEQ 0 (
 	timeout.exe /T 2 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
@@ -494,7 +500,8 @@ IF %EnableAPAutorun% EQU 1 (
 )
 IF !FirstRun! EQU 0 (
 	SET FirstRun=1
-	FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs\"`) DO DEL /F /Q "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs\%%~i"
+	IF EXIST "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs\"`) DO DEL /F /Q "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Logs\%%~i"
+	IF EXIST "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots\*.jpg" FOR /F "skip=50 usebackq delims=" %%i IN (`DIR /B /A:-D /O:-D /T:W "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots\"`) DO DEL /F /Q "%HOMEDRIVE%%HOMEPATH%\AppData\Roaming\nhm2\logs\Screenshots\%%~i"
 	GOTO check
 )
 CLS
@@ -506,8 +513,8 @@ ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %MinerProcess1% is running...
 ECHO +================================================================+
-IF %EnableGPUOverclockMonitor% GEQ 1 IF %EnableGPUOverclockMonitor% LEQ 6 ECHO Process %GPUOverclockProcess%.exe is running...
-IF %EnableGPUOverclockMonitor% LEQ 0 ECHO GPU Overclock monitor: Disabled
+IF %EnableGPUOverclockMonitor% NEQ 0 ECHO Process %GPUOverclockProcess%.exe is running...
+IF %EnableGPUOverclockMonitor% EQU 0 ECHO GPU Overclock monitor: Disabled
 IF %EnableGPUOverclockMonitor% GEQ 7 ECHO GPU Overclock monitor: Disabled
 IF %MidnightAutoRestart% LEQ 0 ECHO Autorestart at 00:00: Disabled
 IF %MidnightAutoRestart% GTR 0 ECHO Autorestart at 00:00: Enabled

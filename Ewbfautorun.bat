@@ -429,7 +429,7 @@ IF NOT EXIST "%Logfile%" (
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --log 2 option is added to the miners command line.
 	GOTO error
 ) ELSE (
-	findstr.exe /R /C:"%MinerProcess% --server.*--log 2.*--templimit.*" %MinerBat% 2>NUL 1>&2 || (
+	findstr.exe /R /C:".*--server.*--log 2.*--templimit.*" %MinerBat% 2>NUL 1>&2 || (
 		ECHO Ensure --server --log 2 --templimit options added to the miners command line in correct order.
 		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *--server* *--log 2* *--templimit* options added to the miners command line in correct order.')" 2>NUL 1>&2
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure --server --log 2 --templimit options added to the miners command line in correct order.
