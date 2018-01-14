@@ -49,7 +49,7 @@ SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=0
-SET EnableLastShareDiffCheck=0
+SET EnableLastShareDiffCheck=1
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
 SET EnableEveryHourInfoSend=2
@@ -679,26 +679,23 @@ FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s
 	SET /A SumResult=SumHash/Hashcount
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
-timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 delims=:C " %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
-	SET CurTemp=Current temp:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 IF %%A LSS 70 SET CurTemp=!CurTemp! G!GpuNum! %%AC,
-		IF NOT "%%A" == "" IF %%A GEQ 70 SET CurTemp=!CurTemp! G!GpuNum! *%%AC*,
-		SET /A GpuNum+=1
-	)
-	SET CurTemp=!CurTemp:~0,-1!
+timeout.exe /T 2 /nobreak >NUL
+FOR /F "delims=" %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
+	SET CurTemp=%%a
+	SET CurTemp=!CurTemp::=!
+	SET CurTemp=!CurTemp:Temp=!
+	SET CurTemp=!CurTemp:C=C,!
+	SET CurTemp=!CurTemp:GPU=G!
+	SET CurTemp=Current temp:!CurTemp!
+	SET CurTemp=!CurTemp:~0,-2!
 )
-timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=2,4,6,8,10,12,14,16,18,20,22,24,26,28,30 delims=:Sol/s " %%a IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %Logfile%') DO (
-	SET CurrSpeed=Current speed:
-	SET GpuNum=0
-	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A Sol/s,
-		SET /A GpuNum+=1
-	)
-	SET CurrSpeed=!CurrSpeed:~0,-1!
+timeout.exe /T 2 /nobreak >NUL
+FOR /F "delims=" %%a IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %Logfile%') DO (
+	SET CurrSpeed=Current speed: %%a
+	SET CurrSpeed=!CurrSpeed::=!
+	SET CurrSpeed=!CurrSpeed:/s=/s,!
+	SET CurrSpeed=!CurrSpeed:GPU=G!
+	SET CurrSpeed=!CurrSpeed:~0,-2!
 	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )

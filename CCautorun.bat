@@ -690,17 +690,26 @@ FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 	)
 	SET SpeedData=0
 	SET TempData=0
-	FOR /F "tokens=6,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*GTX.*,.*" %Logfile%') DO (
-		SET LastSymb=%%b
-		SET LastSymb=!LastSymb:~-1!
-		IF "!LastSymb!" NEQ "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%a %%b
-		IF "!LastSymb!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%a %%c
+	FOR /F "tokens=8,9,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %Logfile%') DO (
+		SET LastSymb1=%%a
+		SET LastSymb1=!LastSymb1:~-1!
+		SET LastSymb2=%%b
+		SET LastSymb2=!LastSymb2:~-1!
+		SET LastSymb3=%%c
+		SET LastSymb3=!LastSymb3:~-1!
+		IF "!LastSymb1!" EQU "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%A %%b
+		IF "!LastSymb2!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%A %%c
+		IF "!LastSymb3!" EQU "," IF NOT "%%d" == "" IF %%d GEQ 0 SET SpeedData=%%A %%d
 	)
-	FOR /F "tokens=5,10 delims=GPUMHzWCFAN:#/ " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*C FAN.*" %Logfile%') DO (
-		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData=%%a %%b
-		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData=%%a *%%b*
+	IF !SpeedData! NEQ 0 (
+		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
+			FOR /F "delims=" %%a IN ('"%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" --id^=%%A --query-gpu^=temperature.gpu --format^=csv,noheader') DO (
+				IF NOT "%%a" == "" IF NOT "%%a" == "No devices were found" IF %%a GEQ 0 IF %%a LSS 70 SET TempData=%%A %%a
+				IF NOT "%%a" == "" IF NOT "%%a" == "No devices were found" IF %%a GEQ 70 SET TempData=%%A *%%a*
+			)
+		)
+		SET CurrSpeed=!CurrSpeed! G!SpeedData! S/s,
 	)
-	IF !SpeedData! NEQ 0 SET CurrSpeed=!CurrSpeed! G!SpeedData! S/s,
 	IF !TempData! NEQ 0 SET CurTemp=!CurTemp! G!TempData!C,
 	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck

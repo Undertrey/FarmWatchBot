@@ -49,7 +49,7 @@ SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
 SET EnableInternetConnectivityCheck=1
 SET EnableGPUEnvironments=0
-SET EnableLastShareDiffCheck=0
+SET EnableLastShareDiffCheck=1
 SET RigName=%COMPUTERNAME%
 SET ChatId=0
 SET EnableEveryHourInfoSend=2
@@ -698,12 +698,16 @@ FOR /L %%A IN (0,1,!TotalGPUCount!) DO (
 	)
 	SET SpeedData=0
 	SET TempData=0
-	FOR /F "tokens=3,4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %Logfile%') DO (
-		IF NOT "%%b" == "" IF %%b GEQ 0 IF %%b LSS 70 SET TempData=%%a %%b
-		IF NOT "%%b" == "" IF %%b GEQ 70 SET TempData=%%a *%%b*
-		IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%a %%c
+	FOR /F "tokens=6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %Logfile%') DO (
+		IF NOT "%%a" == "" IF %%a GEQ 0 SET SpeedData=%%A %%a
 	)
 	IF !SpeedData! NEQ 0 (
+		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
+			FOR /F "delims=" %%a IN ('"%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" --id^=%%A --query-gpu^=temperature.gpu --format^=csv,noheader') DO (
+				IF NOT "%%a" == "" IF NOT "%%a" == "No devices were found" IF %%a GEQ 0 IF %%a LSS 70 SET TempData=%%A %%a
+				IF NOT "%%a" == "" IF NOT "%%a" == "No devices were found" IF %%a GEQ 70 SET TempData=%%A *%%a*
+			)
+		)
 		SET SpeedData=!SpeedData:~0,-2!
 		SET CurrSpeed=!CurrSpeed! G!SpeedData! Sol/s,
 	)
