@@ -690,16 +690,19 @@ FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 	)
 	SET SpeedData=0
 	SET TempData=0
-	FOR /F "tokens=8,9,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %Logfile%') DO (
-		SET LastSymb1=%%a
+	FOR /F "tokens=7,8,9,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %Logfile%') DO (
+		SET LastSymb0=%%a
+		SET LastSymb0=!LastSymb0:~-1!
+		SET LastSymb1=%%b
 		SET LastSymb1=!LastSymb1:~-1!
-		SET LastSymb2=%%b
+		SET LastSymb2=%%c
 		SET LastSymb2=!LastSymb2:~-1!
-		SET LastSymb3=%%c
+		SET LastSymb3=%%d
 		SET LastSymb3=!LastSymb3:~-1!
-		IF "!LastSymb1!" EQU "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%A %%b
-		IF "!LastSymb2!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%A %%c
-		IF "!LastSymb3!" EQU "," IF NOT "%%d" == "" IF %%d GEQ 0 SET SpeedData=%%A %%d
+		IF "!LastSymb0!" EQU "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%A %%b
+		IF "!LastSymb1!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%A %%c
+		IF "!LastSymb2!" EQU "," IF NOT "%%d" == "" IF %%d GEQ 0 SET SpeedData=%%A %%d
+		IF "!LastSymb3!" EQU "," IF NOT "%%e" == "" IF %%e GEQ 0 SET SpeedData=%%A %%e
 	)
 	IF !SpeedData! NEQ 0 (
 		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
