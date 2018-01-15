@@ -94,7 +94,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 53000 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 53793 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -486,7 +486,7 @@ IF %MidnightAutoRestart% EQU 1 IF %Dy2% NEQ %Dy1% GOTO mtimer
 IF %MidnightAutoRestart% EQU 2 IF %Dy2% NEQ %Dy1% GOTO ctimer
 IF %EveryHourMinerAutoRestart% GEQ 1 IF %HrDiff% GEQ %EveryHourMinerAutoRestart% GOTO mtimer
 IF %EveryHourComputerAutoRestart% GEQ 1 IF %HrDiff% GEQ %EveryHourComputerAutoRestart% GOTO ctimer
-IF %Hr2% NEQ %Hr1% IF %Hr2% EQU 12 (
+IF %HrDiff% GEQ 1 IF %Hr2% EQU 12 (
 	IF %MiddayAutoRestart% EQU 1 GOTO mtimer
 	IF %MiddayAutoRestart% EQU 2 GOTO ctimer
 )
