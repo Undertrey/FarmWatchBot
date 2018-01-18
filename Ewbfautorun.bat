@@ -5,13 +5,14 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.7
+SET Version=1.8.8
+SET Program=Ewbf
 SET FirstRun=0
 :hardstart
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO            AutoRun v.%Version% for %Program% Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
@@ -38,12 +39,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET EveryHourMinerAutoRestart=0
+SET Server1BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server2BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server3BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server4BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET Server5BatCommand=%MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET EveryHourMinerAutoRestart=48
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -402,7 +403,7 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr187 --pass x --log 2 --fee 0 --templimit 80 --pec
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr188 --pass x --log 2 --fee 0 --templimit 80 --pec
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
@@ -411,7 +412,8 @@ START "%MinerBat%" "%MinerBat%" && (
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
 	FOR /F "tokens=3,4 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
 		SET CurrServerName=%%b
-		IF NOT "%%a" == "stratum+tcp" SET CurrServerName=%%a
+		IF NOT "%%a" == "stratum+tcp" IF NOT "%%a" == "stratum+ssl" SET CurrServerName=%%a
+		ECHO !CurrServerName!| findstr.exe /I /R /C:".*\..*" >NUL || SET CurrServerName=No data...
 	)
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
@@ -716,10 +718,11 @@ IF !SumResult! NEQ !OldHashrate! (
 	SET OldHashrate=!SumResult!
 )
 IF %EnableLastShareDiffCheck% EQU 1 (
-	timeout.exe /T 5 /nobreak >NUL
-	IF !PTOS1! GEQ 59 SET PTOS1=0
+	SET /A NextReqTime1=%Me2%+6
+	IF !PTOS1! GTR !NextReqTime1! SET PTOS=0
 	IF !PTOS1! LSS %Me2% (
-		SET PTOS1=%Me2%
+		timeout.exe /T 5 /nobreak >NUL
+		SET PTOS1=%Me2%+6
 		SET LstShareDiff=0
 		SET LstShareMin=1%DT1:~10,2%
 		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" %Logfile%') DO SET LstShareMin=1%%A
@@ -730,7 +733,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 			IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
 			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
 			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
-			IF !LstShareDiff! GTR 15 (
+			IF !LstShareDiff! GTR 10 (
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
 				GOTO error
@@ -741,7 +744,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO            AutoRun v.%Version% for EWBF Miner - by Acrefawn
+ECHO            AutoRun v.%Version% for %Program% Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+

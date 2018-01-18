@@ -5,13 +5,14 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET DT0=%%A
 TITLE Miner-autorun(%DT0%)
-SET Version=1.8.7
+SET Version=1.8.8
+SET Program=CCMiner
 SET FirstRun=0
 :hardstart
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO              AutoRun v.%Version% for CCMiner - by Acrefawn
+ECHO              AutoRun v.%Version% for %Program% - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
@@ -40,12 +41,12 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
-SET Server2BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
-SET Server3BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
-SET Server4BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
-SET Server5BatCommand=%MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
-SET EveryHourMinerAutoRestart=0
+SET Server1BatCommand=%MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server2BatCommand=%MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server3BatCommand=%MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server4BatCommand=%MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET Server5BatCommand=%MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+SET EveryHourMinerAutoRestart=48
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
 SET MidnightAutoRestart=0
@@ -405,16 +406,17 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server3BatComma
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO ^>^> miner.log %MinerProcess% -a lyra2v2 -o stratum+tcp://yiimp.eu:4533 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO ^>^> miner.log 2^>^&1 %MinerProcess% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=8,9 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+	FOR /F "tokens=6,7 delims=/:= " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
 		SET CurrServerName=%%b
-		IF NOT "%%a" == "stratum+tcp" SET CurrServerName=%%a
+		IF NOT "%%a" == "stratum+tcp" IF NOT "%%a" == "stratum+ssl" SET CurrServerName=%%a
+		ECHO !CurrServerName!| findstr.exe /I /R /C:".*\..*" >NUL || SET CurrServerName=No data...
 	)
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
@@ -643,7 +645,7 @@ IF %EnableAPAutorun% EQU 1 (
 IF !FirstRun! EQU 0 (
 	SET FirstRun=1
 	timeout.exe /T 5 /nobreak >NUL
-	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:".* miner threads started, using .* algorithm.*" %Logfile%') DO SET /A GPUCount=%%A
+	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:".*miner threads started.*" %Logfile%') DO SET /A GPUCount=%%A
 	IF !GPUCount! EQU 0 SET GPUCount=1
 	IF !NumberOfGPUs! EQU 0 SET NumberOfGPUs=!GPUCount!
 	IF !NumberOfGPUs! GTR !GPUCount! (
@@ -673,20 +675,11 @@ IF !FirstRun! EQU 0 (
 	)
 )
 timeout.exe /T 5 /nobreak >NUL
-FOR /F "tokens=9 delims=dif:,.( " %%A IN ('findstr.exe /R /C:".*accepted: [0-9]*/[0-9]*.*" /C:".*S/A/T.* [0-9]*/[0-9]*/[0-9]*.*" %Logfile%') DO (
-	SET LastHashrate=%%A
-	IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
-	IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
-	SET /A Hashcount+=1
-	SET /A SumHash=SumHash+!LastHashrate!
-	SET /A SumResult=SumHash/Hashcount
-	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
-)
-timeout.exe /T 5 /nobreak >NUL
 FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 	IF %%A EQU 0 (
 		SET CurrSpeed=Current speed:
 		SET CurTemp=Current temp:
+		SET LastHashrate=0
 	)
 	SET SpeedData=0
 	SET TempData=0
@@ -699,10 +692,15 @@ FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 		SET LastSymb2=!LastSymb2:~-1!
 		SET LastSymb3=%%d
 		SET LastSymb3=!LastSymb3:~-1!
-		IF "!LastSymb0!" EQU "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%A %%b
-		IF "!LastSymb1!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%A %%c
-		IF "!LastSymb2!" EQU "," IF NOT "%%d" == "" IF %%d GEQ 0 SET SpeedData=%%A %%d
-		IF "!LastSymb3!" EQU "," IF NOT "%%e" == "" IF %%e GEQ 0 SET SpeedData=%%A %%e
+		IF "!LastSymb0!" EQU "," IF NOT "%%b" == "" IF %%b GEQ 0 SET SpeedData=%%b
+		IF "!LastSymb1!" EQU "," IF NOT "%%c" == "" IF %%c GEQ 0 SET SpeedData=%%c
+		IF "!LastSymb2!" EQU "," IF NOT "%%d" == "" IF %%d GEQ 0 SET SpeedData=%%d
+		IF "!LastSymb3!" EQU "," IF NOT "%%e" == "" IF %%e GEQ 0 SET SpeedData=%%e
+		IF !SpeedData! NEQ 0 (
+			SET /A Hashcount+=1
+			SET /A SumHash=SumHash+!SpeedData!
+			SET /A SumResult=SumHash/Hashcount*!NumberOfGPUs!
+		)
 	)
 	IF !SpeedData! NEQ 0 (
 		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
@@ -711,7 +709,10 @@ FOR /L %%A IN (0,1,!NumberOfGPUs!) DO (
 				IF NOT "%%a" == "" IF NOT "%%a" == "No devices were found" IF %%a GEQ 70 SET TempData=%%A *%%a*
 			)
 		)
-		SET CurrSpeed=!CurrSpeed! G!SpeedData! S/s,
+		SET /A LastHashrate=LastHashrate+!SpeedData!
+		IF !LastHashrate! LSS %AverageTotalHashrate% SET /A MinHashrate+=1
+		IF !LastHashrate! EQU 0 SET /A MinHashrate+=1
+		SET CurrSpeed=!CurrSpeed! G%%A !SpeedData! S/s,
 	)
 	IF !TempData! NEQ 0 SET CurTemp=!CurTemp! G!TempData!C,
 	ECHO !CurrSpeed!| findstr.exe /I /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A MinHashrate+=1
@@ -740,10 +741,11 @@ IF !SumResult! NEQ !OldHashrate! (
 	SET OldHashrate=!SumResult!
 )
 IF %EnableLastShareDiffCheck% EQU 1 (
-	timeout.exe /T 5 /nobreak >NUL
-	IF !PTOS1! GEQ 59 SET PTOS1=0
+	SET /A NextReqTime1=%Me2%+6
+	IF !PTOS1! GTR !NextReqTime1! SET PTOS=0
 	IF !PTOS1! LSS %Me2% (
-		SET PTOS1=%Me2%
+		timeout.exe /T 5 /nobreak >NUL
+		SET PTOS1=%Me2%+6
 		SET LstShareDiff=0
 		SET LstShareMin=1%DT1:~10,2%
 		FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:".*accepted: [0-9]*/[0-9]*.*" /C:".*S/A/T.* [0-9]*/[0-9]*/[0-9]*.*" %Logfile%') DO SET LstShareMin=1%%A
@@ -754,7 +756,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 			IF !LstShareMin! GTR %Me2% SET /A LstShareDiff=!LstShareMin!-%Me2%
 			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
 			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
-			IF !LstShareDiff! GTR 15 (
+			IF !LstShareDiff! GTR 10 (
 				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
 				GOTO error
@@ -765,7 +767,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 CLS
 COLOR 1F
 ECHO +================================================================+
-ECHO              AutoRun v.%Version% for CCMiner - by Acrefawn
+ECHO              AutoRun v.%Version% for %Program% - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
