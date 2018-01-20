@@ -90,14 +90,14 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 :checkconfig
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 46205 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
-				timeout.exe /T 3 /nobreak >NUL
+				timeout.exe /T 2 /nobreak >NUL
 				ECHO %Configfile% loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Configfile% loaded.
 				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED NumberOfGPUs IF DEFINED AllowRestartGPU IF DEFINED AverageTotalHashrate IF DEFINED Server1BatCommand IF DEFINED Server2BatCommand IF DEFINED Server3BatCommand IF DEFINED Server4BatCommand IF DEFINED Server5BatCommand IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
@@ -108,7 +108,7 @@ IF EXIST "%Configfile%" (
 		)
 	) || (
 		CALL %Configfile%
-		timeout.exe /T 3 /nobreak >NUL
+		timeout.exe /T 2 /nobreak >NUL
 		ECHO Your %Configfile% is out of date.
 	)
 	MOVE /Y %Configfile% config_backup.bat >NUL && ECHO Created backup of your old %Configfile%.
@@ -681,7 +681,7 @@ FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s
 	SET /A SumResult=SumHash/Hashcount
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 FOR /F "delims=" %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
 	SET CurTemp=%%a
 	SET CurTemp=!CurTemp::=!
@@ -691,7 +691,7 @@ FOR /F "delims=" %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
 	SET CurTemp=Current temp:!CurTemp!
 	SET CurTemp=!CurTemp:~0,-2!
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 FOR /F "delims=" %%a IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %Logfile%') DO (
 	SET CurrSpeed=Current speed: %%a
 	SET CurrSpeed=!CurrSpeed::=!

@@ -90,14 +90,14 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 :checkconfig
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
 		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47609 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
-				timeout.exe /T 3 /nobreak >NUL
+				timeout.exe /T 2 /nobreak >NUL
 				ECHO %Configfile% loaded.
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Configfile% loaded.
 				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED NumberOfGPUs IF DEFINED AllowRestartGPU IF DEFINED AverageTotalHashrate IF DEFINED Server1BatCommand IF DEFINED Server2BatCommand IF DEFINED Server3BatCommand IF DEFINED Server4BatCommand IF DEFINED Server5BatCommand IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
@@ -108,7 +108,7 @@ IF EXIST "%Configfile%" (
 		)
 	) || (
 		CALL %Configfile%
-		timeout.exe /T 3 /nobreak >NUL
+		timeout.exe /T 2 /nobreak >NUL
 		ECHO Your %Configfile% is out of date.
 	)
 	MOVE /Y %Configfile% config_backup.bat >NUL && ECHO Created backup of your old %Configfile%.
@@ -673,7 +673,7 @@ IF !FirstRun! EQU 0 (
 		IF %AllowRestartGPU% EQU 1 GOTO restart
 	)
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %Logfile%') DO (
 	IF !NumberOfGPUs! EQU 1 IF "%%B" NEQ ":" (
 		SET LastHashrate=%%B
@@ -692,7 +692,7 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
-timeout.exe /T 3 /nobreak >NUL
+timeout.exe /T 2 /nobreak >NUL
 FOR /L %%A IN (0,1,!TotalGPUCount!) DO (
 	IF %%A EQU 0 (
 		SET CurrSpeed=Current speed:
@@ -700,16 +700,12 @@ FOR /L %%A IN (0,1,!TotalGPUCount!) DO (
 	)
 	SET SpeedData=0
 	SET TempData=0
-	FOR /F "tokens=6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %Logfile%') DO (
-		IF "%%a" NEQ "" IF %%a GEQ 0 SET SpeedData=%%a
+	FOR /F "tokens=4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %Logfile%') DO (
+		IF "%%a" NEQ "" IF %%a GEQ 0 IF %%a LSS 70 SET TempData=%%a
+		IF "%%a" NEQ "" IF %%a GEQ 70 SET TempData=*%%a*
+		IF "%%b" NEQ "" IF %%b GEQ 0 SET SpeedData=%%b
 	)
 	IF !SpeedData! NEQ 0 (
-		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
-			FOR /F "delims=" %%a IN ('"%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" --id^=%%A --query-gpu^=temperature.gpu --format^=csv,noheader') DO (
-				IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 0 IF %%a LSS 70 SET TempData=%%a
-				IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 70 SET TempData=*%%a*
-			)
-		)
 		SET SpeedData=!SpeedData:~0,-2!
 		IF !SpeedData! EQU 0 SET /A MinHashrate+=1
 		SET CurrSpeed=!CurrSpeed! G%%A !SpeedData! Sol/s,
