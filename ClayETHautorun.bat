@@ -58,7 +58,7 @@ SET EnableAPAutorun=0
 SET APProcessName=TeamViewer.exe
 SET APProcessPath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM Attention. Do not touch the options below in any case.
-SET PTOS1=0
+SET PTOS=0
 SET rtpt=d2a
 SET HrDiff=00
 SET MeDiff=00
@@ -73,13 +73,13 @@ SET SwitchToDefault=0
 SET tpr=C8go_jp8%tprt%
 SET /A Num=(3780712+3780711)*6*9
 SET LstShareDiff=0
-SET CurrServerName=Loading...
+SET CurrServerName=No data...
 SET CurTemp=Current temp: No data..
 SET CurrSpeed=Current speed: No data..
 SET MinerWarningsList=/C:".*reached.*"
 SET InternetErrorsCancel=/C:".*Connected.*"
 SET CriticalErrorsList=/C:".*CUDA-capable.*"
-SET MinerErrorsList=/C:".*t=[0-5]C.*"
+SET MinerErrorsList=/C:".*t.[0-5]C.*"
 SET InternetErrorsList=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*"
 IF %EnableDoubleWindowCheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%DT0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
@@ -90,25 +90,25 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 	)
 )
 :checkconfig
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 3 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 53841 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47775 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
-				timeout.exe /T 2 /nobreak >NUL
-				ECHO Config.bat loaded.
-				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat loaded.
+				timeout.exe /T 3 /nobreak >NUL
+				ECHO %Configfile% loaded.
+				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Configfile% loaded.
 				IF DEFINED EnableGPUOverclockMonitor IF DEFINED AutorunMSIAWithProfile IF DEFINED MSIADelayTimer IF DEFINED RestartGPUOverclockMonitor IF DEFINED NumberOfGPUs IF DEFINED AllowRestartGPU IF DEFINED AverageTotalHashrate IF DEFINED Server1BatCommand IF DEFINED Server2BatCommand IF DEFINED Server3BatCommand IF DEFINED Server4BatCommand IF DEFINED Server5BatCommand IF DEFINED EveryHourMinerAutoRestart IF DEFINED EveryHourComputerAutoRestart IF DEFINED MiddayAutoRestart IF DEFINED MidnightAutoRestart IF DEFINED EnableInternetConnectivityCheck IF DEFINED EnableGPUEnvironments IF DEFINED RigName IF DEFINED ChatId IF DEFINED EnableEveryHourInfoSend IF DEFINED EnableAPAutorun IF DEFINED APProcessName IF DEFINED APProcessPath GOTO start
 			)
-			ECHO Config.bat file error. It is corrupted.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Config.bat file error. It is corrupted. Please check it...')" 2>NUL 1>&2
-			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Config.bat file error. It is corrupted.
+			ECHO %Configfile% file error. It is corrupted.
+			IF %ChatId% NEQ 0 CALL :telegram "false" "%Configfile% file error. It is corrupted. Please check it..."
+			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Configfile% file error. It is corrupted.
 		)
 	) || (
 		CALL %Configfile%
-		timeout.exe /T 2 /nobreak >NUL
+		timeout.exe /T 3 /nobreak >NUL
 		ECHO Your %Configfile% is out of date.
 	)
 	MOVE /Y %Configfile% config_backup.bat >NUL && ECHO Created backup of your old %Configfile%.
@@ -137,7 +137,7 @@ IF EXIST "%Configfile%" (
 >> %Configfile% ECHO SET EnableGPUOverclockMonitor=%EnableGPUOverclockMonitor%
 >> %Configfile% ECHO REM Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> %Configfile% ECHO SET AutorunMSIAWithProfile=%AutorunMSIAWithProfile%
->> %Configfile% ECHO REM Set MSI Afterburner wait timer (default - 120 sec, min value - 1 sec)
+>> %Configfile% ECHO REM Set MSI Afterburner wait timer [default - 120 sec, min value - 1 sec]
 IF %NumberOfGPUs% GEQ 1 SET /A MSIADelayTimer=%NumberOfGPUs%*15
 >> %Configfile% ECHO SET MSIADelayTimer=%MSIADelayTimer%
 >> %Configfile% ECHO REM Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
@@ -186,13 +186,13 @@ ECHO             Scheduled computer restart, please wait...
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                            Restarting...
 ECHO +================================================================+
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Scheduled computer restart, please wait...')" 2>NUL 1>&2
+IF %ChatId% NEQ 0 CALL :telegram "false" "Scheduled computer restart, please wait..."
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Scheduled computer restart, please wait... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 :restart
 powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; Add-type -AssemblyName System.Drawing; $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; $bitmap = New-Object System.Drawing.Bitmap $Screen.Width, $Screen.Height; $graphic = [System.Drawing.Graphics]::FromImage($bitmap); $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size); $bitmap.Save('Screenshots\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.jpg');" 2>NUL 1>&2
 COLOR 4F
 ECHO Computer restarting...
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Computer restarting...')" 2>NUL 1>&2
+IF %ChatId% NEQ 0 CALL :telegram "false" "Computer restarting..."
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Computer restarting...
 tskill.exe /A /V %GPUOverclockProcess% 2>NUL 1>&2 && ECHO Process %GPUOverclockProcess%.exe was successfully killed.
 taskkill.exe /F /IM "%MinerProcess%" 2>NUL 1>&2 && ECHO Process %MinerProcess% was successfully killed.
@@ -208,7 +208,7 @@ ECHO           Attempting to switch to the main pool server...
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Attempting to switch to the main pool server...')" 2>NUL 1>&2
+IF %ChatId% NEQ 0 CALL :telegram "false" "Attempting to switch to the main pool server..."
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Attempting to switch to the main pool server...
 SET SwitchToDefault=0
 SET ServerQueue=1
@@ -220,14 +220,14 @@ ECHO               Scheduled miner restart, please wait...
 ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                            Restarting...
 ECHO +================================================================+
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Scheduled miner restart, please wait...')" 2>NUL 1>&2
+IF %ChatId% NEQ 0 CALL :telegram "false" "Scheduled miner restart, please wait..."
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Scheduled miner restart, please wait... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 GOTO start
 :error
 CLS
 COLOR 4F
 SET /A ErrorsCounter+=1
-IF %ErrorsCounter% GEQ %ErrorsAmount% (
+IF %ErrorsCounter% GTR %ErrorsAmount% (
 	ECHO +================================================================+
 	ECHO              Too many errors, need clear GPU cash...
 	ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
@@ -242,7 +242,7 @@ ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
 powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; Add-type -AssemblyName System.Drawing; $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; $bitmap = New-Object System.Drawing.Bitmap $Screen.Width, $Screen.Height; $graphic = [System.Drawing.Graphics]::FromImage($bitmap); $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size); $bitmap.Save('Screenshots\miner_%Mh1%.%Dy1%_%Hr1%.%Me1%.jpg');" 2>NUL 1>&2
-IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner restarting...')" 2>NUL 1>&2
+IF %ChatId% NEQ 0 CALL :telegram "false" "Miner restarting..."
 >> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner restarting... Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 :start
 SET AverageTotalHashrate=%AverageTotalHashrate: =%
@@ -317,12 +317,12 @@ IF %EnableGPUOverclockMonitor% GTR 0 IF %EnableGPUOverclockMonitor% LEQ 6 (
 		tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
 			START "" "%programfiles(x86)%%GPUOverclockPath%%GPUOverclockProcess%.exe" && (
 				ECHO %GPUOverclockProcess%.exe was started at %Time:~-11,8%.
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %GPUOverclockProcess%.exe was started.')" 2>NUL 1>&2
+				IF %ChatId% NEQ 0 CALL :telegram "false" "%GPUOverclockProcess%.exe was started."
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %GPUOverclockProcess%.exe was started.
 				SET FirstRun=0
 			) || (
 				ECHO Unable to start %GPUOverclockProcess%.exe.
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %GPUOverclockProcess%.exe.')" 2>NUL 1>&2
+				IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to start %GPUOverclockProcess%.exe."
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %GPUOverclockProcess%.exe.
 				SET EnableGPUOverclockMonitor=0
 				GOTO error
@@ -349,11 +349,11 @@ IF %EnableAPAutorun% EQU 1 (
 			timeout.exe /T 5 /nobreak >NUL
 			START /MIN "%APProcessName%" "%APProcessPath%" && (
 				ECHO %APProcessName% was started at %Time:~-11,8%.
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %APProcessName% was started.')" 2>NUL 1>&2
+				IF %ChatId% NEQ 0 CALL :telegram "false" "%APProcessName% was started."
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% was started.
 			) || (
 				ECHO Unable to start %APProcessName%.
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %APProcessName%.')" 2>NUL 1>&2
+				IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to start %APProcessName%."
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %APProcessName%.
 				SET EnableAPAutorun=0
 				GOTO error
@@ -371,7 +371,7 @@ tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProc
 		ECHO Process %MinerProcess% was successfully killed.
 	) || (
 		ECHO Unable to kill %MinerProcess%. Retrying...
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to kill %MinerProcess%. Retrying...')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to kill %MinerProcess%. Retrying..."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to kill %MinerProcess%. Retrying...
 		GOTO start
 	)
@@ -388,7 +388,7 @@ IF EXIST "%Logfile%" (
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to rename or access %Logfile%. Attempting to delete %Logfile% and continue...
 		DEL /Q /F "%Logfile%" >NUL || (
 			ECHO Unable to delete %Logfile%.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to delete %Logfile%.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to delete %Logfile%."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to delete %Logfile%.
 			GOTO error
 		)
@@ -408,17 +408,17 @@ IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.or
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner was started.')" 2>NUL 1>&2
+	IF %ChatId% NEQ 0 CALL :telegram "false" "Miner was started."
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3,4 delims=/: " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
 		SET CurrServerName=%%b
-		IF NOT "%%a" == "stratum+tcp" IF NOT "%%a" == "stratum+ssl" SET CurrServerName=%%a
-		ECHO !CurrServerName!| findstr.exe /I /R /C:".*\..*" >NUL || SET CurrServerName=No data...
+		ECHO %%a| findstr.exe /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" >NUL || SET CurrServerName=%%a
+		ECHO !CurrServerName!| findstr.exe /R /C:".*\..*" >NUL || SET CurrServerName=No data...
 	)
 	timeout.exe /T 30 /nobreak >NUL
 ) || (
 	ECHO Unable to start miner.
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start miner.')" 2>NUL 1>&2
+	IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to start miner."
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start miner. v.%Version%.
 	GOTO error
 )
@@ -426,15 +426,15 @@ IF NOT EXIST "%Logfile%" (
 	ECHO %Logfile% is missing.
 	ECHO Check permissions of this folder. This script requires permission to create files.
 	ECHO Ensure -logfile %Logfile% option is added to the miners command line.
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %Logfile% is missing. Ensure *-logfile %Logfile%* option is added to the miners command line. Check permissions of this folder. This script requires permission to create files.')" 2>NUL 1>&2
+	IF %ChatId% NEQ 0 CALL :telegram "false" "%Logfile% is missing. Ensure *-logfile %Logfile%* option is added to the miners command line. Check permissions of this folder. This script requires permission to create files."
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %Logfile% is missing. Check permissions of this folder. This script requires permission to create files.
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -logfile %Logfile% option is added to the miners command line.
 	GOTO error
 ) ELSE (
 	findstr.exe /R /C:".*-epool.*-tstop.*-logfile %Logfile%.*" %MinerBat% 2>NUL 1>&2 || (
-		ECHO Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in correct order.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Ensure *-epool* *-tstop* *-logfile %Logfile%* options added to the miners command line in correct order.')" 2>NUL 1>&2
-		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in correct order.
+		ECHO Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in this order.
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Ensure *-epool* *-tstop* *-logfile %Logfile%* options added to the miners command line in this order."
+		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Ensure -epool -tstop -logfile %Logfile% options added to the miners command line in this order.
 	)
 	ECHO Log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -466,7 +466,7 @@ IF %Dy2% GTR %Dy1% (
 	SET /A DTDiff=^(%Dy2%-%Dy1%^)*86400-%DTDiff1%+%DTDiff2%
 ) ELSE (
 	IF %Mh2% NEQ %Mh1% (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner must be restarted, please wait...')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Miner must be restarted, please wait..."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner must be restarted, please wait...
 		GOTO hardstart
 	)
@@ -501,7 +501,7 @@ IF !LastError! NEQ 0 (
 				timeout.exe /T 30 /nobreak >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% %Logfile%') DO SET LastInternetError=%%n
 				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
-					IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+					IF %ChatId% NEQ 0 CALL :telegram "false" "!LastError!"
 					>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 					ping.exe google.com| find.exe /I "TTL=" >NUL && (
 						CLS
@@ -517,7 +517,7 @@ IF !LastError! NEQ 0 (
 						SET SwitchToDefault=1
 						SET /A ServerQueue+=1
 						ECHO Pool server was switched to !ServerQueue!. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
-						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Pool server was switched to *!ServerQueue!*. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.')" 2>NUL 1>&2
+						IF %ChatId% NEQ 0 CALL :telegram "false" "Pool server was switched to *!ServerQueue!*. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online."
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Pool server was switched to !ServerQueue!. Please check your %Configfile% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online.
 						IF !ServerQueue! GTR 6 SET ServerQueue=1
 						SET /A ErrorsCounter+=1
@@ -542,7 +542,7 @@ IF !LastError! NEQ 0 (
 							ECHO                   Connection has been restored...
 							ECHO                         Continue mining...
 							ECHO +================================================================+
-							IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Continue mining...')" 2>NUL 1>&2
+							IF %ChatId% NEQ 0 CALL :telegram "false" "Something was wrong with your Internet. Connection has been restored. Continue mining..."
 							>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Continue mining...
 							GOTO check
 						)
@@ -555,7 +555,7 @@ IF !LastError! NEQ 0 (
 						ECHO                   Connection has been restored...
 						ECHO                         Miner restarting...
 						ECHO +================================================================+
-						IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Something was wrong with your Internet. Connection has been restored. Miner restarting...')" 2>NUL 1>&2
+						IF %ChatId% NEQ 0 CALL :telegram "false" "Something was wrong with your Internet. Connection has been restored. Miner restarting..."
 						>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Something was wrong with your Internet. Connection has been restored. Miner restarting...
 						GOTO start
 					)
@@ -564,13 +564,13 @@ IF !LastError! NEQ 0 (
 		)
 	)
 	ECHO !LastError!| findstr.exe /I /R %MinerErrorsList% 2>NUL && (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "!LastError!"
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Error from GPU. Voltage or Overclock issue.
 		GOTO error
 	)
 	ECHO !LastError!| findstr.exe /I /R %CriticalErrorsList% 2>NUL && (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !LastError!')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "!LastError!"
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] !LastError!
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Critical error from GPU. Voltage or Overclock issue. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
@@ -592,13 +592,13 @@ IF !LastError! NEQ 0 (
 			ECHO Please ensure your GPUs have enough air flow.
 			ECHO GPUs will now STOP MINING.
 			ECHO Waiting for users input...
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "!CurTemp!.%%%%0A%%%%0ATemperature limit reached. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow. *Waiting for users input...*"
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. GPUs will now STOP MINING. Please ensure your GPUs have enough air flow. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 			PAUSE
 			GOTO hardstart
 		)
 		ECHO Fans may be stuck.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* !CurTemp!.%%0A%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer...')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "!CurTemp!.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Temperature limit reached. Fans may be stuck. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 		GOTO restart
 	)
@@ -609,14 +609,14 @@ tasklist.exe /FI "IMAGENAME eq WerFault.exe" 2>NUL| find.exe /I /N "WerFault.exe
 	taskkill.exe /F /IM "WerFault.exe" 2>NUL 1>&2 && ECHO Process WerFault.exe was successfully killed.
 )
 tasklist.exe /FI "IMAGENAME eq %MinerProcess%" 2>NUL| find.exe /I /N "%MinerProcess%" >NUL || (
-	IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%MinerProcess%* crashed.')" 2>NUL 1>&2
+	IF %ChatId% NEQ 0 CALL :telegram "false" "Process *%MinerProcess%* crashed."
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %MinerProcess% crashed.
 	GOTO error
 )
 IF %EnableGPUOverclockMonitor% NEQ 0 (
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %GPUOverclockProcess%.exe" 2>NUL| find.exe /I /N "%GPUOverclockProcess%.exe" >NUL || (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process %GPUOverclockProcess%.exe crashed.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Process %GPUOverclockProcess%.exe crashed."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Process %GPUOverclockProcess%.exe crashed.
 		GOTO error
 	)
@@ -624,15 +624,15 @@ IF %EnableGPUOverclockMonitor% NEQ 0 (
 IF %EnableAPAutorun% EQU 1 (
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %APProcessName%" 2>NUL| find.exe /I /N "%APProcessName%" >NUL || (
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Process *%APProcessName%* crashed.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Process *%APProcessName%* crashed."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% crashed.
 		START /MIN "%APProcessName%" "%APProcessPath%" && (
 			ECHO %APProcessName% was started at %Time:~-11,8%.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* %APProcessName% was started.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "%APProcessName% was started."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] %APProcessName% was started.
 		) || (
 			ECHO Unable to start %APProcessName%.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Unable to start %APProcessName%.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "Unable to start %APProcessName%."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Unable to start %APProcessName%.
 			SET EnableAPAutorun=0
 			GOTO error
@@ -654,19 +654,19 @@ IF !FirstRun! EQU 0 (
 			ECHO                        Miner ran for %HrDiff%:%MeDiff%:%SsDiff%
 			ECHO                       Computer restarting...
 			ECHO +================================================================+
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!. Miner ran for %HrDiff%:%MeDiff%:%SsDiff%.
 			GOTO restart
 		) ELSE (
 			ECHO Failed load all GPUs. Number of GPUs: !GPUCount!/!NumberOfGPUs!.
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "Failed load all GPUs. Number of GPUs *!GPUCount!/!NumberOfGPUs!*."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Failed load all GPUs. Number of GPUs !GPUCount!/!NumberOfGPUs!.
 			SET /A AverageTotalHashrate=%AverageTotalHashrate%/!NumberOfGPUs!*!GPUCount!
 		)
 	)
 	IF !NumberOfGPUs! LSS !GPUCount! (
 		ECHO Loaded too many GPUs. This must be set to a number higher than !NumberOfGPUs! in your %Configfile% file under NumberOfGPUs. Number of GPUs: !GPUCount!/!NumberOfGPUs!.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Loaded too many GPUs. This must be set to a number higher than *!NumberOfGPUs!* in your *%Configfile%* file under *NumberOfGPUs*. Number of GPUs *!GPUCount!/!NumberOfGPUs!*.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Loaded too many GPUs. This must be set to a number higher than *!NumberOfGPUs!* in your *%Configfile%* file under *NumberOfGPUs*. Number of GPUs *!GPUCount!/!NumberOfGPUs!*."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Loaded too many GPUs. This must be set to a number higher than !NumberOfGPUs! in your %Configfile% file under NumberOfGPUs. Number of GPUs: !GPUCount!/!NumberOfGPUs!.
 		IF %AllowRestartGPU% EQU 1 GOTO restart
 	)
@@ -686,7 +686,7 @@ FOR /F "tokens=2,5,8,11,14,17,20,23,26,29,32,35,38,41,44 delims=,tC " %%a IN ('f
 	SET CurTemp=Current temp:
 	SET GpuNum=0
 	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" (
+		IF "%%A" NEQ "" (
 			SET Cut=%%A
 			SET Cut=!Cut:~-2!
 			IF !Cut! GEQ 0 IF !Cut! LSS 70 SET CurTemp=!CurTemp! G!GpuNum! !Cut!C,
@@ -701,7 +701,7 @@ FOR /F "tokens=3,6,9,12,15,18,21,24,27,30,33,36,39,42,45 delims=.,Mh/s " %%a IN 
 	SET CurrSpeed=Current speed:
 	SET GpuNum=0
 	FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j %%k %%l %%m %%n %%o) DO (
-		IF NOT "%%A" == "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A H/s,
+		IF "%%A" NEQ "" IF %%A GEQ 0 SET CurrSpeed=!CurrSpeed! G!GpuNum! %%A H/s,
 		SET /A GpuNum+=1
 	)
 	SET CurrSpeed=!CurrSpeed:~0,-1!
@@ -713,23 +713,23 @@ IF !SumResult! NEQ !OldHashrate! (
 	IF !SumResult! LSS !OldHashrate! IF !SumResult! LSS %AverageTotalHashrate% (
 		IF !HashrateErrorsCount! GEQ %HashrateErrorsAmount% (
 			:passaveragecheck
-			IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
+			IF %ChatId% NEQ 0 CALL :telegram "false" "Low hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
 			>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Low hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
 			GOTO error
 		)
 		ECHO Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
-		IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*.')" 2>NUL 1>&2
+		IF %ChatId% NEQ 0 CALL :telegram "false" "Abnormal hashrate. Average: *!SumResult!/%AverageTotalHashrate%* Last: *!LastHashrate!/%AverageTotalHashrate%*."
 		>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Abnormal hashrate. Average: !SumResult!/%AverageTotalHashrate% Last: !LastHashrate!/%AverageTotalHashrate%.
 		SET /A HashrateErrorsCount+=1
 	)
 	SET OldHashrate=!SumResult!
 )
 IF %EnableLastShareDiffCheck% EQU 1 (
-	SET /A NextReqTime1=%Me2%+6
-	IF !PTOS1! GTR !NextReqTime1! SET PTOS=0
-	IF !PTOS1! LSS %Me2% (
+	SET /A NextReqTime=%Me2%+5
+	IF !PTOS! GTR !NextReqTime! SET PTOS=0
+	IF !PTOS! LSS %Me2% (
 		timeout.exe /T 5 /nobreak >NUL
-		SET PTOS1=%Me2%+6
+		SET /A PTOS=%Me2%+5
 		SET LstShareDiff=0
 		SET LstShareMin=1%DT1:~10,2%
 		FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*SHARE FOUND.*" /C:".*Share accepted.*" %Logfile%') DO SET LstShareMin=1%%A
@@ -741,7 +741,7 @@ IF %EnableLastShareDiffCheck% EQU 1 (
 			IF !LstShareMin! GTR 50 IF %Me2% LEQ 10 SET /A LstShareDiff=60-!LstShareMin!+%Me2%
 			IF !LstShareMin! LEQ 10 IF %Me2% GTR 50 SET /A LstShareDiff=60-%Me2%+!LstShareMin!
 			IF !LstShareDiff! GTR 10 (
-				IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Long share timeout... !LstShareMin!/%Me2%.')" 2>NUL 1>&2
+				IF %ChatId% NEQ 0 CALL :telegram "false" "Long share timeout... !LstShareMin!/%Me2%."
 				>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Long share timeout... !LstShareMin!/%Me2%.
 				GOTO error
 			)
@@ -786,10 +786,13 @@ ECHO Now I will take care of your %RigName% and you can take a rest.
 IF %ChatId% NEQ 0 (
 	IF %Me2% LSS 30 SET AllowSend=1
 	IF %AllowSend% EQU 1 IF %Me2% GEQ 30 (
-		IF %EnableEveryHourInfoSend% EQU 1 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* on !CurrServerName!.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
-		IF %EnableEveryHourInfoSend% EQU 2 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&disable_notification=true&chat_id=%ChatId%&text=*%RigName%:* Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* on !CurrServerName!.%%0AAverage total hashrate: *!SumResult!*.%%0ALast total hashrate: *!LastHashrate!*.%%0A!CurrSpeed!.%%0A!CurTemp!.')" 2>NUL 1>&2 && SET AllowSend=0
-		IF %EnableEveryHourInfoSend% EQU 3 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&chat_id=%ChatId%&text=*%RigName%:* Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
-		IF %EnableEveryHourInfoSend% EQU 4 IF %ChatId% NEQ 0 powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&disable_notification=true&chat_id=%ChatId%&text=*%RigName%:* Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*.')" 2>NUL 1>&2 && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 1 IF %ChatId% NEQ 0 CALL :telegram "false" "Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* on !CurrServerName!.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!." && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 2 IF %ChatId% NEQ 0 CALL :telegram "true" "Miner has been running for *%HrDiff%:%MeDiff%:%SsDiff%* on !CurrServerName!.%%%%0AAverage total hashrate: *!SumResult!*.%%%%0ALast total hashrate: *!LastHashrate!*.%%%%0A!CurrSpeed!.%%%%0A!CurTemp!." && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 3 IF %ChatId% NEQ 0 CALL :telegram "false" "Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*." && SET AllowSend=0
+		IF %EnableEveryHourInfoSend% EQU 4 IF %ChatId% NEQ 0 CALL :telegram "true" "Online, *%HrDiff%:%MeDiff%:%SsDiff%*, *!LastHashrate!*." && SET AllowSend=0
 	)
 )
 GOTO check
+:telegram
+powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%Num%:%prt%-%rtp%%tpr%/sendMessage?parse_mode=markdown&&disable_notification=%~1&&chat_id=%ChatId%&text=*%RigName%:* %~2')" 2>NUL 1>&2
+EXIT /b
