@@ -93,7 +93,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47775 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47765 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
