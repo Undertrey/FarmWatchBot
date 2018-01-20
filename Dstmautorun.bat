@@ -673,7 +673,7 @@ IF !FirstRun! EQU 0 (
 		IF %AllowRestartGPU% EQU 1 GOTO restart
 	)
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 5 /nobreak >NUL
 FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %Logfile%') DO (
 	IF !NumberOfGPUs! EQU 1 IF "%%B" NEQ ":" (
 		SET LastHashrate=%%B
@@ -692,7 +692,7 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 		IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 5 /nobreak >NUL
 FOR /L %%A IN (0,1,!TotalGPUCount!) DO (
 	IF %%A EQU 0 (
 		SET CurrSpeed=Current speed:

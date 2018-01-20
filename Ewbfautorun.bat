@@ -681,7 +681,7 @@ FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s
 	SET /A SumResult=SumHash/Hashcount
 	IF !MinHashrate! GEQ 99 GOTO passaveragecheck
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 5 /nobreak >NUL
 FOR /F "delims=" %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
 	SET CurTemp=%%a
 	SET CurTemp=!CurTemp::=!
@@ -691,7 +691,7 @@ FOR /F "delims=" %%a IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %Logfile%') DO (
 	SET CurTemp=Current temp:!CurTemp!
 	SET CurTemp=!CurTemp:~0,-2!
 )
-timeout.exe /T 2 /nobreak >NUL
+timeout.exe /T 5 /nobreak >NUL
 FOR /F "delims=" %%a IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %Logfile%') DO (
 	SET CurrSpeed=Current speed: %%a
 	SET CurrSpeed=!CurrSpeed::=!
