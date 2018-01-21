@@ -23,6 +23,8 @@ REM Amount of hashrate errors before miner restart (5 - default, only numeric va
 SET HashrateErrorsAmount=5
 REM Name miner process. (in English, without special symbols and spaces)
 SET MinerProcess=EthDcrMiner64.exe
+REM Name miner file. (in English, without special symbols and spaces)
+SET MinerFilePath=%MinerProcess%
 REM Name start mining .bat file. (in English, without special symbols and spaces)
 SET MinerBat=miner.bat
 REM Name miner .log file. (in English, without special symbols and spaces)
@@ -39,11 +41,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server1BatCommand=%MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server2BatCommand=%MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server3BatCommand=%MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server4BatCommand=%MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server5BatCommand=%MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
 SET EveryHourMinerAutoRestart=48
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -93,7 +95,7 @@ IF %EnableDoubleWindowCheck% EQU 1 (
 timeout.exe /T 2 /nobreak >NUL
 IF EXIST "%Configfile%" (
 	findstr.exe /C:"%Version%" %Configfile% >NUL && (
-		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 47765 EXIT
+		FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 46000 EXIT
 		FOR %%B IN (%Configfile%) DO (
 			IF %%~ZB GEQ 4100 (
 				CALL %Configfile%
@@ -273,7 +275,7 @@ SET /A Hr1=%Hr1%-100
 SET /A Me1=%Me1%-100
 SET /A Ss1=%Ss1%-100
 SET /A DTDiff1=%Hr1%*60*60+%Me1%*60+%Ss1%
-IF NOT EXIST "%MinerProcess%" (
+IF NOT EXIST "%MinerFilePath%" (
 	ECHO "%MinerProcess%" is missing. Please check the directory for missing files. Exiting...
 	PAUSE
 	EXIT
@@ -403,14 +405,14 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerFilePath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
 	ECHO Miner was started at %Time:~-11,8%.
 	IF %ChatId% NEQ 0 CALL :telegram "false" "Miner was started."
 	>> %~n0.log ECHO [%Date%][%Time:~-11,8%] Miner was started. v.%Version%.
-	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /C:"%MinerProcess%" %MinerBat%') DO (
+	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /R /C:".*%MinerProcess%.*" %MinerBat%') DO (
 		SET CurrServerName=%%b
 		ECHO %%a| findstr.exe /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" >NUL || SET CurrServerName=%%a
 		ECHO !CurrServerName!| findstr.exe /R /C:".*\..*" >NUL || SET CurrServerName=No data...
