@@ -39,11 +39,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
-SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
-SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
-SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
-SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+SET Server1BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
 SET EveryHourMinerAutoRestart=48
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -403,7 +403,7 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile %Logfile%
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr188 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr188 -dpsw x -allpools 1 -dcoin sia -tstop 80 -logfile miner.log
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (

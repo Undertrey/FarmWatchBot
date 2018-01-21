@@ -501,7 +501,7 @@ IF !LastError! NEQ 0 (
 		ECHO !LastError!| findstr.exe /I /R %InternetErrorsList% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% %Logfile%') DO SET LastInternetError=%%n
 			ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
-				timeout.exe /T 30 /nobreak >NUL
+				timeout.exe /T 60 /nobreak >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %InternetErrorsList% %InternetErrorsCancel% %Logfile%') DO SET LastInternetError=%%n
 				ECHO !LastInternetError!| findstr.exe /I /R %InternetErrorsList% >NUL && (
 					IF %ChatId% NEQ 0 CALL :telegram "false" "!LastError!"

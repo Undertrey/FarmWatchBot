@@ -41,11 +41,11 @@ SET RestartGPUOverclockMonitor=0
 SET NumberOfGPUs=0
 SET AllowRestartGPU=1
 SET AverageTotalHashrate=0
-SET Server1BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server2BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server3BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server4BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
-SET Server5BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+SET Server1BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server2BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server3BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server4BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
+SET Server5BatCommand=%MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
 SET EveryHourMinerAutoRestart=48
 SET EveryHourComputerAutoRestart=0
 SET MiddayAutoRestart=0
@@ -405,7 +405,7 @@ IF !ServerQueue! EQU 3 >> %MinerBat% ECHO %Server3BatCommand%
 IF !ServerQueue! EQU 4 >> %MinerBat% ECHO %Server4BatCommand%
 IF !ServerQueue! EQU 5 >> %MinerBat% ECHO %Server5BatCommand%
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile %Logfile%
+IF !ServerQueue! GEQ 6 >> %MinerBat% ECHO %MinerProcess% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr188 -xpsw x -allpools 1 -tstop 80 -logfile miner.log
 >> %MinerBat% ECHO EXIT
 timeout.exe /T 5 /nobreak >NUL
 START "%MinerBat%" "%MinerBat%" && (
