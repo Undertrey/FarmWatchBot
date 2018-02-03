@@ -5,7 +5,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
 TITLE Miner-autorun(%dt0%)
-SET ver=1.8.9
+SET ver=1.9.0
 SET mn=Dstm
 SET firstrun=0
 :hardstart
@@ -33,6 +33,8 @@ REM Name config .ini file. [in English, without special symbols and spaces]
 SET config=Config_%mn%.ini
 REM Name server for ping [in English, without special symbols and spaces]
 SET pingserver=google.com
+REM Slowdown script for weak CPUs. Increase this value 1 by 1 if your hashrate drops because of script [5 - default, only numeric values]
+SET cputimeout=5
 REM Allow computer to be restarted.
 SET pcrestart=1
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
@@ -41,11 +43,11 @@ REM Default config.
 SET gpus=0
 SET allowrestart=1
 SET hashrate=0
-SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
-SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
-SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
-SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
-SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
+SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
+SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
+SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
+SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
+SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -106,6 +108,7 @@ FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 39000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
 timeout.exe /T 3 /nobreak >NUL
+CALL :inform "false" "0" "%config% loaded." "2"
 FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 IF %queue% GTR %serversamount% SET queue=1
@@ -332,8 +335,8 @@ IF %approgram% NEQ 0 (
 IF EXIST "%log%" (
 	MOVE /Y %log% Logs\miner_%mh1%.%dy1%_%hr1%.%me1%.log 2>NUL 1>&2 && (
 		CALL :inform "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
-		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a"
-		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a"
+		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a" >NUL
+		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a" >NUL
 	) || (
 		CALL :inform "false" "Unable to rename or access %log%. Attempting to delete %log% and continue..." "1" "1"
 		DEL /Q /F "%log%" >NUL
@@ -348,7 +351,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure miners command line in %config% file. Not in %bat%.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr189 --pass x --logfile --time --temp-target 80
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr190 --pass x --logfile --time --temp-target 80
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -369,8 +372,12 @@ START "%bat%" "%bat%" && (
 )
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	CALL :inform "false" "%log% is missing. Ensure *--logfile* option is added to the miners command line." "%log% is missing. Ensure --logfile option is added to the miners command line." "2"
-	GOTO error
+	findstr.exe /R /C:".*--logfile.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "false" "%log% is missing. Ensure *--logfile* option is added to the miners command line." "%log% is missing. Ensure --logfile option is added to the miners command line." "2"
+		GOTO error
+	)
+	CALL :inform "false" "%minerprocess% hangs..." "1" "1"
+	GOTO restart
 ) ELSE (
 	findstr.exe /R /C:".*%minerprocess% --server.*--logfile.*--time.*--temp-target.*" %bat% 2>NUL 1>&2 || (
 		CALL :inform "false" "Ensure *%minerpath% --server --logfile --time --temp-target* options added to the miners command line in this order." "Ensure %minerpath% --server --logfile --time --temp-target options added to the miners command line in this order." "2"
@@ -438,7 +445,7 @@ IF %hrdiff% GEQ 96 (
 	CALL :inform "false" "Miner must be restarted, large log file size, please wait..." "1" "1"
 	GOTO hardstart
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=2 delims=>#|" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% EQU 1 (
@@ -530,21 +537,21 @@ IF "%lasterror%" NEQ "0" (
 		GOTO restart
 	)
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL || (
 	CALL :inform "false" "Process %minerprocess% crashed." "1" "1"
 	GOTO error
 )
 IF %overclockprogram% NEQ 0 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
 		CALL :inform "false" "Process %overclockprocessname%.exe crashed." "1" "1"
 		GOTO error
 	)
 )
 IF %approgram% EQU 1 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
 		CALL :inform "false" "%approcessname% crashed." "1" "1"
 		START /MIN "%approcessname%" "%approcesspath%" && (
@@ -557,7 +564,7 @@ IF %approgram% EQU 1 (
 	)
 )
 IF %firstrun% EQU 0 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.*\+.*PCI:.*" %log%') DO SET /A gpucount+=1
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.*PCI:.*" %log%') DO SET /A totalgpucount+=1
 	IF !gpucount! EQU 0 SET gpucount=1
@@ -586,7 +593,7 @@ IF %firstrun% EQU 0 (
 	)
 	SET firstrun=1
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
 	IF %gpus% EQU 1 IF "%%B" NEQ ":" (
 		SET lasthashrate=%%B
@@ -605,7 +612,7 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /L %%A IN (0,1,%totalgpucount%) DO (
 	IF %%A EQU 0 (
 		SET curspeed=Current speed:
@@ -632,7 +639,7 @@ FOR /L %%A IN (0,1,%totalgpucount%) DO (
 		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
 	)
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %hashrate% (
 	IF %hashrateerrorscount% GEQ %hashrateerrors% (
 		:passaveragecheck
@@ -644,7 +651,7 @@ IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %ha
 )
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
 IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%

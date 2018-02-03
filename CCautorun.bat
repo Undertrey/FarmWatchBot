@@ -5,7 +5,7 @@ MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
 TITLE Miner-autorun(%dt0%)
-SET ver=1.8.9
+SET ver=1.9.0
 SET mn=Cc
 SET firstrun=0
 :hardstart
@@ -23,8 +23,8 @@ REM Amount of hashrate errors before miner restart [5 - default, only numeric va
 SET hashrateerrors=5
 REM Name miner process. [in English, without special symbols and spaces]
 SET minerprocess=ccminer-x64.exe
-IF EXIST "ccminer.exe" RENAME ccminer.exe %minerprocess%
-IF EXIST "ccminer-x64.exe" RENAME ccminer-x64.exe %minerprocess%
+IF EXIST "ccminer.exe" RENAME ccminer.exe %minerprocess% 2>NUL 1>&2
+IF EXIST "ccminer-x64.exe" RENAME ccminer-x64.exe %minerprocess% 2>NUL 1>&2
 REM Name miner file or path. [in English, without special symbols and spaces]
 SET minerpath=%minerprocess%
 REM Name start mining .bat file. [in English, without special symbols and spaces]
@@ -35,6 +35,8 @@ REM Name config .ini file. [in English, without special symbols and spaces]
 SET config=Config_%mn%.ini
 REM Name server for ping [in English, without special symbols and spaces]
 SET pingserver=google.com
+REM Slowdown script for weak CPUs. Increase this value 1 by 1 if your hashrate drops because of script [5 - default, only numeric values]
+SET cputimeout=5
 REM Allow computer to be restarted.
 SET pcrestart=1
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
@@ -335,8 +337,8 @@ IF %approgram% NEQ 0 (
 IF EXIST "%log%" (
 	MOVE /Y %log% Logs\miner_%mh1%.%dy1%_%hr1%.%me1%.log 2>NUL 1>&2 && (
 		CALL :inform "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
-		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a"
-		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a"
+		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a" >NUL
+		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a" >NUL
 	) || (
 		CALL :inform "false" "Unable to rename or access %log%. Attempting to delete %log% and continue..." "1" "1"
 		DEL /Q /F "%log%" >NUL
@@ -441,7 +443,7 @@ IF %hrdiff% GEQ 96 (
 	CALL :inform "false" "Miner must be restarted, large log file size, please wait..." "1" "1"
 	GOTO hardstart
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% EQU 1 (
@@ -532,21 +534,21 @@ IF "%lasterror%" NEQ "0" (
 		GOTO restart
 	)
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL || (
 	CALL :inform "false" "Process %minerprocess% crashed." "1" "1"
 	GOTO error
 )
 IF %overclockprogram% NEQ 0 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
 		CALL :inform "false" "Process %overclockprocessname%.exe crashed." "1" "1"
 		GOTO error
 	)
 )
 IF %approgram% EQU 1 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
 		CALL :inform "false" "%approcessname% crashed." "1" "1"
 		START /MIN "%approcessname%" "%approcesspath%" && (
@@ -559,7 +561,7 @@ IF %approgram% EQU 1 (
 	)
 )
 IF %firstrun% EQU 0 (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:".*miner threads started.*" %log%') DO SET /A gpucount=%%A
 	IF !gpucount! EQU 0 SET gpucount=1
 	IF %gpus% EQU 0 SET gpus=!gpucount!
@@ -587,15 +589,13 @@ IF %firstrun% EQU 0 (
 	)
 	SET firstrun=1
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /L %%A IN (0,1,%gpus%) DO (
 	IF %%A EQU 0 (
 		SET curspeed=Current speed:
-		SET curtemp=Current temp:
 		SET lasthashrate=0
 	)
 	SET speeddata=0
-	SET tempdata=0
 	FOR /F "tokens=7,8,9,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
 		SET lastsymb0=%%a
 		SET lastsymb0=!lastsymb0:~-1!
@@ -616,28 +616,35 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		)
 	)
 	IF "!speeddata!" NEQ "0" (
-		IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
-			FOR /F "delims=" %%a IN ('"%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" --id^=%%A --query-gpu^=temperature.gpu --format^=csv,noheader') DO (
-				IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 0 IF %%a LSS 70 SET tempdata=%%A %%a
-				IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 70 SET tempdata=%%A *%%a*
-			)
-		)
 		SET /A lasthashrate=lasthashrate+!speeddata!
 		IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
 		IF !lasthashrate! EQU 0 SET /A minhashrate+=1
 		IF !speeddata! EQU 0 SET /A minhashrate+=1
 		SET curspeed=!curspeed! G%%A !speeddata!,
 	)
-	IF "!tempdata!" NEQ "0" SET curtemp=!curtemp! G!tempdata!C,
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	IF %%A EQU %gpus% (
 		IF "!curspeed!" EQU "Current speed:" SET curspeed=unknown
-		IF "!curtemp!" EQU "Current temp:" SET curtemp=unknown
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
+	)
+)
+timeout.exe /T %cputimeout% /nobreak >NUL
+FOR /L %%A IN (0,1,%gpus%) DO (
+	IF %%A EQU 0 SET curtemp=Current temp:
+	SET tempdata=0
+	IF EXIST "%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
+		FOR /F "delims=" %%a IN ('"%PROGRAMFILES%\NVIDIA Corporation\NVSMI\nvidia-smi.exe" --id^=%%A --query-gpu^=temperature.gpu --format^=csv,noheader') DO (
+			IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 0 IF %%a LSS 70 SET tempdata=%%A %%a
+			IF "%%a" NEQ "" IF "%%a" NEQ "No devices were found" IF %%a GEQ 70 SET tempdata=%%A *%%a*
+		)
+	)
+	IF "!tempdata!" NEQ "0" SET curtemp=!curtemp! G!tempdata!C,
+	IF %%A EQU %gpus% (
+		IF "!curtemp!" EQU "Current temp:" SET curtemp=unknown
 		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
 	)
 )
-timeout.exe /T 5 /nobreak >NUL
+timeout.exe /T %cputimeout% /nobreak >NUL
 IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %hashrate% (
 	IF %hashrateerrorscount% GEQ %hashrateerrors% (
 		:passaveragecheck
@@ -649,7 +656,7 @@ IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %ha
 )
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
 IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
-	timeout.exe /T 5 /nobreak >NUL
+	timeout.exe /T %cputimeout% /nobreak >NUL
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
