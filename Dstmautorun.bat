@@ -529,8 +529,8 @@ IF "%lasterror%" NEQ "0" (
 		CALL :inform "false" "0" "%curtemp%." "2"
 		IF %hrdiff% EQU 0 IF %mediff% LEQ 10 (
 			CALL :kill "1" "1" "1" "1"
-			CALL :inform "false" "Current temp: %curtemp%.%%%%0A%%%%0ATemperature limit reached. Process %minerprocess% was successfully killed. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%%%0A%%%%0A*Waiting for users input...*" "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Waiting for users input..."
-			SET waituserinput=1
+			CALL :inform "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Process %minerprocess% was successfully killed. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%%%0A%%%%0A*Waiting for users input...*" "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Waiting for users input..."
+			PAUSE
 			GOTO hardstart
 		)
 		CALL :inform "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..." "Temperature limit reached. Fans may be stuck." "2"
@@ -603,14 +603,12 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 		SET lasthashrate=%%A
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
-	IF DEFINED lasthashrate (
-		IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
-		IF !lasthashrate! EQU 0 SET /A minhashrate+=1
-		SET /A hashcount+=1
-		SET /A sumhash=sumhash+!lasthashrate!
-		SET /A sumresult=sumhash/hashcount
-		IF !minhashrate! GEQ 99 GOTO passaveragecheck
-	)
+	IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+	IF !lasthashrate! EQU 0 SET /A minhashrate+=1
+	SET /A hashcount+=1
+	SET /A sumhash=sumhash+!lasthashrate!
+	SET /A sumresult=sumhash/hashcount
+	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /L %%A IN (0,1,%totalgpucount%) DO (
