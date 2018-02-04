@@ -603,12 +603,14 @@ FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /
 		SET lasthashrate=%%A
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
-	IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
-	IF !lasthashrate! EQU 0 SET /A minhashrate+=1
-	SET /A hashcount+=1
-	SET /A sumhash=sumhash+!lasthashrate!
-	SET /A sumresult=sumhash/hashcount
-	IF !minhashrate! GEQ 99 GOTO passaveragecheck
+	IF DEFINED lasthashrate (
+		IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+		IF !lasthashrate! EQU 0 SET /A minhashrate+=1
+		SET /A hashcount+=1
+		SET /A sumhash=sumhash+!lasthashrate!
+		SET /A sumresult=sumhash/hashcount
+		IF !minhashrate! GEQ 99 GOTO passaveragecheck
+	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /L %%A IN (0,1,%totalgpucount%) DO (
