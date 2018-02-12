@@ -444,15 +444,15 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO SET lasterror=%%N
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% EQU 1 (
 		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO SET lastinterneterror=%%n
+			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet. Waiting for confirmation...
 				timeout.exe /T 120 /nobreak >NUL
-				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO SET lastinterneterror=%%n
+				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -484,7 +484,7 @@ IF "%lasterror%" NEQ "0" (
 						IF %interneterrorscount% GTR 60 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO SET lastinterneterror=%%n
+						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +================================================================+
 							ECHO                   Connection has been restored...
@@ -591,7 +591,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* Mh/s.*" %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO (
+FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* Mh/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -622,7 +622,7 @@ IF DEFINED curtempcash (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" %log% ^| findstr.exe /V /R /I /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KECCAK.*"') DO SET curspeedcash=%%A
+FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET curspeedcash=%%A
 IF DEFINED curspeedcash (
 	FOR /F "tokens=3,6,9,12,15,18,21,24,27,30 delims=.,Mh/s " %%a IN ("%curspeedcash%") DO (
 		SET curspeed=Current speed:
