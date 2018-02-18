@@ -1,5 +1,5 @@
 REM Developer acrefawn. Contact me: acrefawn@gmail.com, t.me/acrefawn
-REM I recommend that you do not touch the options below unless you know what you are doing
+REM I recommend that you do not touch the options below unless you know what you are doing.
 @ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
@@ -61,7 +61,7 @@ SET everyhourinfo=0
 SET approgram=0
 SET approcessname=TeamViewer.exe
 SET approcesspath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
-REM I recommend that you do not touch the options below unless you know what you are doing
+REM I recommend that you do not touch the options below unless you know what you are doing.
 SET ptos=0
 SET hrdiff=00
 SET mediff=00
