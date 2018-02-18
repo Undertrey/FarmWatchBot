@@ -1,13 +1,14 @@
 REM Developer acrefawn. Contact me: acrefawn@gmail.com, t.me/acrefawn
+REM I recommend that you do not touch the options below unless you know what you are doing
 @ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
-TITLE Miner-autorun(%dt0%)
-SET ver=1.9.0
+SET ver=1.9.1
 SET mn=Clay
 SET firstrun=0
+FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
+TITLE %mn%_autorun(%dt0%)
 :hardstart
 CLS
 COLOR 1F
@@ -16,38 +17,26 @@ ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
-REM Attention. Change the options below only if its really needed.
-REM Amount of errors before computer restart [5 - default, only numeric values]
-SET runtimeerrors=5
-REM Amount of hashrate errors before miner restart [5 - default, only numeric values]
-SET hashrateerrors=5
-REM Name miner process. [in English, without special symbols and spaces]
-SET minerprocess=EthDcrMiner64.exe
-REM Name miner file or path. [in English, without special symbols and spaces]
-SET minerpath=%minerprocess%
-REM Name start mining .bat file. [in English, without special symbols and spaces]
-SET bat=miner.bat
+REM Attention. Change the options below only if you really need to.
 REM Name miner .log file. [in English, without special symbols and spaces]
 SET log=miner.log
 REM Name config .ini file. [in English, without special symbols and spaces]
 SET config=Config_e%mn%.ini
-REM Name server for ping [in English, without special symbols and spaces]
-SET pingserver=google.com
-REM Slowdown script for weak CPUs. Increase this value 1 by 1 if your hashrate drops because of script [5 - default, only numeric values]
-SET cputimeout=5
-REM Allow computer to be restarted.
-SET pcrestart=1
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
 SET cmddoubleruncheck=1
+REM Allow computer to be restarted. [0 - false, 1 - true]
+SET pcrestart=1
 REM Default config.
 SET gpus=0
 SET allowrestart=1
 SET hashrate=0
-SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET minerprocess=EthDcrMiner64.exe
+SET minerpath=%minerprocess%
+SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -59,13 +48,18 @@ SET midnightrestart=0
 SET internetcheck=1
 SET environments=1
 SET sharetimeout=1
+SET runtimeerrors=5
+SET hashrateerrors=5
+SET bat=%mn%_miner.bat
+SET pingserver=google.com
+SET cputimeout=5
 SET rigname=%COMPUTERNAME%
 SET chatid=0
 SET everyhourinfo=0
 SET approgram=0
 SET approcessname=TeamViewer.exe
 SET approcesspath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
-REM Attention. Do not touch the options below in any case.
+REM I recommend that you do not touch the options below unless you know what you are doing
 SET ptos=0
 SET hrdiff=00
 SET mediff=00
@@ -85,10 +79,10 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
-SET errorslist=/C:".*t.[0-5]C.*"
+SET errorslist=/C:".*t=[0-5]C.*"
 SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*"
 IF %cmddoubleruncheck% EQU 1 (
-	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*Miner-autorun(%dt0%)"| findstr.exe /R /C:".*Miner-autorun.*" 2>NUL 1>&2 && (
+	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
 		ECHO Current window will close in 10 seconds.
 		timeout.exe /T 10 /nobreak >NUL
@@ -104,7 +98,7 @@ findstr.exe /C:"%ver%" %config% >NUL || (
 	CALL :inform "false" "0" "Your %config% is out of date." "2"
 	GOTO createconfig
 )
-FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 39000 EXIT
+FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 42000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
 timeout.exe /T 3 /nobreak >NUL
@@ -117,28 +111,29 @@ FOR /L %%A IN (1,1,%serversamount%) DO (
 )
 GOTO start
 :corruptedconfig
-CALL :inform "false" "%config% file error. It is corrupted. Please check it..." "1" "1"
+CALL :inform "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
 :createconfig
-IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup of your old %config%.
+IF EXIST "%config%" MOVE /Y %config% %config%_Backup >NUL && ECHO Created backup of your old %config%.
 > %config% ECHO # Configuration file v. %ver%
 >> %config% ECHO # =================================================== [GPU]
 >> %config% ECHO # Set how many GPU devices are enabled.
 >> %config% ECHO gpus=%gpus%
 >> %config% ECHO # Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. [0 - false, 1 - true]
 >> %config% ECHO allowrestart=%allowrestart%
->> %config% ECHO # Set total average hashrate of this Rig. [you can use average hashrate value from your pool]
+>> %config% ECHO # Set the total average hashrate of this Rig. [you can use average hashrate value from your pool]
 >> %config% ECHO hashrate=%hashrate%
 >> %config% ECHO # =================================================== [Miner]
->> %config% ECHO # Set main server miner command here to auto-create %bat% file if it is missing or wrong. [keep default order]
+>> %config% ECHO # Set the main server mining command here to auto-create %bat% file if it is missing or wrong. [keep default order]
 >> %config% ECHO commandserver1=%commandserver1%
-IF DEFINED commandserver2 >> %config% ECHO # When the main server fails, %~n0 will switch to the additional server below immediately. [in order]
+IF DEFINED commandserver2 >> %config% ECHO # When the main server fails, %~n0.bat will switch to the additional server below immediately. [in order]
 IF DEFINED commandserver2 >> %config% ECHO # Configure miner command here. Old %bat% will be removed and a new one will be created with this value. [keep default order] internetcheck=1 required.
+IF DEFINED commandserver2 >> %config% ECHO # The default number of servers is 5, however, you can add or remove as many as you need. e.g. you can have servers 1 2 3 or you can have 1 2 3 4 5 6 7 8 9. There is no upper limit - e.g. you can have 1000 if you want. The minimum is 1.
 IF DEFINED commandserver2 >> %config% ECHO commandserver2=%commandserver2%
 IF DEFINED commandserver3 >> %config% ECHO commandserver3=%commandserver3%
 IF DEFINED commandserver4 >> %config% ECHO commandserver4=%commandserver4%
 IF DEFINED commandserver5 >> %config% ECHO commandserver5=%commandserver5%
 >> %config% ECHO # =================================================== [Overclock program]
->> %config% ECHO # Autorun and run-check of GPU Overclock program. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
+>> %config% ECHO # Autorun and check to see if already running of GPU Overclock program. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
 >> %config% ECHO overclockprogram=%overclockprogram%
 >> %config% ECHO # Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> %config% ECHO msiaprofile=%msiaprofile%
@@ -148,9 +143,9 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
 >> %config% ECHO restartoverclockprogram=%restartoverclockprogram%
 >> %config% ECHO # =================================================== [Timers]
->> %config% ECHO # Restart MINER every X hours. Set value of hours delay between miner restarts. [0 - false, 1-999 - scheduled hours delay]
+>> %config% ECHO # Restart MINER every X hours. Set value of delay [in hours] between miner restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
 >> %config% ECHO minertimeoutrestart=%minertimeoutrestart%
->> %config% ECHO # Restart COMPUTER every X hours. Set value of hours delay between computer restarts. [0 - false, 1-999 - scheduled hours delay]
+>> %config% ECHO # Restart COMPUTER every X hours. Set value of delay [in hours] between computer restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
 >> %config% ECHO computertimeoutrestart=%computertimeoutrestart%
 >> %config% ECHO # Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
 >> %config% ECHO noonrestart=%noonrestart%
@@ -163,8 +158,22 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> %config% ECHO # GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
->> %config% ECHO # Enable last share timeout check. [0 - false, 1 - true]
+>> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than 15 minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true]
 >> %config% ECHO sharetimeout=%sharetimeout%
+>> %config% ECHO # Number of errors before computer restart. Once the threshold is reached, the computer will restart. [5 - default, only numeric values]
+>> %config% ECHO runtimeerrors=%runtimeerrors%
+>> %config% ECHO # Number of hashrate errors before miner restart. Once the threshold is reached, the miner will restart. [5 - default, only numeric values]
+>> %config% ECHO hashrateerrors=%hashrateerrors%
+>> %config% ECHO # Name miner file process. Only change this if you have changed the default name of your %minerprocess% file. [in English, without special symbols and spaces]
+>> %config% ECHO minerprocess=%minerprocess%
+>> %config% ECHO # Path to miner. Do not change if the script and miner are in the same folder. Only use this option if you plan to switch between multiple miners. [in English, without special symbols and spaces]
+>> %config% ECHO minerpath=%minerpath%
+>> %config% ECHO # Name start mining .bat file. [in English, without special symbols and spaces]
+>> %config% ECHO bat=%bat%
+>> %config% ECHO # Name server for ping. Default is google.com - change if you have difficulty reaching Google servers. [in English, without special symbols and spaces]
+>> %config% ECHO pingserver=%pingserver%
+>> %config% ECHO # Slowdown script for weak CPUs. Increase this value incrementally [1 by 1] if your hashrate drops because of script. This may slow down the responsiveness of the script. [5 - default, only numeric values]
+>> %config% ECHO cputimeout=%cputimeout%
 >> %config% ECHO # =================================================== [Telegram notifications]
 >> %config% ECHO # To enable Telegram notifications enter here your chatid, from Telegram @FarmWatchBot. [0 - disable]
 >> %config% ECHO chatid=%chatid%
@@ -192,11 +201,12 @@ ECHO +================================================================+
 CALL :inform "false" "Scheduled computer restart, please wait..." "Scheduled computer restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 :restart
+IF %pcrestart% EQU 0 GOTO hardstart
 COLOR 4F
 CALL :screenshot
 CALL :inform "false" "Computer restarting..." "1" "0"
 CALL :kill "1" "1" "1" "1"
-IF %pcrestart% EQU 1 shutdown.exe /T 30 /R /F /C "Your computer will restart after 30 seconds. To cancel restart, close this window and start %~n0.bat manually."
+shutdown.exe /T 60 /R /F /C "Your computer will restart after 60 seconds. To cancel restart, close this window and START %~n0.bat manually."
 EXIT
 :switch
 CLS
@@ -226,11 +236,11 @@ COLOR 4F
 SET /A errorscounter+=1
 IF %errorscounter% GTR %runtimeerrors% (
 	ECHO +================================================================+
-	ECHO              Too many errors, need clear GPU cash...
+	ECHO              Too many errors, need clear GPU cache...
 	ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 	ECHO                       Computer restarting...
 	ECHO +================================================================+
-	CALL :inform "false" "Too many errors. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. A restart of the computer to clear GPU cache is required. Restarting...  Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+	CALL :inform "false" "Too many errors. Threshold of *5* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of 5 runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 	timeout.exe /T 3 /nobreak >NUL
 	GOTO restart
 )
@@ -261,21 +271,21 @@ SET /A me1=%me1%-100
 SET /A ss1=%ss1%-100
 SET /A dtdiff1=%hr1%*60*60+%me1%*60+%ss1%
 IF NOT EXIST "%minerpath%" (
-	ECHO "%minerprocess%" is missing. Please check the directory for missing files. Exiting...
+	ECHO "%minerprocess%" is missing. Please check the directory for missing files. Exiting... Goodbye.
 	PAUSE
 	EXIT
 )
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL && (
-	taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 && (
-		timeout.exe /T 4 /nobreak >NUL && taskkill.exe /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq %bat%*" 2>NUL 1>&2
-		CALL :inform "false" "0" "Process %minerprocess% was successfully killed." "2"
-	) || (
+	taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 || (
 		CALL :inform "false" "Unable to kill %minerprocess%. Retrying..." "1" "1"
 		GOTO error
 	)
+	timeout.exe /T 4 /nobreak >NUL && taskkill.exe /T /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq *%bat%*" 2>NUL 1>&2
+	CALL :inform "false" "0" "Process %minerprocess% was successfully killed." "2"
 )
 ECHO Please wait 30 seconds or press any key to continue...
+ECHO This wait is needed to prevent GPUs crashes. It also allows you to connect via TeamViewer to close the script before the miner launches in case of critical errors or BSOD.
 timeout.exe /T 30 >NUL
 IF NOT EXIST "Logs" MD Logs && ECHO Folder Logs created.
 IF NOT EXIST "Screenshots" MD Screenshots && ECHO Folder Screenshots created.
@@ -310,7 +320,7 @@ IF %overclockprogram% NEQ 0 (
 )
 IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 IF %overclockprogram% EQU 2 (
 	IF %firstrun% EQU 0 (
-		ECHO Waiting %msiatimeout% sec. for the full load of Msi Afterburner...
+		ECHO Waiting %msiatimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
 		timeout.exe /T %msiatimeout% >NUL
 	)
 	"%programfiles(x86)%%overclockprocesspath%%overclockprocessname%.exe" -Profile%msiaprofile% >NUL && ECHO MSI Afterburner profile %msiaprofile% activated.
@@ -335,11 +345,11 @@ IF %approgram% NEQ 0 (
 IF EXIST "%log%" (
 	MOVE /Y %log% Logs\miner_%mh1%.%dy1%_%hr1%.%me1%.log 2>NUL 1>&2 && (
 		CALL :inform "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
-		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a" >NUL
-		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a" >NUL
+		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a" 2>NUL 1>&2
+		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a" 2>NUL 1>&2
 	) || (
 		CALL :inform "false" "Unable to rename or access %log%. Attempting to delete %log% and continue..." "1" "1"
-		DEL /Q /F "%log%" >NUL
+		DEL /Q /F "%log%" 2>NUL 1>&2
 		IF EXIST "%log%" (
 			CALL :inform "false" "Unable to delete %log%." "1" "1"
 			GOTO error
@@ -348,10 +358,10 @@ IF EXIST "%log%" (
 )
 > %bat% ECHO @ECHO off
 >> %bat% ECHO TITLE %bat%
->> %bat% ECHO REM Configure miners command line in %config% file. Not in %bat%.
+>> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
-REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr190 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr190 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr191 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr191 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -375,7 +385,7 @@ IF NOT EXIST "%log%" (
 		CALL :inform "false" "%log% is missing. Ensure *-logfile %log%* option is added to the miners command line." "%log% is missing. Ensure -logfile %log% option is added to the miners command line." "2"
 		GOTO error
 	)
-	CALL :inform "false" "%minerprocess% hangs..." "1" "1"
+	CALL :inform "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
 	findstr.exe /R /C:".*%minerprocess% -epool.*-tstop.*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
@@ -415,7 +425,7 @@ IF %dy2% GTR %dy1% (
 	SET /A dtdiff=^(%dy2%-%dy1%^)*86400-%dtdiff1%+%dtdiff2%
 ) ELSE (
 	IF %mh2% NEQ %mh1% (
-		CALL :inform "false" "Miner must be restarted, please wait..." "1" "1"
+		CALL :inform "false" "New month reached - Miner must be restarted to ensure accurate runtime, please wait..." "1" "1"
 		GOTO hardstart
 	)
 	IF %dtdiff2% GEQ %dtdiff1% (
@@ -450,7 +460,7 @@ IF "%lasterror%" NEQ "0" (
 		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
-				ECHO Something is wrong with your Internet. Waiting for confirmation...
+				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 /nobreak >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
@@ -471,7 +481,7 @@ IF "%lasterror%" NEQ "0" (
 						CALL :inform "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
 						GOTO start
 					) || (
-						CALL :inform "false" "Something is wrong with your Internet. Please check your connection." "Something is wrong with your Internet. Please check your connection. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+						CALL :inform "false" "Something is wrong with your Internet connection. Please check your connection." "Something is wrong with your Internet connection. Please check your connection. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 						:tryingreconnect
 						CLS
 						COLOR 4F
@@ -490,7 +500,7 @@ IF "%lasterror%" NEQ "0" (
 							ECHO                   Connection has been restored...
 							ECHO                         Continue mining...
 							ECHO +================================================================+
-							CALL :inform "false" "Something was wrong with your Internet. Connection has been restored. Continue mining..." "1" "0"
+							CALL :inform "false" "Something was wrong with your Internet connection. Connectivity has been restored. Continue mining..." "1" "0"
 							GOTO check
 						)
 						ping.exe %pingserver%| find.exe /I "TTL=" >NUL && GOTO reconnected || (
@@ -502,7 +512,7 @@ IF "%lasterror%" NEQ "0" (
 						ECHO                   Connection has been restored...
 						ECHO                         Miner restarting...
 						ECHO +================================================================+
-						CALL :inform "false" "Something was wrong with your Internet. Connection has been restored. Miner restarting..." "Something was wrong with your Internet. Connection has been restored. Miner restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+						CALL :inform "false" "Something was wrong with your Internet connection. Connection has been restored. Miner restarting..." "Something was wrong with your Internet connection. Connection has been restored. Miner restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 						GOTO start
 					)
 				)
@@ -538,20 +548,20 @@ IF "%lasterror%" NEQ "0" (
 timeout.exe /T %cputimeout% /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL || (
-	CALL :inform "false" "Process %minerprocess% crashed." "1" "1"
+	CALL :inform "false" "Process %minerprocess% crashed..." "1" "1"
 	GOTO error
 )
 IF %overclockprogram% NEQ 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
-		CALL :inform "false" "Process %overclockprocessname%.exe crashed." "1" "1"
+		CALL :inform "false" "Process %overclockprocessname%.exe crashed..." "1" "1"
 		GOTO error
 	)
 )
 IF %approgram% EQU 1 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
-		CALL :inform "false" "%approcessname% crashed." "1" "1"
+		CALL :inform "false" "%approcessname% crashed..." "1" "1"
 		START /MIN "%approcessname%" "%approcesspath%" && (
 			CALL :inform "false" "%approcessname% was started." "1" "1"
 		) || (
@@ -573,14 +583,14 @@ IF %firstrun% EQU 0 (
 			CLS
 			COLOR 4F
 			ECHO +================================================================+
-			ECHO              Failed load all GPUs. Number of GPUs: !gpucount!/%gpus%
+			ECHO             Failed to load all GPUs. Number of GPUs: !gpucount!/%gpus%
 			ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 			ECHO                       Computer restarting...
 			ECHO +================================================================+
-			CALL :inform "false" "Failed load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
+			CALL :inform "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
 			GOTO restart
 		) ELSE (
-			CALL :inform "false" "Failed load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
+			CALL :inform "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
 			SET /A hashrate=%hashrate%/%gpus%*%gpucount%
 		)
 	)
@@ -609,10 +619,8 @@ IF DEFINED curtempcash (
 		IF !gpunum! LEQ %gpus% (
 			FOR %%A IN (%%a %%b %%c %%d %%e %%f %%g %%h %%i %%j) DO (
 				IF "%%A" NEQ "" (
-					SET Cut=%%A
-					SET Cut=!Cut:~-2!
-					IF !Cut! GEQ 0 IF !Cut! LSS 70 SET curtemp=!curtemp! G!gpunum! !Cut!C,
-					IF !Cut! GEQ 70 SET curtemp=!curtemp! G!gpunum! *!Cut!C*,
+					IF %%A GEQ 0 IF %%A LSS 70 SET curtemp=!curtemp! G!gpunum! %%AC,
+					IF %%A GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%AC*,
 				)
 				SET /A gpunum+=1
 			)
@@ -663,7 +671,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 		IF !lastsharemin! GTR %me2% SET /A lastsharediff=!lastsharemin!-%me2%
 		IF !lastsharemin! GTR 50 IF %me2% LEQ 10 SET /A lastsharediff=60-!lastsharemin!+%me2%
 		IF !lastsharemin! LEQ 10 IF %me2% GTR 50 SET /A lastsharediff=60-%me2%+!lastsharemin!
-		IF !lastsharediff! GTR 10 (
+		IF !lastsharediff! GTR 15 (
 			CALL :inform "false" "Long share timeout... *!lastsharemin!/%me2%*." "Long share timeout... !lastsharemin!/%me2%." "2"
 			GOTO error
 		)
@@ -706,7 +714,7 @@ ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                Average speed: %sumresult% Last speed: %lasthashrate%
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can take a rest.
+ECHO Now I will take care of your %rigname% and you can take a rest...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage total hashrate: *%sumresult%*
@@ -732,6 +740,7 @@ IF "%~1" EQU "1" IF %overclockprogram% NEQ 0 timeout.exe /T 2 /nobreak >NUL && t
 IF "%~2" EQU "1" IF %approgram% EQU 1 timeout.exe /T 2 /nobreak >NUL && taskkill.exe /F /IM "%approcessname%" 2>NUL 1>&2 && ECHO Process %approcessname% was successfully killed.
 IF "%~3" EQU "1" timeout.exe /T 2 /nobreak >NUL && taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 && ECHO Process %minerprocess% was successfully killed.
 IF "%~4" EQU "1" timeout.exe /T 4 /nobreak >NUL && taskkill.exe /T /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq *%bat%*" 2>NUL 1>&2
+timeout.exe /T 5 /nobreak >NUL
 EXIT /b
 :killwerfault
 taskkill.exe /T /F /IM "werfault.exe" 2>NUL 1>&2 && ECHO Process werfault.exe was successfully killed.
