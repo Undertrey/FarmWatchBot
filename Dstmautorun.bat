@@ -113,7 +113,7 @@ GOTO start
 :corruptedconfig
 CALL :inform "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
 :createconfig
-IF EXIST "%config%" MOVE /Y %config% %config%_Backup >NUL && ECHO Created backup of your old %config%.
+IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup of your old %config%.
 > %config% ECHO # Configuration file v. %ver%
 >> %config% ECHO # =================================================== [GPU]
 >> %config% ECHO # Set how many GPU devices are enabled.
@@ -404,7 +404,10 @@ SET totalgpucount=0
 SET interneterrorscount=1
 SET lastinterneterror=0
 SET minhashrate=0
+SET hashcount=0
 SET lasterror=0
+SET sumresult=0
+SET sumhash=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt2=%%A
 SET mh2=1%dt2:~4,2%
 SET dy2=1%dt2:~6,2%
@@ -600,28 +603,22 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO SET totspeedcash=%%A
-IF DEFINED totspeedcash (
-	FOR /F "tokens=5,6,9,10 delims=AMGPUSolWsvg上午下午/>#| " %%A IN ("%totspeedcash%") DO (
-		IF %gpus% EQU 1 IF "%%B" NEQ ":" (
-			SET lasthashrate=%%B
-			SET sumresult=%%D
-			SET lasthashrate=!lasthashrate:~0,-2!
-			SET sumresult=!sumresult:~0,-2!
-		)
-		IF %gpus% GEQ 2 IF "%%A" NEQ ":" (
-			SET lasthashrate=%%A
-			SET sumresult=%%C
-			SET lasthashrate=!lasthashrate:~0,-2!
-			SET sumresult=!sumresult:~0,-2!
-		)
-		IF DEFINED lasthashrate (
-			IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
-			IF !lasthashrate! EQU 0 SET /A minhashrate+=1
-			IF !sumresult! LSS %hashrate% SET /A minhashrate+=1
-			IF !sumresult! EQU 0 SET /A minhashrate+=1
-			IF !minhashrate! GEQ 99 GOTO passaveragecheck
-		)
+FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
+	IF %gpus% EQU 1 IF "%%B" NEQ ":" (
+		SET lasthashrate=%%B
+		SET lasthashrate=!lasthashrate:~0,-2!
+	)
+	IF %gpus% GEQ 2 IF "%%A" NEQ ":" (
+		SET lasthashrate=%%A
+		SET lasthashrate=!lasthashrate:~0,-2!
+	)
+	IF DEFINED lasthashrate (
+		IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+		IF !lasthashrate! EQU 0 SET /A minhashrate+=1
+		SET /A hashcount+=1
+		SET /A sumhash=sumhash+!lasthashrate!
+		SET /A sumresult=sumhash/hashcount
+		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL

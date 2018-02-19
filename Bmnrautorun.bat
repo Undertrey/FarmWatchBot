@@ -113,7 +113,7 @@ GOTO start
 :corruptedconfig
 CALL :inform "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
 :createconfig
-IF EXIST "%config%" MOVE /Y %config% %config%_Backup >NUL && ECHO Created backup of your old %config%.
+IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup of your old %config%.
 > %config% ECHO # Configuration file v. %ver%
 >> %config% ECHO # =================================================== [GPU]
 >> %config% ECHO # Set how many GPU devices are enabled.
