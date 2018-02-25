@@ -91,24 +91,26 @@ IF %cmddoubleruncheck% EQU 1 (
 )
 :checkconfig
 timeout.exe /T 3 /nobreak >NUL
-IF NOT EXIST "%config%" GOTO createconfig
+IF NOT EXIST "%config%" (
+	SET serversamount=5
+	GOTO createconfig
+)
+FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
+FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
+FOR /L %%A IN (1,1,%serversamount%) DO (
+	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
+)
 findstr.exe /C:"%ver%" %config% >NUL || (
-	FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
 	timeout.exe /T 3 /nobreak >NUL
 	CALL :inform "false" "0" "Your %config% is out of date." "2"
 	GOTO createconfig
 )
 FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 42000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
-FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
 timeout.exe /T 3 /nobreak >NUL
 CALL :inform "false" "0" "%config% loaded." "2"
-FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
-FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 IF %queue% GTR %serversamount% SET queue=1
-FOR /L %%A IN (1,1,%serversamount%) DO (
-	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
-)
 GOTO start
 :corruptedconfig
 CALL :inform "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
