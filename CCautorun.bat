@@ -1,4 +1,4 @@
-REM Developer acrefawn. Contact me: acrefawn@gmail.com, t.me/acrefawn
+REM Developer acrefawn. Contact me: t.me/acrefawn
 REM I recommend that you do not touch the options below unless you know what you are doing.
 @ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion
@@ -155,7 +155,7 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
 >> %config% ECHO midnightrestart=%midnightrestart%
 >> %config% ECHO # =================================================== [Other]
->> %config% ECHO # Enable Internet connectivity check. [0 - false, 1 - true]
+>> %config% ECHO # Enable Internet connectivity check. [0 - false, 1 - true full, 2 - true without server switching]
 >> %config% ECHO # Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
 >> %config% ECHO internetcheck=%internetcheck%
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
@@ -182,7 +182,7 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO chatid=%chatid%
 >> %config% ECHO # Name your Rig. [in English, without special symbols]
 >> %config% ECHO rigname=%rigname%
->> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode]
+>> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable all Telegram notifications]
 >> %config% ECHO everyhourinfo=%everyhourinfo%
 >> %config% ECHO # =================================================== [Additional program]
 >> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
@@ -371,10 +371,10 @@ timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
 	FOR /F "tokens=6,7 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
-		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
-		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%a
 		)
 	)
@@ -760,5 +760,5 @@ IF "%~4" EQU "1" ECHO %~2
 IF "%~4" EQU "2" ECHO %~3
 IF "%~3" NEQ "0" IF "%~3" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%~3" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~2
-IF "%~2" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~1&chat_id=%chatid%&text=*%rigname%:* %~2')" 2>NUL 1>&2
+IF "%~2" NEQ "0" IF "%chatid%" NEQ "0" IF "%everyhourinfo%" NEQ "5" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~1&chat_id=%chatid%&text=*%rigname%:* %~2')" 2>NUL 1>&2
 EXIT /b
