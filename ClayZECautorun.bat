@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.2
+SET ver=1.9.3
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ZecMiner64.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -80,7 +80,7 @@ SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
 SET errorslist=/C:".*t=[0-5]C.*"
-SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*"
+SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -96,24 +96,24 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
 )
 findstr.exe /C:"%ver%" %config% >NUL || (
 	timeout.exe /T 3 /nobreak >NUL
-	CALL :inform "false" "0" "Your %config% is out of date." "2"
+	CALL :inform "1" "false" "0" "Your %config% is out of date." "2"
 	GOTO createconfig
 )
-FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 42000 EXIT
+FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 43000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
 timeout.exe /T 3 /nobreak >NUL
-CALL :inform "false" "0" "%config% loaded." "2"
+CALL :inform "1" "false" "0" "%config% loaded." "2"
 IF %queue% GTR %serversamount% SET queue=1
 GOTO start
 :corruptedconfig
-CALL :inform "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
+CALL :inform "1" "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
 :createconfig
 IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup of your old %config%.
 > %config% ECHO # Configuration file v. %ver%
@@ -189,7 +189,7 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO approcessname=%approcessname%
 >> %config% ECHO # Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
 >> %config% ECHO approcesspath=%approcesspath%
-CALL :inform "false" "0" "Default %config% created. Please check it." "2"
+CALL :inform "1" "false" "0" "Default %config% created. Please check it." "2"
 timeout.exe /T 3 /nobreak >NUL
 GOTO hardstart
 :ctimer
@@ -199,13 +199,13 @@ ECHO             Scheduled computer restart, please wait...
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO                            Restarting...
 ECHO +================================================================+
-CALL :inform "false" "Scheduled computer restart, please wait..." "Scheduled computer restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+CALL :inform "0" "true" "Scheduled computer restart, please wait..." "Scheduled computer restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 :restart
 IF %pcrestart% EQU 0 GOTO hardstart
 COLOR 4F
 CALL :screenshot
-CALL :inform "false" "Computer restarting..." "1" "0"
+CALL :inform "1" "false" "Computer restarting..." "1" "0"
 CALL :kill "1" "1" "1" "1"
 shutdown.exe /T 60 /R /F /C "Your computer will restart after 60 seconds. To cancel restart, close this window and START %~n0.bat manually."
 EXIT
@@ -216,7 +216,7 @@ ECHO           Attempting to switch to the main pool server...
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
-CALL :inform "false" "Attempting to switch to the main pool server..." "Attempting to switch to the main pool server... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+CALL :inform "1" "true" "Attempting to switch to the main pool server..." "Attempting to switch to the main pool server... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 SET switchtodefault=0
 SET queue=1
 timeout.exe /T 3 /nobreak >NUL
@@ -228,7 +228,7 @@ ECHO               Scheduled miner restart, please wait...
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO                            Restarting...
 ECHO +================================================================+
-CALL :inform "false" "Scheduled miner restart, please wait..." "Scheduled miner restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+CALL :inform "0" "true" "Scheduled miner restart, please wait..." "Scheduled miner restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 GOTO start
 :error
@@ -241,7 +241,7 @@ IF %errorscounter% GTR %runtimeerrors% (
 	ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 	ECHO                       Computer restarting...
 	ECHO +================================================================+
-	CALL :inform "false" "Too many errors. Threshold of *5* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of 5 runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+	CALL :inform "1" "true" "Too many errors. Threshold of *5* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of 5 runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 	timeout.exe /T 3 /nobreak >NUL
 	GOTO restart
 )
@@ -250,7 +250,7 @@ ECHO                        Something is wrong...
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO                         Miner restarting...
 ECHO +================================================================+
-CALL :inform "false" "Miner restarting, please wait..." "Miner restarting, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+CALL :inform "1" "false" "Miner restarting, please wait..." "Miner restarting, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 CALL :screenshot
 timeout.exe /T 3 /nobreak >NUL
 :start
@@ -279,11 +279,11 @@ IF NOT EXIST "%minerpath%" (
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL && (
 	taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 || (
-		CALL :inform "false" "Unable to kill %minerprocess%. Retrying..." "1" "1"
+		CALL :inform "1" "false" "Unable to kill %minerprocess%. Retrying..." "1" "1"
 		GOTO error
 	)
 	timeout.exe /T 4 /nobreak >NUL && taskkill.exe /T /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq *%bat%*" 2>NUL 1>&2
-	CALL :inform "false" "0" "Process %minerprocess% was successfully killed." "2"
+	CALL :inform "1" "false" "0" "Process %minerprocess% was successfully killed." "2"
 )
 ECHO Please wait 30 seconds or press any key to continue...
 ECHO This wait is needed to prevent GPUs crashes. It also allows you to connect via TeamViewer to close the script before the miner launches in case of critical errors or BSOD.
@@ -305,15 +305,15 @@ IF DEFINED overclockprocessname IF DEFINED overclockprocesspath IF NOT EXIST "%p
 IF %overclockprogram% NEQ 0 (
 	IF %firstrun% NEQ 0 IF %restartoverclockprogram% EQU 1 (
 		tskill.exe /A /V %overclockprocessname% 2>NUL 1>&2 
-		CALL :inform "false" "0" "Process %overclockprocessname%.exe was successfully killed." "2"
+		CALL :inform "1" "false" "0" "Process %overclockprocessname%.exe was successfully killed." "2"
 	)
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
 		START "" "%programfiles(x86)%%overclockprocesspath%%overclockprocessname%.exe" && (
-			CALL :inform "false" "%overclockprocessname%.exe was started." "1" "1"
+			CALL :inform "0" "true" "%overclockprocessname%.exe was started." "1" "1"
 			SET firstrun=0
 		) || (
-			CALL :inform "false" "Unable to start %overclockprocessname%.exe." "1" "1"
+			CALL :inform "1" "false" "Unable to start %overclockprocessname%.exe." "1" "1"
 			SET overclockprogram=0
 			GOTO error
 		)
@@ -335,9 +335,9 @@ IF %approgram% NEQ 0 (
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
 		START /MIN "%approcessname%" "%approcesspath%" && (
-			CALL :inform "false" "%approcessname% was started." "1" "1"
+			CALL :inform "0" "true" "%approcessname% was started." "1" "1"
 		) || (
-			CALL :inform "false" "Unable to start %approcessname%." "1" "1"
+			CALL :inform "1" "false" "Unable to start %approcessname%." "1" "1"
 			SET approgram=0
 			GOTO error
 		)
@@ -345,14 +345,14 @@ IF %approgram% NEQ 0 (
 )
 IF EXIST "%log%" (
 	MOVE /Y %log% Logs\miner_%mh1%.%dy1%_%hr1%.%me1%.log 2>NUL 1>&2 && (
-		CALL :inform "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
+		CALL :inform "1" "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
 		IF EXIST "%~dp0Logs\*.log" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Logs\"`) DO DEL /F /Q "%~dp0Logs\%%~a" 2>NUL 1>&2
 		IF EXIST "%~dp0Logs\*.jpg" FOR /F "skip=50 usebackq delims=" %%a IN (`DIR /B /A:-D /O:-D /T:W "%~dp0Screenshots\"`) DO DEL /F /Q "%~dp0Screenshots\%%~a" 2>NUL 1>&2
 	) || (
-		CALL :inform "false" "Unable to rename or access %log%. Attempting to delete %log% and continue..." "1" "1"
+		CALL :inform "1" "false" "Unable to rename or access %log%. Attempting to delete %log% and continue..." "1" "1"
 		DEL /Q /F "%log%" 2>NUL 1>&2
 		IF EXIST "%log%" (
-			CALL :inform "false" "Unable to delete %log%." "1" "1"
+			CALL :inform "1" "false" "Unable to delete %log%." "1" "1"
 			GOTO error
 		)
 	)
@@ -362,11 +362,11 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr192 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
-	CALL :inform "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
+	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
 	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
 		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
@@ -377,20 +377,20 @@ START "%bat%" "%bat%" && (
 	)
 	timeout.exe /T 10 /nobreak >NUL
 ) || (
-	CALL :inform "false" "Unable to start miner." "1" "1"
+	CALL :inform "1" "false" "Unable to start miner." "1" "1"
 	GOTO error
 )
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
 	findstr.exe /R /C:".*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "false" "%log% is missing. Ensure *-logfile %log%* option is added to the miners command line." "%log% is missing. Ensure -logfile %log% option is added to the miners command line." "2"
+		CALL :inform "1" "false" "%log% is missing. Ensure *-logfile %log%* option is added to the miners command line." "%log% is missing. Ensure -logfile %log% option is added to the miners command line." "2"
 		GOTO error
 	)
-	CALL :inform "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
+	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
 	findstr.exe /R /C:".*%minerprocess% -zpool.*-tstop.*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "false" "Ensure *%minerpath% -zpool -tstop -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -zpool -tstop -logfile %log% options added to the miners command line in this order." "2"
+		CALL :inform "1" "false" "Ensure *%minerpath% -zpool -tstop -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -zpool -tstop -logfile %log% options added to the miners command line in this order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -426,7 +426,7 @@ IF %dy2% GTR %dy1% (
 	SET /A dtdiff=^(%dy2%-%dy1%^)*86400-%dtdiff1%+%dtdiff2%
 ) ELSE (
 	IF %mh2% NEQ %mh1% (
-		CALL :inform "false" "New month reached - Miner must be restarted to ensure accurate runtime, please wait..." "1" "1"
+		CALL :inform "0" "true" "New month reached - Miner must be restarted to ensure accurate runtime, please wait..." "1" "1"
 		GOTO hardstart
 	)
 	IF %dtdiff2% GEQ %dtdiff1% (
@@ -451,7 +451,7 @@ IF %hrdiff% GEQ 1 IF %hr2% EQU 12 (
 )
 IF %switchtodefault% EQU 1 IF %hrdiff% EQU 0 IF %mediff% GEQ 30 GOTO switch
 IF %hrdiff% GEQ 96 (
-	CALL :inform "false" "Miner must be restarted, large log file size, please wait..." "1" "1"
+	CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
@@ -462,10 +462,10 @@ IF "%lasterror%" NEQ "0" (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
-				timeout.exe /T 120 /nobreak >NUL
+				timeout.exe /T 120 >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
-					CALL :inform "false" "%lasterror%" "1" "0"
+					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
 						CLS
 						COLOR 4F
@@ -476,13 +476,13 @@ IF "%lasterror%" NEQ "0" (
 						ECHO +================================================================+
 						ECHO       Check %config% file for errors or pool is offline...
 						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-						ECHO               Miner restarting with default values...
+						ECHO               Miner restarting with changed values...
 						ECHO +================================================================+
 						IF !queue! GTR %serversamount% SET queue=0
-						CALL :inform "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
+						CALL :inform "1" "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
 						GOTO start
 					) || (
-						CALL :inform "false" "Something is wrong with your Internet connection. Please check your connection." "Something is wrong with your Internet connection. Please check your connection. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+						CALL :inform "1" "false" "Something is wrong with your Internet connection. Please check your connection." "Something is wrong with your Internet connection. Please check your connection. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 						:tryingreconnect
 						CLS
 						COLOR 4F
@@ -501,7 +501,7 @@ IF "%lasterror%" NEQ "0" (
 							ECHO                   Connection has been restored...
 							ECHO                         Continue mining...
 							ECHO +================================================================+
-							CALL :inform "false" "Something was wrong with your Internet connection. Connectivity has been restored. Continue mining..." "1" "0"
+							CALL :inform "1" "false" "Something was wrong with your Internet connection. Connection has been restored. Continue mining..." "1" "0"
 							GOTO check
 						)
 						ping.exe %pingserver%| find.exe /I "TTL=" >NUL && GOTO reconnected || (
@@ -513,7 +513,7 @@ IF "%lasterror%" NEQ "0" (
 						ECHO                   Connection has been restored...
 						ECHO                         Miner restarting...
 						ECHO +================================================================+
-						CALL :inform "false" "Something was wrong with your Internet connection. Connection has been restored. Miner restarting..." "Something was wrong with your Internet connection. Connection has been restored. Miner restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+						CALL :inform "1" "false" "Something was wrong with your Internet connection. Connection has been restored. Miner restarting..." "Something was wrong with your Internet connection. Connection has been restored. Miner restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 						GOTO start
 					)
 				)
@@ -521,11 +521,11 @@ IF "%lasterror%" NEQ "0" (
 		)
 	)
 	ECHO %lasterror%| findstr.exe /I /R %errorslist% 2>NUL && (
-		CALL :inform "false" "%lasterror%" "1" "0"
+		CALL :inform "1" "false" "%lasterror%" "1" "0"
 		GOTO error
 	)
 	ECHO %lasterror%| findstr.exe /I /R %criticalerrorslist% 2>NUL && (
-		CALL :inform "false" "%lasterror%" "1" "0"
+		CALL :inform "1" "false" "%lasterror%" "1" "0"
 		GOTO restart
 	)
 	ECHO %lasterror%| findstr.exe /I /R %warningslist% 2>NUL && (
@@ -535,38 +535,38 @@ IF "%lasterror%" NEQ "0" (
 		ECHO                     Temperature limit reached...
 		ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 		ECHO +================================================================+
-		CALL :inform "false" "0" "%curtemp%." "2"
+		CALL :inform "1" "false" "0" "%curtemp%." "2"
 		IF %hrdiff% EQU 0 IF %mediff% LEQ 10 (
 			CALL :kill "1" "1" "1" "1"
-			CALL :inform "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Process %minerprocess% was successfully killed. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%%%0A%%%%0A*Waiting for users input...*" "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Waiting for users input..."
+			CALL :inform "1" "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Process %minerprocess% was successfully killed. GPUs will now *STOP MINING*. Please ensure your GPUs have enough air flow.%%%%0A%%%%0A*Waiting for users input...*" "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "Please ensure your GPUs have enough air flow. GPUs will now STOP MINING. Waiting for users input..."
 			PAUSE
 			GOTO hardstart
 		)
-		CALL :inform "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..." "Temperature limit reached. Fans may be stuck." "2"
+		CALL :inform "1" "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..." "Temperature limit reached. Fans may be stuck." "2"
 		GOTO restart
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL || (
-	CALL :inform "false" "Process %minerprocess% crashed..." "1" "1"
+	CALL :inform "1" "false" "Process %minerprocess% crashed..." "1" "1"
 	GOTO error
 )
 IF %overclockprogram% NEQ 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
-		CALL :inform "false" "Process %overclockprocessname%.exe crashed..." "1" "1"
+		CALL :inform "1" "false" "Process %overclockprocessname%.exe crashed..." "1" "1"
 		GOTO error
 	)
 )
 IF %approgram% EQU 1 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
-		CALL :inform "false" "%approcessname% crashed..." "1" "1"
+		CALL :inform "1" "false" "%approcessname% crashed..." "1" "1"
 		START /MIN "%approcessname%" "%approcesspath%" && (
-			CALL :inform "false" "%approcessname% was started." "1" "1"
+			CALL :inform "0" "true" "%approcessname% was started." "1" "1"
 		) || (
-			CALL :inform "false" "Unable to start %approcessname%." "1" "1"
+			CALL :inform "1" "false" "Unable to start %approcessname%." "1" "1"
 			SET approgram=0
 			GOTO error
 		)
@@ -588,15 +588,15 @@ IF %firstrun% EQU 0 (
 			ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 			ECHO                       Computer restarting...
 			ECHO +================================================================+
-			CALL :inform "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
+			CALL :inform "1" "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
 			GOTO restart
 		) ELSE (
-			CALL :inform "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
+			CALL :inform "1" "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
 			SET /A hashrate=%hashrate%/%gpus%*%gpucount%
 		)
 	)
 	IF %gpus% LSS %gpucount% (
-		CALL :inform "false" "Loaded too many GPUs. This must be set to a number higher than *%gpus%* in your *%config%* file under *gpus*. Number of GPUs *%gpucount%/%gpus%*." "Loaded too many GPUs. This must be set to a number higher than %gpus% in your %config% file under gpus. Number of GPUs: %gpucount%/%gpus%." "2"
+		CALL :inform "1" "false" "Loaded too many GPUs. This must be set to a number higher than *%gpus%* in your *%config%* file under *gpus*. Number of GPUs *%gpucount%/%gpus%*." "Loaded too many GPUs. This must be set to a number higher than %gpus% in your %config% file under gpus. Number of GPUs: %gpucount%/%gpus%." "2"
 		IF %allowrestart% EQU 1 GOTO restart
 	)
 	SET firstrun=1
@@ -658,16 +658,16 @@ timeout.exe /T %cputimeout% /nobreak >NUL
 IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %hashrate% (
 	IF %hashrateerrorscount% GEQ %hashrateerrors% (
 		:passaveragecheck
-		CALL :inform "false" "Low hashrate. Average: *%sumresult%/%hashrate%* Last: *%lasthashrate%/%hashrate%*." "Low hashrate. Average: %sumresult%/%hashrate% Last: %lasthashrate%/%hashrate%." "2"
+		CALL :inform "1" "false" "Low hashrate. Average: *%sumresult%/%hashrate%* Last: *%lasthashrate%/%hashrate%*." "Low hashrate. Average: %sumresult%/%hashrate% Last: %lasthashrate%/%hashrate%." "2"
 		GOTO error
 	)
-	CALL :inform "false" "Abnormal hashrate. Average: *%sumresult%/%hashrate%* Last: *%lasthashrate%/%hashrate%*." "Abnormal hashrate. Average: %sumresult%/%hashrate% Last: %lasthashrate%/%hashrate%." "2"
+	CALL :inform "0" "true" "Abnormal hashrate. Average: *%sumresult%/%hashrate%* Last: *%lasthashrate%/%hashrate%*." "Abnormal hashrate. Average: %sumresult%/%hashrate% Last: %lasthashrate%/%hashrate%." "2"
 	SET /A hashrateerrorscount+=1
 )
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
 IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	SET /A ptos=%me2%+7
+	SET /A ptos=%me2%+5
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
 	FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*SHARE FOUND.*" /C:".*Share accepted.*" %log%') DO SET lastsharemin=1%%A
@@ -679,7 +679,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 		IF !lastsharemin! GTR 50 IF %me2% LEQ 10 SET /A lastsharediff=60-!lastsharemin!+%me2%
 		IF !lastsharemin! LEQ 10 IF %me2% GTR 50 SET /A lastsharediff=60-%me2%+!lastsharemin!
 		IF !lastsharediff! GTR 15 (
-			CALL :inform "false" "Long share timeout... *!lastsharemin!/%me2%*." "Long share timeout... !lastsharemin!/%me2%." "2"
+			CALL :inform "0" "false" "Long share timeout... *!lastsharemin!/%me2%*." "Long share timeout... !lastsharemin!/%me2%." "2"
 			GOTO error
 		)
 	)
@@ -731,10 +731,10 @@ IF "%curtemp%" NEQ "unknown" SET statusmessage=%statusmessage%%%%%0A%curtemp%
 IF "%chatid%" NEQ "0" (
 	IF %me2% LSS 30 SET allowsend=1
 	IF %me2% GEQ 30 IF %allowsend% EQU 1 (
-		IF %everyhourinfo% EQU 1 CALL :inform "false" "%statusmessage%" "0" "0"
-		IF %everyhourinfo% EQU 2 CALL :inform "true" "%statusmessage%" "0" "0"
-		IF %everyhourinfo% EQU 3 CALL :inform "false" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
-		IF %everyhourinfo% EQU 4 CALL :inform "true" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
+		IF %everyhourinfo% EQU 1 CALL :inform "1" "false" "%statusmessage%" "0" "0"
+		IF %everyhourinfo% EQU 2 CALL :inform "1" "true" "%statusmessage%" "0" "0"
+		IF %everyhourinfo% EQU 3 CALL :inform "1" "false" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
+		IF %everyhourinfo% EQU 4 CALL :inform "1" "true" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
 		SET allowsend=0
 	)
 )
@@ -754,10 +754,11 @@ taskkill.exe /T /F /IM "werfault.exe" 2>NUL 1>&2 && ECHO Process werfault.exe wa
 tskill.exe /A /V werfault 2>NUL 1>&2 && ECHO Process werfault.exe was successfully killed.
 EXIT /b
 :inform
-IF "%~4" NEQ "0" IF "%~4" NEQ "1" IF "%~4" NEQ "2" ECHO %~4
-IF "%~4" EQU "1" ECHO %~2
-IF "%~4" EQU "2" ECHO %~3
-IF "%~3" NEQ "0" IF "%~3" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
-IF "%~3" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~2
-IF "%~2" NEQ "0" IF "%chatid%" NEQ "0" IF "%everyhourinfo%" NEQ "5" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~1&chat_id=%chatid%&text=*%rigname%:* %~2')" 2>NUL 1>&2
+IF "%~5" NEQ "0" IF "%~5" NEQ "1" IF "%~5" NEQ "2" ECHO %~5
+IF "%~5" EQU "1" ECHO %~3
+IF "%~5" EQU "2" ECHO %~4
+IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
+IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
+IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
+IF "%~3" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b
