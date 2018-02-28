@@ -382,8 +382,8 @@ START "%bat%" "%bat%" && (
 )
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	findstr.exe /R /C:".*--logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "%log% is missing. Ensure *--logfile %log%* option is added to the miners command line." "%log% is missing. Ensure --logfile %log% option is added to the miners command line." "2"
+	findstr.exe /R /C:".*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "%log% is missing. Ensure *-logfile %log%* option is added to the miners command line." "%log% is missing. Ensure -logfile %log% option is added to the miners command line." "2"
 		GOTO error
 	)
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
