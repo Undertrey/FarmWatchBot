@@ -2,6 +2,8 @@
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
 * **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
+* **ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea**
+* **ETC: 0x23f914ef283b06d5cdfe0aca6902edcac9211177**
 
 # **Functions:**
 * Fine tuning of mining process by using of **config.ini** file.
@@ -64,3 +66,5 @@ If you interested in premium version, price is **0.05 ZEC** or equivalent in any
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
 * **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
+* **ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea**
+* **ETC: 0x23f914ef283b06d5cdfe0aca6902edcac9211177**
