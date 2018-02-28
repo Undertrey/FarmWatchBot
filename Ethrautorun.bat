@@ -79,8 +79,8 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
-SET errorslist=/C:".*t=[0-5]C.*"
-SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
+SET errorslist=/C:".*CUDA error in func.*" /C:".*unspecified launch failure.*"
+SET interneterrorslist=/C:".*not-connected.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -180,7 +180,7 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO chatid=%chatid%
 >> %config% ECHO # Name your Rig. [in English, without special symbols]
 >> %config% ECHO rigname=%rigname%
->> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable all Telegram notifications]
+>> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
 >> %config% ECHO everyhourinfo=%everyhourinfo%
 >> %config% ECHO # =================================================== [Additional program]
 >> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
