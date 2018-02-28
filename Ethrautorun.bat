@@ -5,7 +5,7 @@ SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
 SET ver=1.9.3
-SET mn=Ewbf
+SET mn=Ethr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
 TITLE %mn%_autorun(%dt0%)
@@ -14,7 +14,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
 REM Attention. Change the options below only if you really need to.
@@ -30,13 +30,13 @@ REM Default config.
 SET gpus=0
 SET allowrestart=1
 SET hashrate=0
-SET minerprocess=miner.exe
+SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -46,7 +46,7 @@ SET computertimeoutrestart=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
-SET environments=0
+SET environments=1
 SET sharetimeout=1
 SET runtimeerrors=5
 SET hashrateerrors=5
@@ -77,10 +77,10 @@ SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
-SET errorscancel=/C:".*Connection restored.*"
-SET criticalerrorslist=/C:".*NVML.*" /C:".*CUDA-capable.*"
-SET errorslist=/C:".*Thread exited.*" /C:".*benchmark error.*" /C:".*Api bind error.*" /C:".*CUDA error.*" /C:".*Looks like.*" /C:".* [0-5]C .*"
-SET interneterrorslist=/C:".*Lost connection.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*authorization timeout.*" /C:".*authorization error.*"
+SET errorscancel=/C:".*Connected.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
+SET errorslist=/C:".*t=[0-5]C.*"
+SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -360,14 +360,15 @@ IF EXIST "%log%" (
 > %bat% ECHO @ECHO off
 >> %bat% ECHO TITLE %bat%
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
-IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
+>> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
+IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 --pass x --log 2 --fee 0 --templimit 80 --pec
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
-	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
+	FOR /F "tokens=6,7 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
 		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
@@ -382,16 +383,9 @@ START "%bat%" "%bat%" && (
 )
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	findstr.exe /R /C:".*--log 2.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "%log% is missing. Ensure *--log 2* option is added to the miners command line." "%log% is missing. Ensure --log 2 option is added to the miners command line." "2"
-		GOTO error
-	)
-	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
-	GOTO restart
+	CALL :inform "1" "false" "%log% is missing. Ensure *^>^> miner.log 2^>^&1* option is added to the miners command line." "%log% is missing. Ensure ^>^> miner.log 2^>^&1 option is added to the miners command line." "2"
+	GOTO error
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% --server.*--log 2.*--templimit.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% --server --log 2 --templimit* options added to the miners command line in this order." "Ensure %minerpath% --server --log 2 --templimit options added to the miners command line in this order." "2"
-	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
 	timeout.exe /T 25 /nobreak >NUL
@@ -455,15 +449,15 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
+FOR /F "tokens=3 delims=|" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
 		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+			FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+				FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -495,7 +489,7 @@ IF "%lasterror%" NEQ "0" (
 						IF %interneterrorscount% GTR 60 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+						FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +================================================================+
 							ECHO                   Connection has been restored...
@@ -574,7 +568,7 @@ IF %approgram% EQU 1 (
 )
 IF %firstrun% EQU 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:"CUDA: Device: [0-9]* .* PCI: .*" %log%') DO SET /A gpucount+=1
+	FOR /F "tokens=3 delims=|" %%A IN ('findstr.exe /R /C:".*Initialising miner.*" %log%') DO SET /A gpucount+=1
 	IF !gpucount! EQU 0 SET gpucount=1
 	IF %gpus% EQU 0 SET gpus=!gpucount!
 )
@@ -602,7 +596,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s" %log%') DO (
+FOR /F "tokens=5 delims=.| " %%A IN ('findstr.exe /R /C:".*Speed  .* Mh/s.*" %log%') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -612,25 +606,31 @@ FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:"Total speed: [0-9]* Sol/s
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:"Temp: GPU.*C.*" %log%') DO SET curtempcache=%%A
-IF DEFINED curtempcache (
-	SET curtemp=%curtempcache%
-	SET curtemp=!curtemp::=!
-	SET curtemp=!curtemp:Temp =!
-	SET curtemp=!curtemp:C=C,!
-	SET curtemp=!curtemp:GPU=G!
-	SET curtemp=Temp: !curtemp:~0,-2!
-)
-timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.*Sol/s.*" %log%') DO SET curspeedcache=%%A
-IF DEFINED curspeedcache (
-	SET curspeed=%curspeedcache%
-	SET curspeed=!curspeed::=!
-	SET curspeed=!curspeed: Sol/s=,!
-	SET curspeed=!curspeed:GPU=G!
-	SET curspeed=Speed: !curspeed:~0,-2!
-	ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
-	IF !minhashrate! GEQ 99 GOTO passaveragecheck
+FOR /F "tokens=3 delims=|[]" %%A IN ('findstr.exe /R /C:".*Speed  .* Mh/s.*" %log%') DO SET curcache=%%A
+IF DEFINED curcache (
+	FOR /F "tokens=3-21 delims=gpu/" %%a IN ("!curcache!") DO (
+		SET curtemp=Temp:
+		SET curspeed=Speed:
+		SET gpunum=0
+		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+			IF !gpunum! LSS %gpus% (
+				FOR /F "tokens=2,4 delims=C. " %%B IN (%%A) DO (
+					IF "%%B" NEQ "" IF %%B GEQ 0 SET curspeed=!curspeed! G!gpunum! %%B,
+					IF "%%C" NEQ "" IF %%C GEQ 0 (
+						IF %%C GEQ 0 IF %%C LSS 70 SET curtemp=!curtemp! G!gpunum! %%CC,
+						IF %%C GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%CC*,
+					)
+					SET /A gpunum+=1
+				)				
+			)
+		)
+		IF "!curtemp!" EQU "Temp:" SET curtemp=unknown
+		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
+		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
+		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
+		ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+		IF !minhashrate! GEQ 99 GOTO passaveragecheck
+	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %hashrate% (
@@ -648,7 +648,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	SET /A ptos=%me2%+5
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
-	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" %log%') DO SET lastsharemin=1%%A
+	FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*Accepted.*" %log%') DO SET lastsharemin=1%%A
 	SET /A lastsharemin=!lastsharemin!-100
 	IF !lastsharemin! GEQ 0 IF %me2% GTR 0 (
 		IF !lastsharemin! EQU 0 SET lastsharemin=59
@@ -668,7 +668,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO           ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %minerprocess% is running...

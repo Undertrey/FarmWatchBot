@@ -614,15 +614,15 @@ FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* H/s.
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* t=.*C fan=.*" %log%') DO SET curtempcash=%%A
-IF DEFINED curtempcash (
-	FOR /F "tokens=2-20 delims=t" %%a IN ("%curtempcash%") DO (
+FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* t=.*C fan=.*" %log%') DO SET curtempcache=%%A
+IF DEFINED curtempcache (
+	FOR /F "tokens=2-20 delims=t" %%a IN ("%curtempcache%") DO (
 		SET curtemp=Temp:
 		SET gpunum=0
-		IF !gpunum! LEQ %gpus% (
-			FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+			IF !gpunum! LSS %gpus% (
 				FOR /F "tokens=1 delims==C" %%B IN (%%A) DO (
-					IF "%%B" NEQ "" (
+					IF "%%B" NEQ "" IF %%B GEQ 0 (
 						IF %%B GEQ 0 IF %%B LSS 70 SET curtemp=!curtemp! G!gpunum! %%BC,
 						IF %%B GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%BC*,
 						SET /A gpunum+=1
@@ -635,13 +635,13 @@ IF DEFINED curtempcash (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcash=%%A
-IF DEFINED curspeedcash (
-	FOR /F "tokens=2-20 delims=GPU" %%a IN ("%curspeedcash%") DO (
+FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcache=%%A
+IF DEFINED curspeedcache (
+	FOR /F "tokens=2-20 delims=GPU" %%a IN ("%curspeedcache%") DO (
 		SET curspeed=Speed:
 		SET gpunum=0
-		IF !gpunum! LEQ %gpus% (
-			FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+			IF !gpunum! LSS %gpus% (
 				FOR /F "tokens=2 delims=HMh/s,. " %%B IN (%%A) DO (
 					IF "%%B" NEQ "" IF %%B GEQ 0 (
 						SET curspeed=!curspeed! G!gpunum! %%B,
