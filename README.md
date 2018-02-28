@@ -57,7 +57,7 @@
 
 
 # **Premium:**
-If you interested in premium version, price is 0.05 ZEC or equivalent in any other cryptocurrency. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  /forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /online, /update. And also receive notifications from the bot when the Rig is offline. Send 0.05 ZEC to donation address and contact me in Telegram for further instructions.
+If you interested in premium version, price is **0.05 ZEC** or equivalent in any other cryptocurrency. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **0.05 ZEC** to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
 
 
 # **Donations:**
