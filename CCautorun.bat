@@ -608,7 +608,7 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		SET lasthashrate=0
 	)
 	SET speeddata=null
-	FOR /F "tokens=2 delims=," %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
+	FOR /F "skip=9 tokens=2 delims=," %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
 		FOR /F "tokens=1 delims=.,SolkKmMgGtTpPhH/s " %%b IN ("%%a") DO IF "%%~b" NEQ "" IF %%~b GEQ 0 SET speeddata=%%~b
 		IF "!speeddata!" NEQ "null" (
 			SET /A hashcount+=1
@@ -630,7 +630,7 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 	)
 )
 IF "!curspeed!" EQU "unknown" (
-	FOR /F "tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
+	FOR /F "skip=9 tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
 		SET curspeed=Speed:
 		SET gpunum=0
 		SET /A hashcount+=1
