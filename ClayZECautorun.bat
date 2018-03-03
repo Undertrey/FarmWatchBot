@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.3
+SET ver=1.9.4
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ZecMiner64.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -50,7 +50,7 @@ SET environments=1
 SET sharetimeout=1
 SET runtimeerrors=5
 SET hashrateerrors=5
-SET bat=%mn%_miner.bat
+SET bat=%mn%z_miner.bat
 SET pingserver=google.com
 SET cputimeout=5
 SET rigname=%COMPUTERNAME%
@@ -362,7 +362,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -603,7 +603,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO (
+FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .*/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -634,7 +634,7 @@ IF DEFINED curtempcache (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcache=%%A
+FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .*/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcache=%%A
 IF DEFINED curspeedcache (
 	FOR /F "tokens=2-20 delims=GPU" %%a IN ("%curspeedcache%") DO (
 		SET curspeed=Speed:
@@ -722,7 +722,7 @@ ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                 Average speed: %sumresult% Last speed: %lasthashrate%
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can take a rest...
+ECHO Now I will take care of your %rigname% and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
@@ -761,5 +761,5 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b

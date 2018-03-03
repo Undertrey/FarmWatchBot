@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.3
+SET ver=1.9.4
 SET mn=Bmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=bminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver2=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver3=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver4=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver5=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver1=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver2=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver3=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver4=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver5=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -362,7 +362,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193[:x]@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr194@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -618,18 +618,18 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		SET curspeed=Speed:
 		SET curtemp=Temp:
 	)
-	SET tempdata=0
-	SET speeddata=0
+	SET tempdata=null
+	SET speeddata=null
 	FOR /F "tokens=6,13 delims=.C " %%a IN ('findstr.exe /R /C:".*GPU %%A.* Speed: .* Sol/s .*" %log%') DO (
 		IF "%%a" NEQ "" IF %%a GEQ 0 SET speeddata=%%a
 		IF "%%b" NEQ "" IF %%b GEQ 0 IF %%b LSS 70 SET tempdata=%%A %%b
 		IF "%%b" NEQ "" IF %%b GEQ 70 SET tempdata=%%A *%%b*
 	)
-	IF "!speeddata!" NEQ "0" (
+	IF "!speeddata!" NEQ "null" (
 		IF !speeddata! EQU 0 SET /A minhashrate+=1
 		SET curspeed=!curspeed! G%%A !speeddata!,
 	)
-	IF "!tempdata!" NEQ "0" SET curtemp=!curtemp! G!tempdata!C,
+	IF "!tempdata!" NEQ "null" SET curtemp=!curtemp! G!tempdata!C,
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	IF %%A EQU %gpus% (
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
@@ -705,7 +705,7 @@ ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                 Average speed: %sumresult% Last speed: %lasthashrate%
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can take a rest...
+ECHO Now I will take care of your %rigname% and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
@@ -744,5 +744,5 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b

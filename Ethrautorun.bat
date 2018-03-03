@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.3
+SET ver=1.9.4
 SET mn=Ethr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
-SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
-SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
-SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
-SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
+SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
+SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
+SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
+SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -78,7 +78,7 @@ SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
-SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*"
 SET errorslist=/C:".*CUDA error in func.*" /C:".*unspecified launch failure.*"
 SET interneterrorslist=/C:".*not-connected.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
 IF %cmddoubleruncheck% EQU 1 (
@@ -363,7 +363,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr193 -X -HWMON -RH --farm-recheck 2000
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON -RH --farm-recheck 2000
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -700,7 +700,7 @@ ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                 Average speed: %sumresult% Last speed: %lasthashrate%
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can take a rest...
+ECHO Now I will take care of your %rigname% and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
@@ -739,5 +739,5 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b

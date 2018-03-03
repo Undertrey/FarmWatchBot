@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.3
+SET ver=1.9.4
 SET mn=Cmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -79,7 +79,7 @@ SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*temperature too high.*"
-SET errorscancel=/C:".*accepted:.*"
+SET errorscancel=/C:".*accepted:.*" /C:".*Stratum difficulty set to.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*"
 SET errorslist=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:".* [0-5]C .*"
 SET interneterrorslist=/C:".*connection .*ed.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*authorization failed.*" /C:".*Unknown algo parameter.*"
@@ -607,27 +607,16 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		SET curspeed=Speed:
 		SET lasthashrate=0
 	)
-	SET speeddata=0
-	FOR /F "tokens=7,8,9,10,11 delims=:#. " %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
-		SET lastsymb0=%%a
-		SET lastsymb0=!lastsymb0:~-1!
-		SET lastsymb1=%%b
-		SET lastsymb1=!lastsymb1:~-1!
-		SET lastsymb2=%%c
-		SET lastsymb2=!lastsymb2:~-1!
-		SET lastsymb3=%%d
-		SET lastsymb3=!lastsymb3:~-1!
-		IF "!lastsymb0!" EQU "," IF "%%b" NEQ "" IF %%b GEQ 0 SET speeddata=%%b
-		IF "!lastsymb1!" EQU "," IF "%%c" NEQ "" IF %%c GEQ 0 SET speeddata=%%c
-		IF "!lastsymb2!" EQU "," IF "%%d" NEQ "" IF %%d GEQ 0 SET speeddata=%%d
-		IF "!lastsymb3!" EQU "," IF "%%e" NEQ "" IF %%e GEQ 0 SET speeddata=%%e
-		IF "!speeddata!" NEQ "0" (
+	SET speeddata=null
+	FOR /F "tokens=2 delims=," %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
+		FOR /F "tokens=1 delims=.,SolkKmMgGtTpPhH/s " %%b IN ("%%a") DO IF "%%~b" NEQ "" IF %%~b GEQ 0 SET speeddata=%%~b
+		IF "!speeddata!" NEQ "null" (
 			SET /A hashcount+=1
 			SET /A sumhash=sumhash+!speeddata!
 			SET /A sumresult=sumhash/hashcount*%gpus%
 		)
 	)
-	IF "!speeddata!" NEQ "0" (
+	IF "!speeddata!" NEQ "null" (
 		SET /A lasthashrate=lasthashrate+!speeddata!
 		IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
 		IF !lasthashrate! EQU 0 SET /A minhashrate+=1
@@ -638,6 +627,35 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 	IF %%A EQU %gpus% (
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
+	)
+)
+IF "!curspeed!" EQU "unknown" (
+	FOR /F "tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
+		SET curspeed=Speed:
+		SET gpunum=0
+		SET /A hashcount+=1
+		SET lasthashrate=0
+		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+			IF !gpunum! LSS %gpus% (
+				FOR /F "tokens=2 delims=kKmHgGtTpPhH/s,. " %%B IN (%%A) DO (
+					SET speeddata=%%B
+					IF "!speeddata!" NEQ "" IF !speeddata! GEQ 0 (
+						SET /A sumhash=sumhash+!speeddata!
+						SET /A sumresult=sumhash/hashcount
+						SET /A lasthashrate=lasthashrate+!speeddata!
+						IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+						IF !lasthashrate! EQU 0 SET /A minhashrate+=1
+						IF !speeddata! EQU 0 SET /A minhashrate+=1
+						SET curspeed=!curspeed! G!gpunum! !speeddata!,
+						SET /A gpunum+=1
+					)
+				)
+			)
+		)
+		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
+		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
+		ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
@@ -723,7 +741,7 @@ ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                 Average speed: %sumresult% Last speed: %lasthashrate%
 ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can take a rest...
+ECHO Now I will take care of your %rigname% and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
@@ -762,5 +780,5 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b
