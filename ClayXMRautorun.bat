@@ -306,7 +306,7 @@ IF DEFINED overclockprocessname IF DEFINED overclockprocesspath IF NOT EXIST "%p
 )
 IF %overclockprogram% NEQ 0 (
 	IF %firstrun% NEQ 0 IF %restartoverclockprogram% EQU 1 (
-		tskill.exe /A /V %overclockprocessname% 2>NUL 1>&2 
+		tskill.exe /A /V %overclockprocessname% 2>NUL 1>&2
 		CALL :inform "1" "false" "0" "Process %overclockprocessname%.exe was successfully killed." "2"
 	)
 	timeout.exe /T 5 /nobreak >NUL
@@ -472,16 +472,17 @@ IF "%lasterror%" NEQ "0" (
 						CLS
 						COLOR 4F
 						CALL :kill "0" "0" "1" "1"
-						SET switchtodefault=1
+						IF %internetcheck% NEQ 2 SET switchtodefault=1
 						IF %internetcheck% NEQ 2 SET /A queue+=1
 						SET /A errorscounter+=1
 						ECHO +================================================================+
 						ECHO       Check %config% file for errors or pool is offline...
 						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-						ECHO               Miner restarting with changed values...
+						IF %internetcheck% NEQ 2 ECHO               Miner restarting with changed values...
 						ECHO +================================================================+
 						IF !queue! GTR %serversamount% SET queue=0
-						CALL :inform "1" "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
+						IF %internetcheck% NEQ 2 CALL :inform "1" "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
+						IF %internetcheck% EQU 2 CALL :inform "1" "false" "Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner restarting..." "Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner restarting..." "2"
 						GOTO start
 					) || (
 						CALL :inform "1" "false" "Something is wrong with your Internet connection. Please check your connection." "Something is wrong with your Internet connection. Please check your connection. Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
@@ -627,7 +628,7 @@ IF DEFINED curtempcache (
 						IF %%B GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%BC*,
 						SET /A gpunum+=1
 					)
-				)				
+				)
 			)
 		)
 		IF "!curtemp!" EQU "Temp:" SET curtemp=unknown

@@ -4,6 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
+DEL /Q /F "update.bat" 2>NUL 1>&2
 SET ver=1.9.3
 SET mn=Clay
 SET firstrun=0
@@ -14,14 +15,14 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO              FTC: 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +================================================================+
 REM Attention. Change the options below only if you really need to.
 REM Name miner .log file. [in English, without special symbols and spaces]
 SET log=miner.log
 REM Name config .ini file. [in English, without special symbols and spaces]
-SET config=Config_z%mn%.ini
+SET config=Config_n%mn%.ini
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
 SET cmddoubleruncheck=1
 REM Allow computer to be restarted. [0 - false, 1 - true]
@@ -30,13 +31,13 @@ REM Default config.
 SET gpus=0
 SET allowrestart=1
 SET hashrate=0
-SET minerprocess=ZecMiner64.exe
+SET minerprocess=NeoScryptMiner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -50,9 +51,9 @@ SET environments=1
 SET sharetimeout=1
 SET runtimeerrors=5
 SET hashrateerrors=5
-SET bat=%mn%_miner.bat
+SET bat=%mn%n_miner.bat
 SET pingserver=google.com
-SET cputimeout=5
+SET cputimeout=2
 SET rigname=%COMPUTERNAME%
 SET chatid=0
 SET everyhourinfo=0
@@ -362,7 +363,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -zpool eu1-zcash.flypool.org:3333 -zwal t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr193 -zpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -pool stratum+tcp://yiimp.eu:4233 -wal 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx.fr193 -psw x -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -389,8 +390,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% -zpool.*-tstop.*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% -zpool -tstop -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -zpool -tstop -logfile %log% options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% -pool.*-tstop.*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% -pool -tstop -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -pool -tstop -logfile %log% options added to the miners command line in this order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -455,15 +456,15 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lasterror=%%N
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
 		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lastinterneterror=%%n
+			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lastinterneterror=%%n
+				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -496,7 +497,7 @@ IF "%lasterror%" NEQ "0" (
 						IF %interneterrorscount% GTR 60 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /I /C:".*DevFee.*"') DO SET lastinterneterror=%%n
+						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +================================================================+
 							ECHO                   Connection has been restored...
@@ -603,7 +604,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO (
+FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .* Mh/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -634,7 +635,7 @@ IF DEFINED curtempcache (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* H/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcache=%%A
+FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .* Mh/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*"') DO SET curspeedcache=%%A
 IF DEFINED curspeedcache (
 	FOR /F "tokens=2-20 delims=GPU" %%a IN ("%curspeedcache%") DO (
 		SET curspeed=Speed:
@@ -691,7 +692,7 @@ CLS
 COLOR 1F
 ECHO +================================================================+
 ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO              FTC: 6xGsvQ96tjm6ns5jVncQEVHePkJcg1eMJx
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]+
 ECHO Process %minerprocess% is running...
