@@ -80,7 +80,7 @@ SET warningslist=/C:".*Temperature for device .* is .*, slowing down for .* seco
 SET errorscancel=/C:".*Authorized.*"
 SET criticalerrorslist=/C:".*NVML.*" /C:".*CUDA-capable.*"
 SET errorslist=/C:".*cuda error.*" /C:".*Miner died.*" /C:".*End of file.*" /C:".*CudaError.*" /C:".*Failed to retrive temperature from.*"
-SET interneterrorslist=/C:".*Connection failed.*" /C:".*A request.*" /C:".*The length of server.*" /C:".*Too many rejected shares.*" /C:".*Authorization failed.*" /C:".*Invalid response.*"
+SET interneterrorslist=/C:".*Connection failed.*" /C:".*A request.*" /C:".*The length of server.*" /C:".*Too many rejected shares.*" /C:".*Authorization failed.*" /C:".*Invalid response.*" /C:".*socket is not connected.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -455,15 +455,15 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=4 delims=][" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
+FOR /F "tokens=4 delims=][()" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
 		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "tokens=4 delims=][" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+			FOR /F "tokens=4 delims=][()" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "tokens=4 delims=][" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+				FOR /F "tokens=4 delims=][()" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -496,7 +496,7 @@ IF "%lasterror%" NEQ "0" (
 						IF %interneterrorscount% GTR 60 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "tokens=4 delims=][" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+						FOR /F "tokens=4 delims=][()" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +================================================================+
 							ECHO                   Connection has been restored...
