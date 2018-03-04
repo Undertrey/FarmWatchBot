@@ -16,7 +16,7 @@ First of all I have to say, this script was developed for me and for my friends 
 
 Functionality is fully brought to the mind, everything works without problems and errors. I thank those who spent their time and helped me to make this script better. You worked for the common cause! The script is in active development. Feature requests, suggested changes and error corrections are welcomed by everyone.
 
-If you use this script and find it helpful and it has stabilized your mining productivity, please donate. This is an open source project and you are not required to pay for it. When I ask for donations I’m not referring to monetary donations exclusively. You can donate with your SHARES, LIKES and FEEDBACK as well. Thank you very much!
+If you use this script and find it helpful and it has stabilized your mining productivity, **please donate**. This is an open source project and you are not required to pay for it. When I ask for donations I’m not referring to monetary donations exclusively. You can donate with your **SHARES**, **LIKES** and **FEEDBACK** as well. Thank you very much!
 
 # **Functions:**
 * Fine tuning of mining process by using of **config.ini** file.
