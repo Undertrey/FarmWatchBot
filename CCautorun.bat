@@ -81,7 +81,7 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*temperature too high.*"
 SET errorscancel=/C:".*accepted:.*" /C:".*Stratum difficulty set to.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*"
-SET errorslist=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:".* [0-5]C .*"
+SET errorslist=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:".* [0-5]C .*" /C:".*was encountered.*"
 SET interneterrorslist=/C:".*connection .*ed.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*authorization failed.*" /C:".*Unknown algo parameter.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
