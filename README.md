@@ -8,6 +8,16 @@
 * **XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhz
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 
+# **Files:**
+**Ewbf Equihash** - *Ewbfautorun.bat*
+**Dstm Equihash** - *Dstmautorun.bat*
+**Claymore Equihash** - *ClayZECautorun.bat*
+**Claymore CryptoNote** - *ClayXMRautorun.bat*
+**Claymore NeoScrypt** - *ClayNSautorun.bat*
+**Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*
+**Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*
+**Ccminer tpruvot, alexis (palgin), KlausT** - *CCautorun.bat*
+
 # **About:**
 Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by Acrefawn (me).
 Opensource CMD/BAT file. **If you found or corrected an error, please contact me immediately!** Together we can work out any bugs as well as add features and functionality to further automate the process of mining.
