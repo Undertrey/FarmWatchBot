@@ -36,7 +36,7 @@ Functionality is fully brought to the mind, everything works without problems an
 
 
 # **Instruction:**
-1. Download **.bat** file from GitHub Releases page (Depending on which miner or algorithm you are going to use). Please do not rename it.
+1. Download **.bat** file [from GitHub Releases page](https://github.com/Undertrey/FarmWatchBot/releases) (Depending on which miner or algorithm you are going to use). Please do not rename it.
 2. Move **.bat** file to the folder with the miner, double click the .bat file. New **config.ini** file will be created with default settings at first run.
 3. Close **.bat** CMD window and open the created **config.ini** file for editing. Configure settings in this file according to your needs using notepad. The configuration file is always at a higher priority than the variables inside the script.
 4. Add a **SHORTCUT** to **.bat** file in your Startup folder (WIN+R shell:startup).
