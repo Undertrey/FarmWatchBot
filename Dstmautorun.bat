@@ -79,7 +79,7 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*server set difficulty.*"
 SET criticalerrorslist=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:"MB: 0 " /C:".*the launch timed out and was terminated" /C:".*cudaGetDeviceCount failed" /C:".*protocol version .* not supported.*"
-SET errorslist=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*unresponsive.*" /C:".*was encountered.*" /C:".*cuda.*failed.*" /C:".* [0-5]C .*" /C:".*send timeout.*"
+SET errorslist=/C:".*CUDA error.*" /C:".*unknown error.*" /C:".*unresponsive.*" /C:".*was encountered.*" /C:".*cuda.*failed.*" /C:".* [0-5]C .*" /C:".*send timeout.*" /C:".*telemetry bind failed.*"
 SET interneterrorslist=/C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*reconnecting.*" /C:".*authorization failed.*" /C:".*sinit timeout.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
@@ -368,10 +368,10 @@ timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
 	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
-		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
-		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%a
 		)
 	)

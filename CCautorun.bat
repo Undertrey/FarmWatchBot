@@ -371,10 +371,10 @@ timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
 	FOR /F "tokens=6,7 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
-		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
-		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*http.*" /C:".*https.*" /C:".*logfile.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%a
 		)
 	)
