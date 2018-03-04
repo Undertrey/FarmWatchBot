@@ -4,7 +4,7 @@
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
 * **ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea**
 * **ETC: 0x23f914ef283b06d5cdfe0aca6902edcac9211177**
-* **HUSH t1X2iAPjDVm8MoaUkEhbzM8wPA82S3X4tKe**
+* **HUSH: t1X2iAPjDVm8MoaUkEhbzM8wPA82S3X4tKe**
 * **XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhz
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 
@@ -71,6 +71,6 @@ If you interested in premium version, price is **0.05 ZEC** or equivalent in any
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
 * **ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea**
 * **ETC: 0x23f914ef283b06d5cdfe0aca6902edcac9211177**
-* **HUSH t1X2iAPjDVm8MoaUkEhbzM8wPA82S3X4tKe**
+* **HUSH: t1X2iAPjDVm8MoaUkEhbzM8wPA82S3X4tKe**
 * **XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhz
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
