@@ -8,6 +8,14 @@
 * **XMR: 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhz
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 
+# **About:**
+Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by Acrefawn (me).
+Opensource CMD/BAT file. **If you found or corrected an error, please contact me immediately!** Together we can work out any bugs as well as add features and functionality to further automate the process of mining.
+
+First of all I have to say, this script was developed for me and for my friends to make mining process easy and stable. This script monitors mining process for errors and takes some corrective measures depending on the issue that arises from the miner or hardware. After running this script personally to ensure stability, I decided to share this script with the community.
+
+Functionality is fully brought to the mind, everything works without problems and errors. I thank those who spent their time and helped me to make this script better. You worked for the common cause! The script is in active development. Feature requests, suggested changes and error corrections are welcomed by everyone.
+
 # **Functions:**
 * Fine tuning of mining process by using of **config.ini** file.
 * Control of the mining process.
@@ -53,7 +61,7 @@ i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 2. **Windows 10 Pro x64** Creators Update or higher (May not work on others).
 3. All programs for overclocking must be installed in their default directories.
 4. Use path, folders, **.bat** file name in English, without special symbols and spaces.
-5. The presence of miners **.log** file. The autorun.bat script works using the data in your **.log** file. Make sure you added special option to the **config.ini** file. If you experience difficulties with the log file or this script, please delete **config.ini** file and run through steps 2 and 3 of the instructions again. This values already exist in default **config.ini**, just not remove them.
+5. The presence of miners **.log** file. The **.bat** script works using the data in your **.log** file. Make sure you added special option to the **config.ini** file. If you experience difficulties with the log file or this script, please delete **config.ini** file and run through steps 2 and 3 of the instructions again. This values already exist in default **config.ini**, just not remove them.
 6. It is advised that you disable **“User Account Control”**.
 7. Right click on the window of CMD prompt, then select “Properties” and remove the tick for **“Quick Edit”**.
 8. Powershell WMF 5.1 (for **premium** Windows 7 users).
