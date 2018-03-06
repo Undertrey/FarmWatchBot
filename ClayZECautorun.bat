@@ -122,7 +122,7 @@ IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup
 >> %config% ECHO gpus=%gpus%
 >> %config% ECHO # Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. [0 - false, 1 - true]
 >> %config% ECHO allowrestart=%allowrestart%
->> %config% ECHO # Set the total average hashrate of this Rig. [you can use average hashrate value from your pool]
+>> %config% ECHO # Set the total average hashrate of this Rig. Best to set slightly below your reported hashrate. If your miners hasrate drops below the value you set here the script will restart your miner.
 >> %config% ECHO hashrate=%hashrate%
 >> %config% ECHO # =================================================== [Miner]
 >> %config% ECHO # Set the main server mining command here to auto-create %bat% file if it is missing or wrong. [keep default order]
@@ -157,7 +157,7 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
 >> %config% ECHO internetcheck=%internetcheck%
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
->> %config% ECHO # GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
+>> %config% ECHO # GPU_FORCE_64BIT_PTR 1, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
 >> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than 15 minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true]
 >> %config% ECHO sharetimeout=%sharetimeout%
@@ -241,7 +241,7 @@ IF %errorscounter% GTR %runtimeerrors% (
 	ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 	ECHO                       Computer restarting...
 	ECHO +================================================================+
-	CALL :inform "1" "true" "Too many errors. Threshold of *5* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of 5 runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+	CALL :inform "1" "true" "Too many errors. Threshold of *%runtimeerrors%* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of %runtimeerrors% runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 	timeout.exe /T 3 /nobreak >NUL
 	GOTO restart
 )
@@ -257,7 +257,7 @@ timeout.exe /T 3 /nobreak >NUL
 SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
-IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 0" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
+IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 1" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
 IF %environments% EQU 0 FOR %%a IN ("GPU_FORCE_64BIT_PTR" "GPU_MAX_HEAP_SIZE" "GPU_USE_SYNC_OBJECTS" "GPU_MAX_ALLOC_PERCENT" "GPU_SINGLE_ALLOC_PERCENT") DO REG DELETE HKCU\Environment /F /V %%~a 2>NUL 1>&2 && ECHO %%~a successfully removed from environments.
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt1=%%A
 SET mh1=1%dt1:~4,2%
@@ -450,6 +450,12 @@ IF %hrdiff% GEQ 1 IF %hr2% EQU 12 (
 	IF %noonrestart% EQU 2 GOTO ctimer
 )
 IF %switchtodefault% EQU 1 IF %hrdiff% EQU 0 IF %mediff% GEQ 30 GOTO switch
+FOR %%A IN (%log%) DO (
+	IF %%~ZA GTR 90000000 (
+		CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
+		GOTO hardstart
+	)
+)
 IF %hrdiff% GEQ 96 (
 	CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
 	GOTO hardstart

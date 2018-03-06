@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
-SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
-SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
-SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
-SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
+SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -122,7 +122,7 @@ IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup
 >> %config% ECHO gpus=%gpus%
 >> %config% ECHO # Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. [0 - false, 1 - true]
 >> %config% ECHO allowrestart=%allowrestart%
->> %config% ECHO # Set the total average hashrate of this Rig. [you can use average hashrate value from your pool]
+>> %config% ECHO # Set the total average hashrate of this Rig. Best to set slightly below your reported hashrate. If your miners hasrate drops below the value you set here the script will restart your miner.
 >> %config% ECHO hashrate=%hashrate%
 >> %config% ECHO # =================================================== [Miner]
 >> %config% ECHO # Set the main server mining command here to auto-create %bat% file if it is missing or wrong. [keep default order]
@@ -241,7 +241,7 @@ IF %errorscounter% GTR %runtimeerrors% (
 	ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 	ECHO                       Computer restarting...
 	ECHO +================================================================+
-	CALL :inform "1" "true" "Too many errors. Threshold of *5* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of 5 runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
+	CALL :inform "1" "true" "Too many errors. Threshold of *%runtimeerrors%* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of %runtimeerrors% runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 	timeout.exe /T 3 /nobreak >NUL
 	GOTO restart
 )
@@ -363,7 +363,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000 --exit
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr194 -X -HWMON 0 -RH --farm-recheck 2000
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -444,6 +444,12 @@ IF %hrdiff% GEQ 1 IF %hr2% EQU 12 (
 	IF %noonrestart% EQU 2 GOTO ctimer
 )
 IF %switchtodefault% EQU 1 IF %hrdiff% EQU 0 IF %mediff% GEQ 30 GOTO switch
+FOR %%A IN (%log%) DO (
+	IF %%~ZA GTR 20000000 (
+		CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
+		GOTO hardstart
+	)
+)
 IF %hrdiff% GEQ 96 (
 	CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
 	GOTO hardstart
