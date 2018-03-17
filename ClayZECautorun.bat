@@ -78,14 +78,14 @@ SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
-SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*GPU .* hangs.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
-SET errorslist=/C:".*t=[0-5]C.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*No AMD OPENCL or NVIDIA CUDA GPUs found.*" /C:".*Restarting failed.*" /C:".*got incorrect temperature.*"
+SET errorslist=/C:".*GPU .* hangs.*" /C:".*t=[0-5]C.*"
 SET interneterrorslist=/C:".*Connection lost.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*Failed to get.*" /C:".*Job timeout, disconnect.*" /C:".*No pools specified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
-		ECHO Current window will close in 10 seconds.
-		timeout.exe /T 10 /nobreak >NUL
+		ECHO Current window will close in 15 seconds.
+		timeout.exe /T 15 /nobreak >NUL
 		EXIT
 	)
 )
@@ -375,7 +375,7 @@ START "%bat%" "%bat%" && (
 			SET curservername=%%a
 		)
 	)
-	timeout.exe /T 10 /nobreak >NUL
+	timeout.exe /T 15 /nobreak >NUL
 ) || (
 	CALL :inform "1" "false" "Unable to start miner." "1" "1"
 	GOTO error
@@ -498,7 +498,7 @@ IF "%lasterror%" NEQ "0" (
 						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 						ECHO                      Attempting to reconnect...
 						ECHO +================================================================+
-						IF %hrdiff% EQU 0 IF %mediff% GEQ 10 IF %interneterrorscount% GTR 10 GOTO restart
+						IF %hrdiff% GEQ 0 IF %mediff% GEQ 10 IF %interneterrorscount% GTR 10 GOTO restart
 						IF %interneterrorscount% GTR 60 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
@@ -699,11 +699,17 @@ ECHO +================================================================+
 ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +============================================================[%Time:~-5,2%]+
-ECHO Process %minerprocess% is running...
+ECHO +=========================================================[%Time:~-5,2%]===+
+ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
+ECHO Rig [%rigname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: %curservername%
-IF "%curtemp%" NEQ "unknown" ECHO %curtemp%.
-IF "%curspeed%" NEQ "unknown" ECHO %curspeed%.
+IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
+	ECHO +================================================================+
+	ECHO Total current speed: %lasthashrate%/%hashrate% [%minhashrate%/99]
+	ECHO Total average speed: %sumresult%/%hashrate% [%hashrateerrorscount%/%hashrateerrors%]
+	IF "%curspeed%" NEQ "unknown" ECHO %curspeed%.
+	IF "%curtemp%" NEQ "unknown" ECHO %curtemp%.
+)
 ECHO +================================================================+
 IF %overclockprogram% NEQ 0 ECHO Process %overclockprocessname%.exe is running...
 IF %overclockprogram% EQU 0 ECHO GPU Overclock monitor: Disabled
@@ -722,11 +728,6 @@ IF "%chatid%" EQU "0" ECHO Telegram notifications: Disabled
 IF "%chatid%" NEQ "0" ECHO Telegram notifications: %chatid%
 IF "%approgram%" EQU "0" ECHO Additional program autorun: Disabled
 IF "%approgram%" EQU "1" ECHO Additional program autorun: %approcessname%
-ECHO +================================================================+
-ECHO            Runtime errors: %errorscounter%/%runtimeerrors% Hashrate errors: %hashrateerrorscount%/%hashrateerrors% %minhashrate%/99
-ECHO                 GPUs: %gpucount%/%gpus% Last share timeout: %lastsharediff%/15
-IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate ECHO                 Average speed: %sumresult% Last speed: %lasthashrate%
-ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 ECHO +================================================================+
 ECHO Now I will take care of your %rigname% and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
