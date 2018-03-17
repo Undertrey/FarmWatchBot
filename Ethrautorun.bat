@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=67 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.5
+SET ver=1.9.6
 SET mn=Ethr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -46,6 +46,7 @@ SET computertimeoutrestart=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
+SET tempcheck=0
 SET environments=1
 SET sharetimeout=1
 SET runtimeerrors=5
@@ -106,6 +107,7 @@ findstr.exe /C:"%ver%" %config% >NUL || (
 	CALL :inform "1" "false" "0" "Your %config% is out of date." "2"
 	GOTO createconfig
 )
+IF EXIST "%~n0.log" FOR %%A IN (%~n0.log) DO IF %%~ZA GEQ 1000000 DEL /F /Q "%~n0.log" 2>NUL 1>&2
 FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 43000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
 timeout.exe /T 3 /nobreak >NUL
@@ -156,6 +158,8 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Enable Internet connectivity check. [0 - false, 1 - true full, 2 - true without server switching]
 >> %config% ECHO # Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
 >> %config% ECHO internetcheck=%internetcheck%
+>> %config% ECHO # Enable 0C - 5C temperature error check. [0 - false, 1 - true]
+>> %config% ECHO tempcheck=%tempcheck%
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> %config% ECHO # GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
@@ -257,6 +261,7 @@ timeout.exe /T 3 /nobreak >NUL
 SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
+IF %tempcheck% EQU 1 SET errorslist=%errorslist% /C:".* [0-5]C .*"
 IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 0" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
 IF %environments% EQU 0 FOR %%a IN ("GPU_FORCE_64BIT_PTR" "GPU_MAX_HEAP_SIZE" "GPU_USE_SYNC_OBJECTS" "GPU_MAX_ALLOC_PERCENT" "GPU_SINGLE_ALLOC_PERCENT") DO REG DELETE HKCU\Environment /F /V %%~a 2>NUL 1>&2 && ECHO %%~a successfully removed from environments.
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt1=%%A
@@ -363,7 +368,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr195 -X -HWMON 0 -RH --farm-recheck 2000
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr196 -X -HWMON 0 -RH --farm-recheck 2000
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -492,8 +497,9 @@ IF "%lasterror%" NEQ "0" (
 						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
 						ECHO                      Attempting to reconnect...
 						ECHO +================================================================+
-						IF %hrdiff% GEQ 0 IF %mediff% GEQ 10 IF %interneterrorscount% GTR 10 GOTO restart
-						IF %interneterrorscount% GTR 60 GOTO restart
+						IF %hrdiff% EQU 0 IF %mediff% LEQ 15 IF %interneterrorscount% GTR 60 GOTO restart
+						IF %hrdiff% EQU 0 IF %mediff% GTR 15 IF %interneterrorscount% GTR 15 GOTO restart
+						IF %hrdiff% GTR 0 IF %interneterrorscount% GTR 15 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
 						FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
@@ -689,25 +695,28 @@ IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
 	IF "%curtemp%" NEQ "unknown" ECHO %curtemp%.
 )
 ECHO +================================================================+
-IF %overclockprogram% NEQ 0 ECHO Process %overclockprocessname%.exe is running...
-IF %overclockprogram% EQU 0 ECHO GPU Overclock monitor: Disabled
-IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 IF %overclockprogram% EQU 2 ECHO MSI Afterburner profile: %msiaprofile%
-IF "%midnightrestart%" EQU "0" ECHO Autorestart at 00:00: Disabled
-IF "%midnightrestart%" NEQ "0" ECHO Autorestart at 00:00: Enabled
-IF "%noonrestart%" EQU "0" ECHO Autorestart at 12:00: Disabled
-IF "%noonrestart%" NEQ "0" ECHO Autorestart at 12:00: Enabled
-IF "%minertimeoutrestart%" EQU "0" ECHO Autorestart miner every hour: Disabled
-IF "%minertimeoutrestart%" NEQ "0" ECHO Autorestart miner every hour: %minertimeoutrestart%
-IF "%computertimeoutrestart%" EQU "0" ECHO Autorestart computer every hour: Disabled
-IF "%computertimeoutrestart%" NEQ "0" ECHO Autorestart computer every hour: %computertimeoutrestart%
-IF %sharetimeout% EQU 0 ECHO Last share timeout: Disabled
-IF %sharetimeout% EQU 1 ECHO Last share timeout: Enabled
-IF "%chatid%" EQU "0" ECHO Telegram notifications: Disabled
-IF "%chatid%" NEQ "0" ECHO Telegram notifications: %chatid%
-IF "%approgram%" EQU "0" ECHO Additional program autorun: Disabled
-IF "%approgram%" EQU "1" ECHO Additional program autorun: %approcessname%
+IF %overclockprogram% NEQ 0 IF %overclockprogram% NEQ 2 ECHO Process %overclockprocessname%.exe is running...
+IF %overclockprogram% EQU 2 (
+	IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 ECHO Process %overclockprocessname%.exe [Profile %msiaprofile%] is running...
+	IF %msiaprofile% LSS 1 IF %msiaprofile% GTR 5 ECHO Process %overclockprocessname%.exe is running...
+)
+IF %overclockprogram% EQU 0 ECHO GPU Overclock monitor [Disabled]
+IF "%midnightrestart%" EQU "0" ECHO Autorestart at 00:00 [Disabled]
+IF "%midnightrestart%" NEQ "0" ECHO Autorestart at 00:00 [Enabled]
+IF "%noonrestart%" EQU "0" ECHO Autorestart at 12:00 [Disabled]
+IF "%noonrestart%" NEQ "0" ECHO Autorestart at 12:00 [Enabled]
+IF "%minertimeoutrestart%" EQU "0" ECHO Autorestart miner every hour [Disabled]
+IF "%minertimeoutrestart%" NEQ "0" ECHO Autorestart miner every %minertimeoutrestart%h [Enabled] 
+IF "%computertimeoutrestart%" EQU "0" ECHO Autorestart computer every hour [Disabled]
+IF "%computertimeoutrestart%" NEQ "0" ECHO Autorestart computer every %computertimeoutrestart%h [Enabled]
+IF %sharetimeout% EQU 0 ECHO Last share timeout check [Disabled]
+IF %sharetimeout% EQU 1 ECHO Last share timeout check [Enabled]
+IF "%chatid%" EQU "0" ECHO Telegram notifications [Disabled]
+IF "%chatid%" NEQ "0" ECHO Telegram notifications [%chatid%]
+IF "%approgram%" EQU "0" ECHO Additional program autorun [Disabled]
+IF "%approgram%" EQU "1" ECHO Additional program autorun [%approcessname%]
 ECHO +================================================================+
-ECHO Now I will take care of your %rigname% and you can relax...
+ECHO Now I will take care of your miner and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
 IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
