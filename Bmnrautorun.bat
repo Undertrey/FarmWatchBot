@@ -81,7 +81,7 @@ SET warningslist=/C:".*Temperature for device .* is .*, slowing down for .* seco
 SET errorscancel=/C:".*Authorized.*"
 SET criticalerrorslist=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:".*Fatal cuda error.*"
 SET errorslist=/C:".*cuda error.*" /C:".*Miner died.*" /C:".*End of file.*" /C:".*CudaError.*" /C:".*Failed to retrive temperature from.*"
-SET interneterrorslist=/C:".*Connection failed.*" /C:".*A request.*" /C:".*The length of server.*" /C:".*Too many rejected shares.*" /C:".*Authorization failed.*" /C:".*Invalid response.*" /C:".*socket is not connected.*"
+SET interneterrorslist=/C:".*Connection failed.*" /C:".*A request.*" /C:".*The length of server.*" /C:".*Too many rejected shares.*" /C:".*Authorization failed.*" /C:".*Invalid response.*" /C:".*socket is not connected.*" /C:".*The requested address is not valid.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -97,7 +97,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig

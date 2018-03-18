@@ -82,7 +82,7 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*temperature too high.*"
 SET errorscancel=/C:".*accepted:.*" /C:".*Stratum difficulty set to.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*"
-SET errorslist=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:".*was encountered.*"
+SET errorslist=/C:".*Thread exited.*" /C:".*CUDA error.*" /C:".*error.*" /C:".*cuda.*failed.*" /C:".*was encountered.*" /C:".*unspecified launch failure.*"
 SET interneterrorslist=/C:".*connection .*ed.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*authorization failed.*" /C:".*Unknown algo parameter.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
@@ -99,7 +99,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -368,6 +368,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO TITLE %bat%
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 >> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
+>> %bat% ECHO ECHO Unfortunately it is impossible using standard CMD.EXE to both display information on screen and write it in the .log file at the same time. The script will ONLY work if the information is written in the .log file, making "on screen" impossible.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
 IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
@@ -620,7 +621,7 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		SET lasthashrate=0
 	)
 	SET speeddata=null
-	FOR /F "skip=9 tokens=2 delims=," %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
+	FOR /F "skip=5 tokens=2 delims=," %%a IN ('findstr.exe /R /C:".*GPU.*#%%A.*,.*/s.*" %log%') DO (
 		FOR /F "tokens=1 delims=.,SolkKmMgGtTpPhH/s " %%b IN ("%%a") DO IF "%%~b" NEQ "" IF %%~b GEQ 0 SET speeddata=%%~b
 		IF "!speeddata!" NEQ "null" (
 			SET /A hashcount+=1
@@ -642,7 +643,7 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 	)
 )
 IF "!curspeed!" EQU "unknown" (
-	FOR /F "skip=9 tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
+	FOR /F "skip=5 tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
 		SET curspeed=Speed:
 		SET gpunum=0
 		SET /A hashcount+=1
