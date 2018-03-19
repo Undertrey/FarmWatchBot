@@ -2,7 +2,7 @@ REM Developer acrefawn. Contact me: t.me/acrefawn
 REM I recommend that you do not touch the options below unless you know what you are doing.
 @ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion
-MODE CON cols=67 lines=40
+MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
 SET ver=1.9.6
 SET mn=Cmnr
@@ -12,11 +12,11 @@ TITLE %mn%_autorun(%dt0%)
 :hardstart
 CLS
 COLOR 1F
-ECHO +================================================================+
-ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
-ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +================================================================+
+ECHO +===================================================================+
+ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
+ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+ECHO +===================================================================+
 REM Attention. Change the options below only if you really need to.
 REM Name miner .log file. [in English, without special symbols and spaces]
 SET log=miner.log
@@ -41,7 +41,7 @@ SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
 SET restartoverclockprogram=0
-SET minertimeoutrestart=48
+SET minertimeoutrestart=72
 SET computertimeoutrestart=0
 SET noonrestart=0
 SET midnightrestart=0
@@ -200,11 +200,11 @@ timeout.exe /T 3 /nobreak >NUL
 GOTO hardstart
 :ctimer
 CLS
-ECHO +================================================================+
-ECHO             Scheduled computer restart, please wait...
-ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-ECHO                            Restarting...
-ECHO +================================================================+
+ECHO +===================================================================+
+ECHO               Scheduled computer restart, please wait...
+ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+ECHO                              Restarting...
+ECHO +===================================================================+
 CALL :inform "0" "true" "Scheduled computer restart, please wait..." "Scheduled computer restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 :restart
@@ -217,11 +217,11 @@ shutdown.exe /T 60 /R /F /C "Your computer will restart after 60 seconds. To can
 EXIT
 :switch
 CLS
-ECHO +================================================================+
-ECHO           Attempting to switch to the main pool server...
-ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-ECHO                         Miner restarting...
-ECHO +================================================================+
+ECHO +===================================================================+
+ECHO             Attempting to switch to the main pool server...
+ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+ECHO                           Miner restarting...
+ECHO +===================================================================+
 CALL :inform "1" "true" "Attempting to switch to the main pool server..." "Attempting to switch to the main pool server... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 SET switchtodefault=0
 SET queue=1
@@ -229,11 +229,11 @@ timeout.exe /T 3 /nobreak >NUL
 GOTO start
 :mtimer
 CLS
-ECHO +================================================================+
-ECHO               Scheduled miner restart, please wait...
-ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-ECHO                            Restarting...
-ECHO +================================================================+
+ECHO +===================================================================+
+ECHO                 Scheduled miner restart, please wait...
+ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+ECHO                              Restarting...
+ECHO +===================================================================+
 CALL :inform "0" "true" "Scheduled miner restart, please wait..." "Scheduled miner restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 GOTO start
@@ -242,20 +242,20 @@ CLS
 COLOR 4F
 SET /A errorscounter+=1
 IF %errorscounter% GTR %runtimeerrors% (
-	ECHO +================================================================+
-	ECHO              Too many errors, need clear GPU cache...
-	ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-	ECHO                       Computer restarting...
-	ECHO +================================================================+
+	ECHO +===================================================================+
+	ECHO                Too many errors, need clear GPU cache...
+	ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+	ECHO                         Computer restarting...
+	ECHO +===================================================================+
 	CALL :inform "1" "true" "Too many errors. Threshold of *%runtimeerrors%* runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting..." "Too many errors. Threshold of %runtimeerrors% runtime errors reached. A restart of the computer to clear GPU cache is required. Restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 	timeout.exe /T 3 /nobreak >NUL
 	GOTO restart
 )
-ECHO +================================================================+
-ECHO                        Something is wrong...
-ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-ECHO                         Miner restarting...
-ECHO +================================================================+
+ECHO +===================================================================+
+ECHO                          Something is wrong...
+ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+ECHO                           Miner restarting...
+ECHO +===================================================================+
 CALL :inform "1" "false" "Miner restarting, please wait..." "Miner restarting, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 CALL :screenshot
 timeout.exe /T 3 /nobreak >NUL
@@ -365,10 +365,15 @@ IF EXIST "%log%" (
 	)
 )
 > %bat% ECHO @ECHO off
+>> %bat% ECHO MODE CON cols=113 lines=7
 >> %bat% ECHO TITLE %bat%
+>> %bat% ECHO ECHO +==================================================================================================================+
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
->> %bat% ECHO ECHO Output from miner redirected into %log% file. Miner working OK. Do not worry.
->> %bat% ECHO ECHO Unfortunately it is impossible using standard CMD.EXE to both display information on screen and write it in the .log file at the same time. The script will ONLY work if the information is written in the .log file, making "on screen" impossible.
+>> %bat% ECHO ECHO Miner is currently running and all output from the miner is redirected into the %log% file.
+>> %bat% ECHO ECHO Unfortunately it is impossible display on screen and log to the file at the same time.
+>> %bat% ECHO ECHO This script will ONLY work if the information is written in the .log file, making "on screen output" impossible.
+>> %bat% ECHO ECHO Do not worry, the miner working OK.
+>> %bat% ECHO ECHO +==================================================================================================================+
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
 IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -o stratum+tcp://yiimp.eu:4533 -a lyra2v2 -u Vy197bshDoH6dmGRx5ZwiGMfiPCf7ZG3yj -p c=VTC --no-color
@@ -469,7 +474,7 @@ timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET lasterror=%%N
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
-		ECHO %lasterror%| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
+		ECHO "%lasterror%"| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
@@ -484,11 +489,11 @@ IF "%lasterror%" NEQ "0" (
 						IF %internetcheck% NEQ 2 SET switchtodefault=1
 						IF %internetcheck% NEQ 2 SET /A queue+=1
 						SET /A errorscounter+=1
-						ECHO +================================================================+
-						ECHO       Check %config% file for errors or pool is offline...
-						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-						IF %internetcheck% NEQ 2 ECHO               Miner restarting with changed values...
-						ECHO +================================================================+
+						ECHO +===================================================================+
+						ECHO         Check %config% file for errors or pool is offline...
+						ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+						IF %internetcheck% NEQ 2 ECHO                 Miner restarting with changed values...
+						ECHO +===================================================================+
 						IF !queue! GTR %serversamount% SET queue=0
 						IF %internetcheck% NEQ 2 CALL :inform "1" "false" "Pool server was switched to *!queue!*. Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "Pool server was switched to !queue!. Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online." "2"
 						IF %internetcheck% EQU 2 CALL :inform "1" "false" "Please check your *%config%* file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner restarting..." "Please check your %config% file carefully for spelling errors or incorrect parameters. Otherwise check if the pool you are connecting to is online. Miner restarting..." "2"
@@ -498,11 +503,11 @@ IF "%lasterror%" NEQ "0" (
 						:tryingreconnect
 						CLS
 						COLOR 4F
-						ECHO +================================================================+
-						ECHO               Something is wrong with your Internet...
-						ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-						ECHO                      Attempting to reconnect...
-						ECHO +================================================================+
+						ECHO +===================================================================+
+						ECHO                 Something is wrong with your Internet...
+						ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+						ECHO                        Attempting to reconnect...
+						ECHO +===================================================================+
 						IF %hrdiff% EQU 0 IF %mediff% LEQ 15 IF %interneterrorscount% GTR 60 GOTO restart
 						IF %hrdiff% EQU 0 IF %mediff% GTR 15 IF %interneterrorscount% GTR 15 GOTO restart
 						IF %hrdiff% GTR 0 IF %interneterrorscount% GTR 15 GOTO restart
@@ -510,10 +515,10 @@ IF "%lasterror%" NEQ "0" (
 						SET /A interneterrorscount+=1
 						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
-							ECHO +================================================================+
-							ECHO                   Connection has been restored...
-							ECHO                         Continue mining...
-							ECHO +================================================================+
+							ECHO +===================================================================+
+							ECHO                     Connection has been restored...
+							ECHO                           Continue mining...
+							ECHO +===================================================================+
 							CALL :inform "1" "false" "Something was wrong with your Internet connection. Connection has been restored. Continue mining..." "1" "0"
 							GOTO check
 						)
@@ -522,10 +527,10 @@ IF "%lasterror%" NEQ "0" (
 							GOTO tryingreconnect
 						)
 						:reconnected
-						ECHO +================================================================+
-						ECHO                   Connection has been restored...
-						ECHO                         Miner restarting...
-						ECHO +================================================================+
+						ECHO +===================================================================+
+						ECHO                     Connection has been restored...
+						ECHO                           Miner restarting...
+						ECHO +===================================================================+
 						CALL :inform "1" "false" "Something was wrong with your Internet connection. Connection has been restored. Miner restarting..." "Something was wrong with your Internet connection. Connection has been restored. Miner restarting... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 						GOTO start
 					)
@@ -533,21 +538,21 @@ IF "%lasterror%" NEQ "0" (
 			)
 		)
 	)
-	ECHO %lasterror%| findstr.exe /I /R %errorslist% 2>NUL && (
+	ECHO "%lasterror%"| findstr.exe /I /R %errorslist% 2>NUL && (
 		CALL :inform "1" "false" "%lasterror%" "1" "0"
 		GOTO error
 	)
-	ECHO %lasterror%| findstr.exe /I /R %criticalerrorslist% 2>NUL && (
+	ECHO "%lasterror%"| findstr.exe /I /R %criticalerrorslist% 2>NUL && (
 		CALL :inform "1" "false" "%lasterror%" "1" "0"
 		GOTO restart
 	)
-	ECHO %lasterror%| findstr.exe /I /R %warningslist% 2>NUL && (
+	ECHO "%lasterror%"| findstr.exe /I /R %warningslist% 2>NUL && (
 		CLS
 		COLOR 4F
-		ECHO +================================================================+
-		ECHO                     Temperature limit reached...
-		ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-		ECHO +================================================================+
+		ECHO +===================================================================+
+		ECHO                       Temperature limit reached...
+		ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+		ECHO +===================================================================+
 		CALL :inform "1" "false" "0" "%curtemp%." "2"
 		IF %hrdiff% EQU 0 IF %mediff% LEQ 10 (
 			CALL :kill "1" "1" "1" "1"
@@ -596,11 +601,11 @@ IF %firstrun% EQU 0 (
 		IF %allowrestart% EQU 1 (
 			CLS
 			COLOR 4F
-			ECHO +================================================================+
-			ECHO             Failed to load all GPUs. Number of GPUs: !gpucount!/%gpus%
-			ECHO                        Miner ran for %hrdiff%:%mediff%:%ssdiff%
-			ECHO                       Computer restarting...
-			ECHO +================================================================+
+			ECHO +===================================================================+
+			ECHO               Failed to load all GPUs. Number of GPUs: !gpucount!/%gpus%
+			ECHO                          Miner ran for %hrdiff%:%mediff%:%ssdiff%
+			ECHO                         Computer restarting...
+			ECHO +===================================================================+
 			CALL :inform "1" "false" "Failed to load all GPUs. Number of GPUs *%gpucount%/%gpus%*." "Failed to load all GPUs. Number of GPUs %gpucount%/%gpus%." "2"
 			GOTO restart
 		) ELSE (
@@ -721,43 +726,49 @@ IF NOT DEFINED curtemp SET curtemp=unknown
 IF NOT DEFINED curspeed SET curspeed=unknown
 CLS
 COLOR 1F
-ECHO +================================================================+
-ECHO            AutoRun v.%ver% for %mn% Miner - by Acrefawn
-ECHO              ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
-ECHO               BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +=========================================================[%Time:~-5,2%]===+
+ECHO +===================================================================+
+ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
+ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+ECHO +============================================================[%Time:~-5,2%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
 ECHO Rig [%rigname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: %curservername%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
-	ECHO +================================================================+
+	ECHO +===================================================================+
 	ECHO Total current speed: %lasthashrate%/%hashrate% [%minhashrate%/99]
 	ECHO Total average speed: %sumresult%/%hashrate% [%hashrateerrorscount%/%hashrateerrors%]
-	IF "%curspeed%" NEQ "unknown" ECHO %curspeed%.
-	IF "%curtemp%" NEQ "unknown" ECHO %curtemp%.
+	IF "%curspeed%" NEQ "unknown" (
+		ECHO Current GPU speed:
+		ECHO - %curspeed:~7%.
+	)
+	IF "%curtemp%" NEQ "unknown" (
+		ECHO Current GPU temp:
+		ECHO - %curtemp:~6%.
+	)
 )
-ECHO +================================================================+
+ECHO +===================================================================+
 IF %overclockprogram% NEQ 0 IF %overclockprogram% NEQ 2 ECHO Process %overclockprocessname%.exe is running...
 IF %overclockprogram% EQU 2 (
 	IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 ECHO Process %overclockprocessname%.exe [Profile %msiaprofile%] is running...
 	IF %msiaprofile% LSS 1 IF %msiaprofile% GTR 5 ECHO Process %overclockprocessname%.exe is running...
 )
-IF %overclockprogram% EQU 0 ECHO GPU Overclock monitor [Disabled]
-IF "%midnightrestart%" EQU "0" ECHO Autorestart at 00:00 [Disabled]
-IF "%midnightrestart%" NEQ "0" ECHO Autorestart at 00:00 [Enabled]
-IF "%noonrestart%" EQU "0" ECHO Autorestart at 12:00 [Disabled]
-IF "%noonrestart%" NEQ "0" ECHO Autorestart at 12:00 [Enabled]
-IF "%minertimeoutrestart%" EQU "0" ECHO Autorestart miner every hour [Disabled]
-IF "%minertimeoutrestart%" NEQ "0" ECHO Autorestart miner every %minertimeoutrestart%h [Enabled] 
-IF "%computertimeoutrestart%" EQU "0" ECHO Autorestart computer every hour [Disabled]
-IF "%computertimeoutrestart%" NEQ "0" ECHO Autorestart computer every %computertimeoutrestart%h [Enabled]
-IF %sharetimeout% EQU 0 ECHO Last share timeout check [Disabled]
-IF %sharetimeout% EQU 1 ECHO Last share timeout check [Enabled]
-IF "%chatid%" EQU "0" ECHO Telegram notifications [Disabled]
-IF "%chatid%" NEQ "0" ECHO Telegram notifications [%chatid%]
-IF "%approgram%" EQU "0" ECHO Additional program autorun [Disabled]
-IF "%approgram%" EQU "1" ECHO Additional program autorun [%approcessname%]
-ECHO +================================================================+
+IF %overclockprogram% EQU 0 ECHO [Disabled] GPU Overclock monitor
+IF "%midnightrestart%" EQU "0" ECHO [Disabled] Autorestart at 00:00
+IF "%midnightrestart%" NEQ "0" ECHO [Enabled]  Autorestart at 00:00
+IF "%noonrestart%" EQU "0" ECHO [Disabled] Autorestart at 12:00
+IF "%noonrestart%" NEQ "0" ECHO [Enabled]  Autorestart at 12:00
+IF "%minertimeoutrestart%" EQU "0" ECHO [Disabled] Autorestart miner every hour
+IF "%minertimeoutrestart%" NEQ "0" ECHO [Enabled]  Autorestart miner every %minertimeoutrestart%h 
+IF "%computertimeoutrestart%" EQU "0" ECHO [Disabled] Autorestart computer every hour
+IF "%computertimeoutrestart%" NEQ "0" ECHO [Enabled]  Autorestart computer every %computertimeoutrestart%h
+IF %sharetimeout% EQU 0 ECHO [Disabled] Last share timeout check
+IF %sharetimeout% EQU 1 ECHO [Enabled]  Last share timeout check
+IF "%chatid%" EQU "0" ECHO [Disabled] Telegram notifications
+IF "%chatid%" NEQ "0" ECHO [Enabled]  Telegram notifications using chatid [%chatid%]
+IF "%approgram%" EQU "0" ECHO [Disabled] Additional program autorun
+IF "%approgram%" EQU "1" ECHO [Enabled]  Additional program autorun using [%approcessname%]
+ECHO +===================================================================+
 ECHO Now I will take care of your miner and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
