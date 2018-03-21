@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.6
+SET ver=1.9.7
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -34,11 +34,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=NsGpuCNMiner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -110,7 +110,7 @@ findstr.exe /C:"%ver%" %config% >NUL || (
 	GOTO createconfig
 )
 IF EXIST "%~n0.log" FOR %%A IN (%~n0.log) DO IF %%~ZA GEQ 1000000 DEL /F /Q "%~n0.log" 2>NUL 1>&2
-FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 43000 EXIT
+FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 44000 EXIT
 FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
 timeout.exe /T 3 /nobreak >NUL
 CALL :inform "1" "false" "0" "%config% loaded." "2"
@@ -369,7 +369,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr196 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.fr197 -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
