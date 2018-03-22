@@ -1,4 +1,4 @@
-﻿REM Developer acrefawn. Contact me: t.me/acrefawn
+REM Developer acrefawn. Contact me: t.me/acrefawn
 REM I recommend that you do not touch the options below unless you know what you are doing.
 @ECHO off
 SETLOCAL EnableExtensions EnableDelayedExpansion

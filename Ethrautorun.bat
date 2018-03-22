@@ -363,7 +363,7 @@ IF EXIST "%log%" (
 	)
 )
 > %bat% ECHO @ECHO off
->> %bat% ECHO MODE CON cols=113 lines=8
+>> %bat% ECHO MODE CON cols=113 lines=10
 >> %bat% ECHO TITLE %bat%
 >> %bat% ECHO ECHO +===============================================================================================================+
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
