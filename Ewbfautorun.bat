@@ -470,12 +470,12 @@ FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %w
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
 		ECHO "%lasterror%"| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
-			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
+			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+			ECHO "!lastinterneterror!"| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
-				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
+				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+				ECHO "!lastinterneterror!"| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
 						CLS
@@ -508,8 +508,8 @@ IF "%lasterror%" NEQ "0" (
 						IF %hrdiff% GTR 0 IF %interneterrorscount% GTR 15 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
-						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
+						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+						ECHO "!lastinterneterror!"| findstr.exe /I /R %errorscancel% && (
 							ECHO +===================================================================+
 							ECHO                     Connection has been restored...
 							ECHO                           Continue mining...
