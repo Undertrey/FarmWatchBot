@@ -32,11 +32,11 @@ SET allowrestart=1
 SET hashrate=0
 SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver2=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver3=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver4=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
-SET commandserver5=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver1=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver2=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver3=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver4=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
+SET commandserver5=%minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
 SET overclockprogram=0
 SET msiaprofile=0
 SET msiatimeout=120
@@ -80,8 +80,8 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*"
-SET errorslist=/C:".*CUDA error in func.*" /C:".*unspecified launch failure.*" /C:".*bad allocation.*" /C:".*is deprecated.*" /C:".*Unknown exception.*" /C:".*Unknown URI scheme unspecified.*"
-SET interneterrorslist=/C:".*not-connected.*" /C:".*not resolve.*" /C:".*Disconnected.*"
+SET errorslist=/C:".*CUDA error in func.*" /C:".*unspecified launch failure.*" /C:".*bad allocation.*" /C:".*Unknown exception.*"
+SET interneterrorslist=/C:".*not-connected.*" /C:".*not resolve.*" /C:".*Disconnected.*" /C:".*Unknown URI scheme unspecified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
 		ECHO This script is already running...
@@ -374,7 +374,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO +===============================================================================================================+
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197@eu1.ethermine.org:5555 -X -HWMON 0 -RH --farm-recheck 2000
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -S eu1.ethermine.org:4444 -O 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr197 -X -HWMON 0 -RH --farm-recheck 2000
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -466,15 +466,15 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=3 delims=|" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
+FOR /F "tokens=3 delims=<>|[]" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
 IF "%lasterror%" NEQ "0" (
 	IF %internetcheck% GEQ 1 (
 		ECHO "%lasterror%"| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+			FOR /F "tokens=3 delims=<>|[]" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+				FOR /F "tokens=3 delims=<>|[]" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "%lasterror%" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -508,7 +508,7 @@ IF "%lasterror%" NEQ "0" (
 						IF %hrdiff% GTR 0 IF %interneterrorscount% GTR 15 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "tokens=3 delims=|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
+						FOR /F "tokens=3 delims=<>|[]" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET lastinterneterror=%%n
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +===================================================================+
 							ECHO                     Connection has been restored...
@@ -587,7 +587,7 @@ IF %approgram% EQU 1 (
 )
 IF %firstrun% EQU 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	FOR /F "tokens=3 delims=|" %%A IN ('findstr.exe /R /C:".*Initialising miner.*" %log%') DO SET /A gpucount+=1
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*Initialising miner.*" %log%') DO SET /A gpucount+=1
 	IF !gpucount! EQU 0 SET gpucount=1
 	IF %gpus% EQU 0 SET gpus=!gpucount!
 )
@@ -625,7 +625,7 @@ FOR /F "tokens=5 delims=.| " %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%'
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=3 delims=|[]" %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO SET curcache=%%A
+FOR /F "tokens=3 delims=<>|[][]" %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO SET curcache=%%A
 IF DEFINED curcache (
 	FOR /F "tokens=3-21 delims=gpu/" %%a IN ("!curcache!") DO (
 		SET curtemp=Temp:
