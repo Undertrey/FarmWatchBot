@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.7
+SET ver=1.9.8
 SET mn=Ewbf
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -25,24 +25,24 @@ SET config=Config_%mn%.ini
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
 SET cmddoubleruncheck=1
 REM Allow computer to be restarted. [0 - false, 1 - true]
-SET pcrestart=1
+SET pcreboot=1
 REM Default config.
 SET gpus=0
-SET allowrestart=1
+SET gpurestart=1
 SET hashrate=0
 SET minerprocess=miner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
-SET overclockprogram=0
-SET msiaprofile=0
-SET msiatimeout=120
-SET restartoverclockprogram=0
-SET minertimeoutrestart=72
-SET computertimeoutrestart=0
+SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
+SET ocprogram=0
+SET profile=0
+SET octimeout=120
+SET restartocprogram=0
+SET restartminer=72
+SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
@@ -56,8 +56,8 @@ SET pingserver=google.com
 SET cputimeout=5
 SET rigname=%COMPUTERNAME%
 SET chatid=0
-SET everyhourinfo=0
-SET approgram=0
+SET reports=0
+SET ap=0
 SET approcessname=TeamViewer.exe
 SET approcesspath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM I recommend that you do not touch the options below unless you know what you are doing.
@@ -97,7 +97,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus allowrestart hashrate commandserver1 overclockprogram msiaprofile msiatimeout restartoverclockprogram minertimeoutrestart computertimeoutrestart noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid everyhourinfo approgram approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -109,7 +109,7 @@ findstr.exe /C:"%ver%" %config% >NUL || (
 )
 IF EXIST "%~n0.log" FOR %%A IN (%~n0.log) DO IF %%~ZA GEQ 1000000 DEL /F /Q "%~n0.log" 2>NUL 1>&2
 FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 44000 EXIT
-FOR %%B IN (%config%) DO IF %%~ZB LSS 3450 GOTO corruptedconfig
+FOR %%B IN (%config%) DO IF %%~ZB LSS 5150 GOTO corruptedconfig
 timeout.exe /T 3 /nobreak >NUL
 CALL :inform "1" "false" "0" "%config% loaded." "2"
 IF %queue% GTR %serversamount% SET queue=1
@@ -123,7 +123,7 @@ IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup
 >> %config% ECHO # Set how many GPU devices are enabled.
 >> %config% ECHO gpus=%gpus%
 >> %config% ECHO # Allow computer restart if number of loaded GPUs is not equal to number of enabled GPUs. [0 - false, 1 - true]
->> %config% ECHO allowrestart=%allowrestart%
+>> %config% ECHO gpurestart=%gpurestart%
 >> %config% ECHO # Set the total average hashrate of this Rig. Best to set slightly below your reported hashrate. If your miners hasrate drops below the value you set here the script will restart your miner.
 >> %config% ECHO hashrate=%hashrate%
 >> %config% ECHO # =================================================== [Miner]
@@ -137,19 +137,19 @@ IF %serversamount% GTR 1 FOR /L %%A IN (2,1,%serversamount%) DO (
 )
 >> %config% ECHO # =================================================== [Overclock program]
 >> %config% ECHO # Autorun and check to see if already running of GPU Overclock program. [0 - false, 1 - true XTREMEGE, 2 - true AFTERBURNER, 3 - true GPUTWEAK, 4 - true PRECISION, 5 - true AORUSGE, 6 - true THUNDERMASTER]
->> %config% ECHO overclockprogram=%overclockprogram%
+>> %config% ECHO ocprogram=%ocprogram%
 >> %config% ECHO # Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
->> %config% ECHO msiaprofile=%msiaprofile%
+>> %config% ECHO profile=%profile%
 >> %config% ECHO # Set MSI Afterburner wait timer after start. Important on weak processors. [default - 120 sec, min value - 1 sec]
-IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
->> %config% ECHO msiatimeout=%msiatimeout%
+IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
+>> %config% ECHO octimeout=%octimeout%
 >> %config% ECHO # Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
->> %config% ECHO restartoverclockprogram=%restartoverclockprogram%
+>> %config% ECHO restartocprogram=%restartocprogram%
 >> %config% ECHO # =================================================== [Timers]
 >> %config% ECHO # Restart MINER every X hours. Set value of delay [in hours] between miner restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
->> %config% ECHO minertimeoutrestart=%minertimeoutrestart%
+>> %config% ECHO restartminer=%restartminer%
 >> %config% ECHO # Restart COMPUTER every X hours. Set value of delay [in hours] between computer restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
->> %config% ECHO computertimeoutrestart=%computertimeoutrestart%
+>> %config% ECHO restartpc=%restartpc%
 >> %config% ECHO # Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
 >> %config% ECHO noonrestart=%noonrestart%
 >> %config% ECHO # Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
@@ -185,10 +185,10 @@ IF %gpus% GEQ 1 SET /A msiatimeout=%gpus%*15
 >> %config% ECHO # Name your Rig. [in English, without special symbols]
 >> %config% ECHO rigname=%rigname%
 >> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
->> %config% ECHO everyhourinfo=%everyhourinfo%
+>> %config% ECHO reports=%reports%
 >> %config% ECHO # =================================================== [Additional program]
 >> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
->> %config% ECHO approgram=%approgram%
+>> %config% ECHO ap=%ap%
 >> %config% ECHO # Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
 >> %config% ECHO approcessname=%approcessname%
 >> %config% ECHO # Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
@@ -206,12 +206,12 @@ ECHO +===================================================================+
 CALL :inform "0" "true" "Scheduled computer restart, please wait..." "Scheduled computer restart, please wait... Miner ran for %hrdiff%:%mediff%:%ssdiff%." "0"
 timeout.exe /T 3 /nobreak >NUL
 :restart
-IF %pcrestart% EQU 0 GOTO hardstart
+IF %pcreboot% EQU 0 GOTO hardstart
 COLOR 4F
 CALL :screenshot
 CALL :inform "1" "false" "Computer restarting..." "1" "0"
 CALL :kill "1" "1" "1" "1"
-shutdown.exe /T 60 /R /F /C "Your computer will restart after 60 seconds. To cancel restart, close this window and START %~n0.bat manually."
+shutdown.exe /T 60 /R /F /C "Your computer will restart after 60 seconds. To cancel restart, close this window and run %~n0.bat manually."
 EXIT
 :switch
 CLS
@@ -277,7 +277,7 @@ SET /A me1=%me1%-100
 SET /A ss1=%ss1%-100
 SET /A dtdiff1=%hr1%*60*60+%me1%*60+%ss1%
 IF NOT EXIST "%minerpath%" (
-	ECHO "%minerprocess%" is missing. Please check the directory for missing files. Exiting...
+	CALL :inform "1" "false" "%minerprocess% is missing. Please check the directory for missing files. Exiting..." "1" "1"
 	PAUSE
 	EXIT
 )
@@ -295,55 +295,55 @@ ECHO This wait is needed to prevent GPUs crashes. It also allows you to connect 
 timeout.exe /T 30 >NUL
 IF NOT EXIST "Logs" MD Logs && ECHO Folder Logs created.
 IF NOT EXIST "Screenshots" MD Screenshots && ECHO Folder Screenshots created.
-IF %overclockprogram% GEQ 1 IF %overclockprogram% LEQ 6 (
-	FOR /F "tokens=%overclockprogram% delims= " %%A IN ("Xtreme MSIAfterburner GPUTweakII PrecisionX_x64 AORUS THPanel") DO (
-		SET overclockprocessname=%%A
+IF %ocprogram% GEQ 1 IF %ocprogram% LEQ 6 (
+	FOR /F "tokens=%ocprogram% delims= " %%A IN ("Xtreme MSIAfterburner GPUTweakII PrecisionX_x64 AORUS THPanel") DO (
+		SET ocprocessname=%%A
 	)
-	FOR /F "tokens=%overclockprogram% delims=," %%A IN ("\GIGABYTE\XTREME GAMING ENGINE\,\MSI Afterburner\,\ASUS\GPU TweakII\,\EVGA\Precision XOC\,\GIGABYTE\AORUS GRAPHICS ENGINE\,\Thunder Master\") DO (
-		SET overclockprocesspath=%%A
+	FOR /F "tokens=%ocprogram% delims=," %%A IN ("\GIGABYTE\XTREME GAMING ENGINE\,\MSI Afterburner\,\ASUS\GPU TweakII\,\EVGA\Precision XOC\,\GIGABYTE\AORUS GRAPHICS ENGINE\,\Thunder Master\") DO (
+		SET ocprocesspath=%%A
 	)
 )
-IF DEFINED overclockprocessname IF DEFINED overclockprocesspath IF NOT EXIST "%programfiles(x86)%%overclockprocesspath%" (
-	ECHO Incorrect path to %overclockprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
-	SET overclockprogram=0
+IF DEFINED ocprocessname IF DEFINED ocprocesspath IF NOT EXIST "%programfiles(x86)%%ocprocesspath%" (
+	ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
+	SET ocprogram=0
 )
-IF %overclockprogram% NEQ 0 (
-	IF %firstrun% NEQ 0 IF %restartoverclockprogram% EQU 1 (
-		tskill.exe /A /V %overclockprocessname% 2>NUL 1>&2
-		CALL :inform "1" "false" "0" "Process %overclockprocessname%.exe was successfully killed." "2"
+IF %ocprogram% NEQ 0 (
+	IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
+		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
+		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
 	)
 	timeout.exe /T 5 /nobreak >NUL
-	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
-		START "" "%programfiles(x86)%%overclockprocesspath%%overclockprocessname%.exe" && (
-			CALL :inform "0" "true" "%overclockprocessname%.exe was started." "1" "1"
+	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
+		START "" "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" && (
+			CALL :inform "0" "true" "%ocprocessname%.exe was started." "1" "1"
 			SET firstrun=0
 		) || (
-			CALL :inform "1" "false" "Unable to start %overclockprocessname%.exe." "1" "1"
-			SET overclockprogram=0
+			CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
+			SET ocprogram=0
 			GOTO error
 		)
 	)
 )
-IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 IF %overclockprogram% EQU 2 (
+IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 (
 	IF %firstrun% EQU 0 (
-		ECHO Waiting %msiatimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
-		timeout.exe /T %msiatimeout% >NUL
+		ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
+		timeout.exe /T %octimeout% >NUL
 	)
-	"%programfiles(x86)%%overclockprocesspath%%overclockprocessname%.exe" -Profile%msiaprofile% >NUL && ECHO MSI Afterburner profile %msiaprofile% activated.
+	"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
 	SET firstrun=1
 )
-IF %approgram% NEQ 0 IF NOT EXIST "%approcesspath%" (
+IF %ap% NEQ 0 IF NOT EXIST "%approcesspath%" (
 	ECHO Incorrect path to %approcessname%.
-	SET approgram=0
+	SET ap=0
 )
-IF %approgram% NEQ 0 (
+IF %ap% NEQ 0 (
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
 		START /MIN "%approcessname%" "%approcesspath%" && (
 			CALL :inform "0" "true" "%approcessname% was started." "1" "1"
 		) || (
 			CALL :inform "1" "false" "Unable to start %approcessname%." "1" "1"
-			SET approgram=0
+			SET ap=0
 			GOTO error
 		)
 	)
@@ -367,16 +367,16 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr197 --pass x --log 2 --fee 0 --templimit 80 --pec
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr198 --pass x --log 2 --fee 0 --templimit 80 --pec
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
 	FOR /F "tokens=3,4 delims=/:= " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
-		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*stratum.*tcp.*" /C:".*stratum.*tls.*" /C:".*http.*" /C:".*https.*" /C:".*log.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*stratum.*tls.*" /C:".*http.*" /C:".*https.*" /C:".*log.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
-		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*" /C:".*ssl.*" /C:".*stratum.*tcp.*" /C:".*stratum.*tls.*" /C:".*http.*" /C:".*https.*" /C:".*log.*"| findstr.exe /R /C:".*\..*" >NUL && (
+		ECHO %%a| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*stratum.*tls.*" /C:".*http.*" /C:".*https.*" /C:".*log.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%a
 		)
 	)
@@ -448,8 +448,8 @@ IF %mediff% LSS 10 SET mediff=0%mediff%
 IF %ssdiff% LSS 10 SET ssdiff=0%ssdiff%
 IF %midnightrestart% EQU 1 IF %dy2% NEQ %dy1% GOTO mtimer
 IF %midnightrestart% EQU 2 IF %dy2% NEQ %dy1% GOTO ctimer
-IF %minertimeoutrestart% GEQ 1 IF %hrdiff% GEQ %minertimeoutrestart% GOTO mtimer
-IF %computertimeoutrestart% GEQ 1 IF %hrdiff% GEQ %computertimeoutrestart% GOTO ctimer
+IF %restartminer% GEQ 1 IF %hrdiff% GEQ %restartminer% GOTO mtimer
+IF %restartpc% GEQ 1 IF %hrdiff% GEQ %restartpc% GOTO ctimer
 IF %hrdiff% GEQ 1 IF %hr2% EQU 12 (
 	IF %noonrestart% EQU 1 GOTO mtimer
 	IF %noonrestart% EQU 2 GOTO ctimer
@@ -565,14 +565,14 @@ tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerproc
 	CALL :inform "1" "false" "Process %minerprocess% crashed..." "1" "1"
 	GOTO error
 )
-IF %overclockprogram% NEQ 0 (
+IF %ocprogram% NEQ 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	tasklist.exe /FI "IMAGENAME eq %overclockprocessname%.exe" 2>NUL| find.exe /I /N "%overclockprocessname%.exe" >NUL || (
-		CALL :inform "1" "false" "Process %overclockprocessname%.exe crashed..." "1" "1"
+	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
+		CALL :inform "1" "false" "Process %ocprocessname%.exe crashed..." "1" "1"
 		GOTO error
 	)
 )
-IF %approgram% EQU 1 (
+IF %ap% EQU 1 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %approcessname%" 2>NUL| find.exe /I /N "%approcessname%" >NUL || (
 		CALL :inform "1" "false" "%approcessname% crashed..." "1" "1"
@@ -580,7 +580,7 @@ IF %approgram% EQU 1 (
 			CALL :inform "0" "true" "%approcessname% was started." "1" "1"
 		) || (
 			CALL :inform "1" "false" "Unable to start %approcessname%." "1" "1"
-			SET approgram=0
+			SET ap=0
 			GOTO error
 		)
 	)
@@ -593,7 +593,7 @@ IF %firstrun% EQU 0 (
 )
 IF %firstrun% EQU 0 (
 	IF %gpus% GTR %gpucount% (
-		IF %allowrestart% EQU 1 (
+		IF %gpurestart% EQU 1 (
 			CLS
 			COLOR 4F
 			ECHO +===================================================================+
@@ -610,7 +610,7 @@ IF %firstrun% EQU 0 (
 	)
 	IF %gpus% LSS %gpucount% (
 		CALL :inform "1" "false" "Loaded too many GPUs. This must be set to a number higher than *%gpus%* in your *%config%* file under *gpus*. Number of GPUs *%gpucount%/%gpus%*." "Loaded too many GPUs. This must be set to a number higher than %gpus% in your %config% file under gpus. Number of GPUs: %gpucount%/%gpus%." "2"
-		IF %allowrestart% EQU 1 GOTO restart
+		IF %gpurestart% EQU 1 GOTO restart
 	)
 	SET firstrun=1
 )
@@ -658,7 +658,7 @@ IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %ha
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
 IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	SET /A ptos=%me2%+5
+	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
 	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"INFO .* share .*" %log%') DO SET lastsharemin=1%%A
@@ -701,26 +701,26 @@ IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
 	)
 )
 ECHO +===================================================================+
-IF %overclockprogram% NEQ 0 IF %overclockprogram% NEQ 2 ECHO Process %overclockprocessname%.exe is running...
-IF %overclockprogram% EQU 2 (
-	IF %msiaprofile% GEQ 1 IF %msiaprofile% LEQ 5 ECHO Process %overclockprocessname%.exe [Profile %msiaprofile%] is running...
-	IF %msiaprofile% LSS 1 IF %msiaprofile% GTR 5 ECHO Process %overclockprocessname%.exe is running...
+IF %ocprogram% NEQ 0 IF %ocprogram% NEQ 2 ECHO Process %ocprocessname%.exe is running...
+IF %ocprogram% EQU 2 (
+	IF %profile% GEQ 1 IF %profile% LEQ 5 ECHO Process %ocprocessname%.exe [Profile %profile%] is running...
+	IF %profile% LSS 1 IF %profile% GTR 5 ECHO Process %ocprocessname%.exe is running...
 )
-IF %overclockprogram% EQU 0 ECHO [Disabled] GPU Overclock monitor
+IF %ocprogram% EQU 0 ECHO [Disabled] GPU Overclock monitor
 IF "%midnightrestart%" EQU "0" ECHO [Disabled] Autorestart at 00:00
 IF "%midnightrestart%" NEQ "0" ECHO [Enabled]  Autorestart at 00:00
 IF "%noonrestart%" EQU "0" ECHO [Disabled] Autorestart at 12:00
 IF "%noonrestart%" NEQ "0" ECHO [Enabled]  Autorestart at 12:00
-IF "%minertimeoutrestart%" EQU "0" ECHO [Disabled] Autorestart miner every hour
-IF "%minertimeoutrestart%" NEQ "0" ECHO [Enabled]  Autorestart miner every %minertimeoutrestart%h 
-IF "%computertimeoutrestart%" EQU "0" ECHO [Disabled] Autorestart computer every hour
-IF "%computertimeoutrestart%" NEQ "0" ECHO [Enabled]  Autorestart computer every %computertimeoutrestart%h
+IF "%restartminer%" EQU "0" ECHO [Disabled] Autorestart miner every hour
+IF "%restartminer%" NEQ "0" ECHO [Enabled]  Autorestart miner every %restartminer%h 
+IF "%restartpc%" EQU "0" ECHO [Disabled] Autorestart computer every hour
+IF "%restartpc%" NEQ "0" ECHO [Enabled]  Autorestart computer every %restartpc%h
 IF %sharetimeout% EQU 0 ECHO [Disabled] Last share timeout check
 IF %sharetimeout% EQU 1 ECHO [Enabled]  Last share timeout check
 IF "%chatid%" EQU "0" ECHO [Disabled] Telegram notifications
 IF "%chatid%" NEQ "0" ECHO [Enabled]  Telegram notifications using chatid [%chatid%]
-IF "%approgram%" EQU "0" ECHO [Disabled] Additional program autorun
-IF "%approgram%" EQU "1" ECHO [Enabled]  Additional program autorun using [%approcessname%]
+IF "%ap%" EQU "0" ECHO [Disabled] Additional program autorun
+IF "%ap%" EQU "1" ECHO [Enabled]  Additional program autorun using [%approcessname%]
 ECHO +===================================================================+
 ECHO Now I will take care of your miner and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
@@ -732,10 +732,10 @@ IF "%curtemp%" NEQ "unknown" SET statusmessage=%statusmessage%%%%%0A%curtemp%
 IF "%chatid%" NEQ "0" (
 	IF %me2% LSS 30 SET allowsend=1
 	IF %me2% GEQ 30 IF %allowsend% EQU 1 (
-		IF %everyhourinfo% EQU 1 CALL :inform "1" "false" "%statusmessage%" "0" "0"
-		IF %everyhourinfo% EQU 2 CALL :inform "1" "true" "%statusmessage%" "0" "0"
-		IF %everyhourinfo% EQU 3 CALL :inform "1" "false" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
-		IF %everyhourinfo% EQU 4 CALL :inform "1" "true" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
+		IF %reports% EQU 1 CALL :inform "1" "false" "%statusmessage%" "0" "0"
+		IF %reports% EQU 2 CALL :inform "1" "true" "%statusmessage%" "0" "0"
+		IF %reports% EQU 3 CALL :inform "1" "false" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
+		IF %reports% EQU 4 CALL :inform "1" "true" "Online, *%hrdiff%:%mediff%:%ssdiff%*, *%lasthashrate%*" "0" "0"
 		SET allowsend=0
 	)
 )
@@ -744,8 +744,8 @@ GOTO check
 powershell.exe -command "Add-Type -AssemblyName System.Windows.Forms; Add-type -AssemblyName System.Drawing; $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen; $bitmap = New-Object System.Drawing.Bitmap $Screen.Width, $Screen.Height; $graphic = [System.Drawing.Graphics]::FromImage($bitmap); $graphic.CopyFromScreen($Screen.Left, $Screen.Top, 0, 0, $bitmap.Size); $bitmap.Save('Screenshots\miner_%mh1%.%dy1%_%hr1%.%me1%.jpg');" 2>NUL 1>&2
 EXIT /b
 :kill
-IF "%~1" EQU "1" IF %overclockprogram% NEQ 0 timeout.exe /T 2 /nobreak >NUL && taskkill.exe /T /F /IM "%overclockprocessname%" 2>NUL 1>&2 && ECHO Process %overclockprocessname% was successfully killed.
-IF "%~2" EQU "1" IF %approgram% EQU 1 timeout.exe /T 2 /nobreak >NUL && taskkill.exe /F /IM "%approcessname%" 2>NUL 1>&2 && ECHO Process %approcessname% was successfully killed.
+IF "%~1" EQU "1" IF %ocprogram% NEQ 0 timeout.exe /T 2 /nobreak >NUL && taskkill.exe /T /F /IM "%ocprocessname%" 2>NUL 1>&2 && ECHO Process %ocprocessname% was successfully killed.
+IF "%~2" EQU "1" IF %ap% EQU 1 timeout.exe /T 2 /nobreak >NUL && taskkill.exe /F /IM "%approcessname%" 2>NUL 1>&2 && ECHO Process %approcessname% was successfully killed.
 IF "%~3" EQU "1" timeout.exe /T 2 /nobreak >NUL && taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 && ECHO Process %minerprocess% was successfully killed.
 IF "%~4" EQU "1" timeout.exe /T 4 /nobreak >NUL && taskkill.exe /T /F /FI "IMAGENAME eq cmd.exe" /FI "WINDOWTITLE eq *%bat%*" 2>NUL 1>&2
 timeout.exe /T 5 /nobreak >NUL
@@ -760,6 +760,6 @@ IF "%~5" EQU "1" ECHO %~3
 IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
-IF "%everyhourinfo%" EQU "5" IF "%~1" EQU "0" EXIT /b
+IF "%reports%" EQU "5" IF "%~1" EQU "0" EXIT /b
 IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b
