@@ -113,6 +113,15 @@ GOTO start
 :corruptedconfig
 CALL :inform "1" "false" "%config% file error. The file is corrupted. Please check it..." "1" "1"
 :createconfig
+IF DEFINED allowrestart SET gpurestart=%allowrestart%
+IF DEFINED overclockprogram SET ocprogram=%overclockprogram%
+IF DEFINED msiaprofile SET profile=%msiaprofile%
+IF DEFINED msiatimeout SET octimeout=%msiatimeout%
+IF DEFINED restartoverclockprogram SET restartocprogram=%restartoverclockprogram%
+IF DEFINED minertimeoutrestart SET restartminer=%minertimeoutrestart%
+IF DEFINED computertimeoutrestart SET restartpc=%computertimeoutrestart%
+IF DEFINED everyhourinfo SET reports=%everyhourinfo%
+IF DEFINED approgram SET ap=%approgram%
 IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup of your old %config%.
 > %config% ECHO # Configuration file v. %ver%
 >> %config% ECHO # =================================================== [GPU]
@@ -137,7 +146,7 @@ IF %serversamount% GTR 1 FOR /L %%A IN (2,1,%serversamount%) DO (
 >> %config% ECHO # Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> %config% ECHO profile=%profile%
 >> %config% ECHO # Set MSI Afterburner wait timer after start. Important on weak processors. [default - 120 sec, min value - 1 sec]
-IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
+IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO octimeout=%octimeout%
 >> %config% ECHO # Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
 >> %config% ECHO restartocprogram=%restartocprogram%
@@ -268,7 +277,7 @@ SET /A me1=%me1%-100
 SET /A ss1=%ss1%-100
 SET /A dtdiff1=%hr1%*60*60+%me1%*60+%ss1%
 IF NOT EXIST "%minerpath%" (
-	CALL :inform "1" "false" "%minerprocess% is missing. Please check the directory for missing files. Exiting..." "1" "1"
+	CALL :inform "1" "false" "%minerprocess% is missing. Please check the directory for missing files." "1" "1"
 	PAUSE
 	EXIT
 )
@@ -298,7 +307,7 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath IF NOT EXIST "%programfiles(x8
 	ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
 	SET ocprogram=0
 )
-IF %ocprogram% NEQ 0 (
+IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
 	IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
 		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
 		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
@@ -315,7 +324,7 @@ IF %ocprogram% NEQ 0 (
 		)
 	)
 )
-IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 (
+IF %profile% GEQ 1 IF %profile% LEQ 5 IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% EQU 2 (
 	IF %firstrun% EQU 0 (
 		ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
 		timeout.exe /T %octimeout% >NUL
@@ -544,7 +553,7 @@ IF "%lasterror%" NEQ "0" (
 			PAUSE
 			GOTO hardstart
 		)
-		CALL :inform "1" "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer..." "Temperature limit reached. Fans may be stuck." "2"
+		CALL :inform "1" "false" "%curtemp%.%%%%0A%%%%0ATemperature limit reached. Fans may be stuck. Attempting to restart computer... Miner ran for *%hrdiff%:%mediff%:%ssdiff%*." "Temperature limit reached. Fans may be stuck." "2"
 		GOTO restart
 	)
 )
@@ -554,7 +563,7 @@ tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerproc
 	CALL :inform "1" "false" "Process %minerprocess% crashed..." "1" "1"
 	GOTO error
 )
-IF %ocprogram% NEQ 0 (
+IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
 		CALL :inform "1" "false" "Process %ocprocessname%.exe crashed..." "1" "1"
@@ -712,10 +721,12 @@ IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
 	)
 )
 ECHO +===================================================================+
-IF %ocprogram% NEQ 0 IF %ocprogram% NEQ 2 ECHO Process %ocprocessname%.exe is running...
-IF %ocprogram% EQU 2 (
-	IF %profile% GEQ 1 IF %profile% LEQ 5 ECHO Process %ocprocessname%.exe [Profile %profile%] is running...
-	IF %profile% LSS 1 IF %profile% GTR 5 ECHO Process %ocprocessname%.exe is running...
+IF DEFINED ocprocessname IF DEFINED ocprocesspath ( 
+	IF %ocprogram% NEQ 0 IF %ocprogram% NEQ 2 ECHO Process %ocprocessname%.exe is running...
+	IF %ocprogram% EQU 2 (
+		IF %profile% GEQ 1 IF %profile% LEQ 5 ECHO Process %ocprocessname%.exe [Profile %profile%] is running...
+		IF %profile% LSS 1 IF %profile% GTR 5 ECHO Process %ocprocessname%.exe is running...
+	)
 )
 IF %ocprogram% EQU 0 ECHO [Disabled] GPU Overclock monitor
 IF "%midnightrestart%" EQU "0" ECHO [Disabled] Autorestart at 00:00
