@@ -10,8 +10,8 @@ SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
 TITLE %mn%_autorun(%dt0%)
 :hardstart
-CALL :copyright
 COLOR 1F
+CALL :copyright
 ECHO +===================================================================+
 REM Attention. Change the options below only if you really need to.
 REM Name miner .log file. [in English, without special symbols and spaces]
@@ -37,7 +37,8 @@ SET ocprogram=0
 SET profile=0
 SET octimeout=120
 SET restartocprogram=0
-SET restartminer=72
+SET lauchocprogram=0
+SET restartminer=48
 SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
@@ -51,6 +52,7 @@ SET bat=%mn%_miner.bat
 SET pingserver=google.com
 SET cputimeout=5
 SET rigname=%COMPUTERNAME%
+SET groupname=%mn%
 SET chatid=0
 SET reports=0
 SET ap=0
@@ -93,7 +95,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -150,6 +152,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO octimeout=%octimeout%
 >> %config% ECHO # Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
 >> %config% ECHO restartocprogram=%restartocprogram%
+>> %config% ECHO # Launch Overclock program after miner was started. Please, do not use this option if it is not needed. [0 - false, 1 - true]
+>> %config% ECHO lauchocprogram=%restartocprogram%
 >> %config% ECHO # =================================================== [Timers]
 >> %config% ECHO # Restart MINER every X hours. Set value of delay [in hours] between miner restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
 >> %config% ECHO restartminer=%restartminer%
@@ -189,6 +193,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO chatid=%chatid%
 >> %config% ECHO # Name your Rig. [in English, without special symbols]
 >> %config% ECHO rigname=%rigname%
+>> %config% ECHO # Name your group of Rigs. [in English, without special symbols]
+>> %config% ECHO groupname=%groupname%
 >> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
 >> %config% ECHO reports=%reports%
 >> %config% ECHO # =================================================== [Additional program]
@@ -307,31 +313,7 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath IF NOT EXIST "%programfiles(x8
 	ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
 	SET ocprogram=0
 )
-IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
-	IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
-		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
-		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
-	)
-	timeout.exe /T 5 /nobreak >NUL
-	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
-		START "" "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" && (
-			CALL :inform "0" "true" "%ocprocessname%.exe was started." "1" "1"
-			SET firstrun=0
-		) || (
-			CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
-			SET ocprogram=0
-			GOTO error
-		)
-	)
-)
-IF %profile% GEQ 1 IF %profile% LEQ 5 IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% EQU 2 (
-	IF %firstrun% EQU 0 (
-		ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
-		timeout.exe /T %octimeout% >NUL
-	)
-	"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
-	SET firstrun=1
-)
+IF %lauchocprogram% EQU 0 CALL :oclauch
 IF %ap% NEQ 0 IF NOT EXIST "%approcesspath%" (
 	ECHO Incorrect path to %approcessname%.
 	SET ap=0
@@ -385,6 +367,7 @@ START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Unable to start miner." "1" "1"
 	GOTO error
 )
+IF %lauchocprogram% EQU 1 CALL :oclauch
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
 	findstr.exe /R /C:".*--logfile.*" %bat% 2>NUL 1>&2 || (
@@ -700,7 +683,7 @@ ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
-ECHO Rig [%rigname%] using [%gpucount%/%gpus%] GPUs.
+ECHO Rig [%rigname%] group [%groupname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: %curservername%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
 	ECHO +===================================================================+
@@ -742,8 +725,7 @@ ECHO +===================================================================+
 ECHO Now I will take care of your miner and you can relax...
 SET statusmessage=Running for *%hrdiff%:%mediff%:%ssdiff%*
 IF "%curservername%" NEQ "unknown" SET statusmessage=%statusmessage% on %curservername%
-IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*
-IF DEFINED lasthashrate SET statusmessage=%statusmessage%%%%%0ALast hash: *%lasthashrate%*
+IF DEFINED lasthashrate IF "%sumresult%" NEQ "0" SET statusmessage=%statusmessage%%%%%0AAverage hash: *%sumresult%*%%%%0ALast hash: *%lasthashrate%*
 IF "%curspeed%" NEQ "unknown" SET statusmessage=%statusmessage%%%%%0A%curspeed%
 IF "%curtemp%" NEQ "unknown" SET statusmessage=%statusmessage%%%%%0A%curtemp%
 IF "%chatid%" NEQ "0" (
@@ -787,4 +769,31 @@ ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
+EXIT /b
+:oclauch
+IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
+	IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
+		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
+		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
+	)
+	timeout.exe /T 5 /nobreak >NUL
+	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
+		START "" "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" && (
+			CALL :inform "0" "true" "%ocprocessname%.exe was started." "1" "1"
+			SET firstrun=0
+		) || (
+			CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
+			SET ocprogram=0
+			GOTO error
+		)
+	)
+)
+IF %profile% GEQ 1 IF %profile% LEQ 5 IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% EQU 2 (
+	IF %firstrun% EQU 0 (
+		ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
+		timeout.exe /T %octimeout% >NUL
+	)
+	"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
+	SET firstrun=1
+)
 EXIT /b
