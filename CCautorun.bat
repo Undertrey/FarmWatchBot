@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=1.9.8
+SET ver=1.9.9
 SET mn=Cmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -234,6 +234,7 @@ ECHO +============================[%hrdiff%:%mediff%:%ssdiff%]==================
 CALL :inform "1" "true" "Attempting to switch to the main pool server... Miner ran for *%hrdiff%:%mediff%:%ssdiff%*." "1" "For detailed information please read %~n0.log file."
 SET switchtodefault=0
 SET queue=1
+IF EXIST "memory.txt" FOR /F "tokens=1-4 delims=," %%a IN (memory.txt) DO IF %%a GEQ 1 IF %%a LEQ %serversamount% SET queue=%%a
 timeout.exe /T 3 /nobreak >NUL
 GOTO start
 :mtimer
@@ -379,11 +380,12 @@ START "%bat%" "%bat%" && (
 IF %lauchocprogram% EQU 1 CALL :oclauch
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	CALL :inform "1" "false" "%log% is missing. Ensure *^>^> miner.log 2^>^&1* option is added to the miners command line." "%log% is missing. Ensure ^>^> miner.log 2^>^&1 option is added to the miners command line." "2"
-	GOTO error
+	CALL :inform "1" "false" "%log% is missing. Ensure *^>^> miner.log 2^>^&1* option is added to the miners command line in *%config%* file." "%log% is missing. Ensure ^>^> miner.log 2^>^&1 option is added to the miners command line in %config% file." "2"
+	PAUSE
+	EXIT
 ) ELSE (
 	findstr.exe /R /C:".*--no-color.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *--no-color* option is added to the miners command line." "Ensure --no-color option is added to the miners command line." "2"
+		CALL :inform "1" "false" "Ensure *--no-color* option is added to the miners command line in *%config%* file." "Ensure --no-color option is added to the miners command line in %config% file." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
