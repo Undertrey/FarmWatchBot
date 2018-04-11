@@ -97,7 +97,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -234,7 +234,6 @@ ECHO +============================[%hrdiff%:%mediff%:%ssdiff%]==================
 CALL :inform "1" "true" "Attempting to switch to the main pool server... Miner ran for *%hrdiff%:%mediff%:%ssdiff%*." "1" "For detailed information please read %~n0.log file."
 SET switchtodefault=0
 SET queue=1
-IF EXIST "memory.txt" FOR /F "tokens=1-4 delims=," %%a IN (memory.txt) DO IF %%a GEQ 1 IF %%a LEQ %serversamount% SET queue=%%a
 timeout.exe /T 3 /nobreak >NUL
 GOTO start
 :mtimer
@@ -629,6 +628,7 @@ FOR /L %%A IN (0,1,%gpus%) DO (
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
 	)
 )
+timeout.exe /T %cputimeout% /nobreak >NUL
 IF "!curspeed!" EQU "unknown" (
 	FOR /F "skip=3 tokens=2-20 delims=GPU" %%a IN ('findstr.exe /R /C:".*GPU[0-9].*/s.*" %log%') DO (
 		SET curspeed=Speed:
