@@ -106,8 +106,8 @@ findstr.exe /C:"%ver%" %config% >NUL || (
 	GOTO createconfig
 )
 IF EXIST "%~n0.log" FOR %%A IN (%~n0.log) DO IF %%~ZA GEQ 1000000 DEL /F /Q "%~n0.log" 2>NUL 1>&2
-FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 44000 EXIT
-FOR %%B IN (%config%) DO IF %%~ZB LSS 5150 GOTO corruptedconfig
+FOR %%A IN (%~n0.bat) DO IF %%~ZA LSS 45000 EXIT
+FOR %%B IN (%config%) DO IF %%~ZB LSS 5200 GOTO corruptedconfig
 timeout.exe /T 3 /nobreak >NUL
 CALL :inform "1" "false" "0" "%config% loaded." "2"
 IF %queue% GTR %serversamount% SET queue=1
@@ -498,7 +498,7 @@ IF "%lasterror%" NEQ "0" (
 							ECHO                     Connection has been restored...
 							ECHO                           Continue mining...
 							ECHO +===================================================================+
-							CALL :inform "1" "false" "Something was wrong with your Internet connection. Connection has been restored. Continue mining..." "1" "0"
+							CALL :inform "1" "true" "Something was wrong with your Internet connection. Connection has been restored. Continue mining..." "1" "0"
 							GOTO check
 						)
 						ping.exe %pingserver%| find.exe /I "TTL=" >NUL && GOTO reconnected || (
