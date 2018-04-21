@@ -53,6 +53,7 @@ SET pingserver=google.com
 SET cputimeout=5
 SET rigname=%COMPUTERNAME%
 SET groupname=%mn%
+SET link=https://api.telegram.org
 SET chatid=0
 SET reports=0
 SET ap=0
@@ -95,7 +96,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -138,7 +139,7 @@ IF EXIST "%config%" MOVE /Y %config% Backup_%config% >NUL && ECHO Created backup
 >> %config% ECHO commandserver1=%commandserver1%
 IF DEFINED commandserver2 >> %config% ECHO # When the main server fails, %~n0.bat will switch to the additional server below immediately. [in order]
 IF DEFINED commandserver2 >> %config% ECHO # Configure miner command here. Old %bat% will be removed and a new one will be created with this value. [keep default order] internetcheck=1 required.
-IF DEFINED commandserver2 >> %config% ECHO # The default number of servers is 5, however, you can add or remove as many as you need. e.g. you can have servers 1 2 3 or you can have 1 2 3 4 5 6 7 8 9. There is no upper limit - e.g. you can have 1000 if you want. The minimum is 1.
+IF DEFINED commandserver2 >> %config% ECHO # The default number of servers is 5, however, you can add or remove as many as you need. e.g. you can have servers 1 2 3 or you can have 1 2 3 4 5 6 7 8 9. [limits are 1-99]
 IF %serversamount% GTR 1 FOR /L %%A IN (2,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF DEFINED %%B >> %config% ECHO %%B=!commandserver%%A!
 )
@@ -150,14 +151,14 @@ IF %serversamount% GTR 1 FOR /L %%A IN (2,1,%serversamount%) DO (
 >> %config% ECHO # Set MSI Afterburner wait timer after start. Important on weak processors. [default - 120 sec, min value - 1 sec]
 IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO octimeout=%octimeout%
->> %config% ECHO # Allow Overclock programs to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
+>> %config% ECHO # Allow Overclock program to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
 >> %config% ECHO restartocprogram=%restartocprogram%
 >> %config% ECHO # Launch Overclock program after miner was started. Please, do not use this option if it is not needed. [0 - false, 1 - true]
->> %config% ECHO lauchocprogram=%restartocprogram%
+>> %config% ECHO lauchocprogram=%lauchocprogram%
 >> %config% ECHO # =================================================== [Timers]
->> %config% ECHO # Restart MINER every X hours. Set value of delay [in hours] between miner restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
+>> %config% ECHO # Restart MINER every X hours. Set value of delay [in hours] between miner restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-96 - scheduled hours delay]
 >> %config% ECHO restartminer=%restartminer%
->> %config% ECHO # Restart COMPUTER every X hours. Set value of delay [in hours] between computer restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-999 - scheduled hours delay]
+>> %config% ECHO # Restart COMPUTER every X hours. Set value of delay [in hours] between computer restarts. Note - this will be the number of hours the miner has been running. [0 - false, 1-96 - scheduled hours delay]
 >> %config% ECHO restartpc=%restartpc%
 >> %config% ECHO # Restart miner or computer every day at 12:00. [1 - true miner, 2 - true computer, 0 - false]
 >> %config% ECHO noonrestart=%noonrestart%
@@ -189,6 +190,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO # Slowdown script for weak CPUs. Increase this value incrementally [1 by 1] if your hashrate drops because of script. This may slow down the responsiveness of the script. [5 - default, only numeric values]
 >> %config% ECHO cputimeout=%cputimeout%
 >> %config% ECHO # =================================================== [Telegram notifications]
+>> %config% ECHO # To enable Telegram proxy or mirror use this option. [https://api.telegram.org - default]
+>> %config% ECHO link=%link%
 >> %config% ECHO # To enable Telegram notifications enter here your chatid, from Telegram @FarmWatchBot. [0 - disable]
 >> %config% ECHO chatid=%chatid%
 >> %config% ECHO # Name your Rig. [in English, without special symbols]
@@ -287,6 +290,22 @@ IF NOT EXIST "%minerpath%" (
 	PAUSE
 	EXIT
 )
+IF NOT EXIST "Logs" MD Logs && ECHO Folder Logs created.
+IF NOT EXIST "Screenshots" MD Screenshots && ECHO Folder Screenshots created.
+IF %ocprogram% GEQ 1 IF %ocprogram% LEQ 6 (
+	FOR /F "tokens=%ocprogram% delims=," %%A IN ("Xtreme,MSIAfterburner,GPUTweakII,PrecisionX_x64,AORUS,THPanel") DO SET ocprocessname=%%A
+	FOR /F "tokens=%ocprogram% delims=," %%A IN ("\GIGABYTE\XTREME GAMING ENGINE\,\MSI Afterburner\,\ASUS\GPU TweakII\,\EVGA\Precision XOC\,\GIGABYTE\AORUS GRAPHICS ENGINE\,\Thunder Master\") DO SET ocprocesspath=%%A
+)
+IF DEFINED ocprocessname IF DEFINED ocprocesspath (
+	IF NOT EXIST "%programfiles(x86)%%ocprocesspath%" (
+		ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
+		SET ocprogram=0
+	)
+	IF EXIST "%programfiles(x86)%%ocprocesspath%" IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
+		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
+		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
+	)
+)
 tasklist.exe /FI "IMAGENAME eq werfault.exe" 2>NUL| find.exe /I /N "werfault.exe" >NUL && CALL :killwerfault
 tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerprocess%" >NUL && (
 	taskkill.exe /T /F /IM "%minerprocess%" 2>NUL 1>&2 || (
@@ -299,20 +318,6 @@ tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerproc
 ECHO Please wait 30 seconds or press any key to continue...
 ECHO This wait is needed to prevent GPUs crashes. It also allows you to connect via TeamViewer to close the script before the miner launches in case of critical errors or BSOD.
 timeout.exe /T 30 >NUL
-IF NOT EXIST "Logs" MD Logs && ECHO Folder Logs created.
-IF NOT EXIST "Screenshots" MD Screenshots && ECHO Folder Screenshots created.
-IF %ocprogram% GEQ 1 IF %ocprogram% LEQ 6 (
-	FOR /F "tokens=%ocprogram% delims= " %%A IN ("Xtreme MSIAfterburner GPUTweakII PrecisionX_x64 AORUS THPanel") DO (
-		SET ocprocessname=%%A
-	)
-	FOR /F "tokens=%ocprogram% delims=," %%A IN ("\GIGABYTE\XTREME GAMING ENGINE\,\MSI Afterburner\,\ASUS\GPU TweakII\,\EVGA\Precision XOC\,\GIGABYTE\AORUS GRAPHICS ENGINE\,\Thunder Master\") DO (
-		SET ocprocesspath=%%A
-	)
-)
-IF DEFINED ocprocessname IF DEFINED ocprocesspath IF NOT EXIST "%programfiles(x86)%%ocprocesspath%" (
-	ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
-	SET ocprogram=0
-)
 IF %lauchocprogram% EQU 0 CALL :oclauch
 IF %ap% NEQ 0 IF NOT EXIST "%approcesspath%" (
 	ECHO Incorrect path to %approcessname%.
@@ -674,7 +679,7 @@ ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +============================================================[%Time:~-5,2%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
 ECHO Rig [%rigname%] group [%groupname%] using [%gpucount%/%gpus%] GPUs.
-IF "%curservername%" NEQ "unknown" ECHO Server: %curservername%
+IF "%curservername%" NEQ "unknown" ECHO Server: [%queue%] %curservername%
 IF "%sumresult%" NEQ "0" IF DEFINED lasthashrate (
 	ECHO +===================================================================+
 	ECHO Total current speed: %lasthashrate%/%hashrate% [%minhashrate%/99]
@@ -750,7 +755,7 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%reports%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('https://api.telegram.org/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('%link%/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b
 :copyright
 CLS
@@ -762,28 +767,23 @@ ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 EXIT /b
 :oclauch
 IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
-	IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
-		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
-		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
-	)
 	timeout.exe /T 5 /nobreak >NUL
 	tasklist.exe /FI "IMAGENAME eq %ocprocessname%.exe" 2>NUL| find.exe /I /N "%ocprocessname%.exe" >NUL || (
 		START "" "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" && (
 			CALL :inform "0" "true" "%ocprocessname%.exe was started." "1" "1"
-			SET firstrun=0
+			IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 (
+				ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue...
+				timeout.exe /T %octimeout% >NUL
+			)
+			IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Defaults >NUL && ECHO MSI Afterburner defaults profile activated.
+			
 		) || (
 			CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
 			SET ocprogram=0
 			GOTO error
 		)
 	)
-)
-IF %profile% GEQ 1 IF %profile% LEQ 5 IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% EQU 2 (
-	IF %firstrun% EQU 0 (
-		ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue... It is recommended to wait for minimum 15 sec. for each GPU load.
-		timeout.exe /T %octimeout% >NUL
-	)
-	"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
-	SET firstrun=1
+	timeout.exe /T 5 /nobreak >NUL
+	IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
 )
 EXIT /b
