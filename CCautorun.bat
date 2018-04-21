@@ -196,9 +196,9 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO link=%link%
 >> %config% ECHO # To enable Telegram notifications enter here your chatid, from Telegram @FarmWatchBot. [0 - disable]
 >> %config% ECHO chatid=%chatid%
->> %config% ECHO # Name your Rig. [in English, without special symbols]
+>> %config% ECHO # Name your Rig. [in English, without special symbols and spaces]
 >> %config% ECHO rigname=%rigname%
->> %config% ECHO # Name your group of Rigs. [in English, without special symbols]
+>> %config% ECHO # Name your group of Rigs. [in English, without special symbols and spaces]
 >> %config% ECHO groupname=%groupname%
 >> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
 >> %config% ECHO reports=%reports%
@@ -817,8 +817,6 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
 				ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the profile for each GPU or press any key to continue...
 				timeout.exe /T %octimeout% >NUL
 			)
-			IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Defaults >NUL && ECHO MSI Afterburner defaults profile activated.
-			
 		) || (
 			CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
 			SET ocprogram=0
