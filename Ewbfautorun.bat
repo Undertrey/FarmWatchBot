@@ -301,7 +301,16 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath (
 		ECHO Incorrect path to %ocprocessname%.exe. Default install path required to function. Please reinstall the software using the default path.
 		SET ocprogram=0
 	)
-	IF EXIST "%programfiles(x86)%%ocprocesspath%" IF %firstrun% NEQ 0 IF %restartocprogram% EQU 1 (
+	IF EXIST "%programfiles(x86)%%ocprocesspath%" IF %firstrun% NEQ 0 IF %restartocprogram% GEQ 1 (
+		IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 (
+			IF %restartocprogram% GEQ 2 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%restartocprogram% >NUL
+			IF %restartocprogram% EQU 1 (
+				tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
+				timeout.exe /T 15 /nobreak >NUL
+				"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Defaults >NUL
+			)
+			timeout.exe /T 5 /nobreak >NUL
+		)
 		tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
 		CALL :inform "1" "false" "0" "Process %ocprocessname%.exe was successfully killed." "2"
 	)
