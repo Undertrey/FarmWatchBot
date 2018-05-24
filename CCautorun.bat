@@ -309,7 +309,11 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath (
 			IF %restartocprogram% EQU 1 (
 				tskill.exe /A /V %ocprocessname% 2>NUL 1>&2
 				timeout.exe /T 15 /nobreak >NUL
-				"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Defaults >NUL
+				START "" "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" || (
+					CALL :inform "1" "false" "Unable to start %ocprocessname%.exe." "1" "1"
+					SET ocprogram=0
+					GOTO error
+				)
 			)
 			timeout.exe /T 5 /nobreak >NUL
 		)
@@ -329,7 +333,6 @@ tasklist.exe /FI "IMAGENAME eq %minerprocess%" 2>NUL| find.exe /I /N "%minerproc
 ECHO Please wait 30 seconds or press any key to continue...
 ECHO This wait is needed to prevent GPUs crashes. It also allows you to connect via TeamViewer to close the script before the miner launches in case of critical errors or BSOD.
 timeout.exe /T 30 >NUL
-IF %lauchocprogram% EQU 0 CALL :oclauch
 IF %ap% NEQ 0 IF NOT EXIST "%approcesspath%" (
 	ECHO Incorrect path to %approcessname%.
 	SET ap=0
@@ -346,6 +349,7 @@ IF %ap% NEQ 0 (
 		)
 	)
 )
+IF %lauchocprogram% EQU 0 CALL :oclauch
 IF EXIST "%log%" (
 	MOVE /Y %log% Logs\miner_%mh1%.%dy1%_%hr1%.%me1%.log 2>NUL 1>&2 && (
 		CALL :inform "1" "false" "0" "%log% moved to Logs folder as miner_%mh1%.%dy1%_%hr1%.%me1%.log" "2"
