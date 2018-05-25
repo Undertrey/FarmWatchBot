@@ -28,11 +28,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=zm.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time --temp-target 80
-SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time --temp-target 80
-SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time --temp-target 80
-SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time --temp-target 80
-SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time --temp-target 80
+SET commandserver1=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time
+SET commandserver2=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time
+SET commandserver3=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time
+SET commandserver4=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time
+SET commandserver5=%minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr200 --pass x --logfile --time
 SET ocprogram=0
 SET profile=0
 SET octimeout=120
@@ -79,7 +79,7 @@ SET /A num=(3780712+3780711)*6*9
 SET warningslist=/C:".*reached.*"
 SET errorscancel=/C:".*server set difficulty.*"
 SET criticalerrorslist=/C:".*NVML.*" /C:".*CUDA-capable.*" /C:".*the launch timed out and was terminated" /C:".*cudaGetDeviceCount failed"
-SET errorslist=/C:".*cuda.*error.*" /C:".*unknown error.*" /C:".*unresponsive.*" /C:".*was encountered.*" /C:".*cuda.*failed.*" /C:".*send timeout.*" /C:".*msg buffer full.*"
+SET errorslist=/C:".*cuda.*error.*" /C:".*unknown error.*" /C:".*unresponsive.*" /C:".*was encountered.*" /C:".*cuda.*failed.*" /C:".*send timeout.*" /C:".*msg buffer full.*" /C:".*error parsing.*"
 SET interneterrorslist=/C:".*reconnecting.*" /C:".*not resolve.*" /C:".*subscribe .*" /C:".*connect .*" /C:".*No properly.*" /C:".*tion failed.*" /C:".*sinit timeout.*" /C:".*telemetry bind failed.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
@@ -396,8 +396,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% --server.*--logfile.*--time.*--temp-target.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% --server --logfile --time --temp-target* options added to the miners command line in this order." "Ensure %minerpath% --server --logfile --time --temp-target options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% --server.*--logfile.*--time.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% --server --logfile --time* options added to the miners command line in this order." "Ensure %minerpath% --server --logfile --time options added to the miners command line in this order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -616,13 +616,14 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=5,6 delims=AMGPUSolWs上午下午/>#| " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
-	IF %gpus% EQU 1 IF "%%B" NEQ ":" (
-		SET lasthashrate=%%B
+FOR /F "tokens=3,4,5,6 delims=AMGPUSolWs上午下午/>#|! " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
+	IF %gpus% EQU 1 IF "%%A" NEQ "==============" (
+		SET lasthashrate=%%D
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
-	IF %gpus% GEQ 2 IF "%%A" NEQ ":" (
-		SET lasthashrate=%%A
+	IF %gpus% GEQ 2 IF "%%A" EQU "==============" (
+		IF "%%B" EQU "Sol/s:" SET lasthashrate=%%C
+		IF "%%B" NEQ "Sol/s:" SET lasthashrate=%%B
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
 	IF DEFINED lasthashrate (
@@ -642,7 +643,7 @@ FOR /L %%A IN (0,1,%totalgpucount%) DO (
 	)
 	SET speeddata=null
 	SET tempdata=null
-	FOR /F "tokens=4,6 delims=AMGPUC上午下午>#| " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s:.*" %log%') DO (
+	FOR /F "tokens=4,6 delims=AMGPUC上午下午>#|! " %%a IN ('findstr.exe /R /C:".*GPU%%A .*C.*Sol/s.*" %log%') DO (
 		IF "%%a" NEQ "" IF %%a GEQ 0 IF %%a LSS 70 SET tempdata=%%a
 		IF "%%a" NEQ "" IF %%a GEQ 70 SET tempdata=*%%a*
 		IF "%%b" NEQ "" IF %%b GEQ 0 SET speeddata=%%b
@@ -677,7 +678,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
-	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s:.*\+" %log%') DO SET lastsharemin=1%%A
+	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:"GPU.*C.*Sol/s.*\+" %log%') DO SET lastsharemin=1%%A
 	SET /A lastsharemin=!lastsharemin!-100
 	IF !lastsharemin! GEQ 0 IF %me2% GTR 0 (
 		IF !lastsharemin! EQU 0 SET lastsharemin=59
