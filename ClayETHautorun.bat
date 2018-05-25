@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.0
+SET ver=2.0.1
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -28,11 +28,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=EthDcrMiner64.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
 SET ocprogram=0
 SET profile=0
 SET octimeout=120
@@ -190,7 +190,7 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO # Slowdown script for weak CPUs. Increase this value incrementally [1 by 1] if your hashrate drops because of script. This may slow down the responsiveness of the script. [5 - default, only numeric values]
 >> %config% ECHO cputimeout=%cputimeout%
 >> %config% ECHO # =================================================== [Telegram notifications]
->> %config% ECHO # To enable Telegram proxy or mirror use this option. [https://api.telegram.org - default]
+>> %config% ECHO # To enable Telegram proxy or mirror use this option. [https://api.telegram.org - default, http://api.telegram.org.https.s93.wbprx.com - example]
 >> %config% ECHO link=%link%
 >> %config% ECHO # To enable Telegram notifications enter here your chatid, from Telegram @FarmWatchBot. [0 - disable]
 >> %config% ECHO chatid=%chatid%
@@ -201,11 +201,11 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
 >> %config% ECHO reports=%reports%
 >> %config% ECHO # =================================================== [Additional program]
->> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj etc] [0 - false, 1 - true]
+>> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj, OhGodAnETHlargementPill-r2 etc] [0 - false, 1 - true]
 >> %config% ECHO ap=%ap%
 >> %config% ECHO # Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
 >> %config% ECHO approcessname=%approcessname%
->> %config% ECHO # Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe]
+>> %config% ECHO # Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe or move the .exe file in miners folder and use only the .exe file name]
 >> %config% ECHO approcesspath=%approcesspath%
 CALL :inform "1" "false" "0" "Default %config% created. Please check it." "2"
 timeout.exe /T 3 /nobreak >NUL
@@ -367,7 +367,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr200 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr200 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr201 -epsw x -dpool stratum+tcp://sia-eu1.nanopool.org:7777 -dwal ce439b0f9080c8abba0de88a1f02ff8af309ca0b4a0e09bd30dc9cec3479edc78e5e84d60127/fr201 -dpsw x -dcoin sia -allpools 1 -tstop 80 -logfile miner.log -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -740,7 +740,7 @@ IF "%restartminer%" NEQ "0" ECHO [Enabled]  Autorestart miner every %restartmine
 IF "%restartpc%" EQU "0" ECHO [Disabled] Autorestart computer every hour
 IF "%restartpc%" NEQ "0" ECHO [Enabled]  Autorestart computer every %restartpc%h
 IF %sharetimeout% EQU 0 ECHO [Disabled] Last share timeout check
-IF %sharetimeout% EQU 1 ECHO [Enabled]  Last share timeout check
+IF %sharetimeout% EQU 1 ECHO [Enabled]  Last share timeout check [!lastsharemin!/%me2%]
 IF "%chatid%" EQU "0" ECHO [Disabled] Telegram notifications
 IF "%chatid%" NEQ "0" ECHO [Enabled]  Telegram notifications using chatid [%chatid%]
 IF "%ap%" EQU "0" ECHO [Disabled] Additional program autorun
