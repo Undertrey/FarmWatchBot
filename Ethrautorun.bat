@@ -14,9 +14,9 @@ COLOR 1F
 CALL :copyright
 ECHO +===================================================================+
 REM Attention. Change the options below only if you really need to.
-REM Name miner .log file. [in English, without special symbols and spaces]
+REM Name miner .log file. [in English, without any special symbols and spaces. Please do not use long names]
 SET log=miner.log
-REM Name config .ini file. [in English, without special symbols and spaces]
+REM Name config .ini file. [in English, without any special symbols and spaces. Please do not use long names]
 SET config=Config_%mn%.ini
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
 SET cmddoubleruncheck=1
@@ -179,13 +179,13 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO runtimeerrors=%runtimeerrors%
 >> %config% ECHO # Number of hashrate errors before miner restart. Once the threshold is reached, the miner will restart. [5 - default, only numeric values]
 >> %config% ECHO hashrateerrors=%hashrateerrors%
->> %config% ECHO # Name miner file process. Only change this if you have changed the default name of your %minerprocess% file. [in English, without special symbols and spaces]
+>> %config% ECHO # Name miner file process. Only change this if you have changed the default name of your %minerprocess% file. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO minerprocess=%minerprocess%
->> %config% ECHO # Path to miner. Do not change if the script and miner are in the same folder. Only use this option if you plan to switch between multiple miners. [in English, without special symbols and spaces]
+>> %config% ECHO # Path to miner. Do not change if the script and miner are in the same folder. Only use this option if you plan to switch between multiple miners. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO minerpath=%minerpath%
->> %config% ECHO # Name start mining .bat file. [in English, without special symbols and spaces]
+>> %config% ECHO # Name start mining .bat file. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO bat=%bat%
->> %config% ECHO # Name server for ping. Default is google.com - change if you have difficulty reaching Google servers. [in English, without special symbols and spaces]
+>> %config% ECHO # Name server for ping. Default is google.com - change if you have difficulty reaching Google servers. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO pingserver=%pingserver%
 >> %config% ECHO # Slowdown script for weak CPUs. Increase this value incrementally [1 by 1] if your hashrate drops because of script. This may slow down the responsiveness of the script. [5 - default, only numeric values]
 >> %config% ECHO cputimeout=%cputimeout%
@@ -194,18 +194,18 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO link=%link%
 >> %config% ECHO # To enable Telegram notifications enter here your chatid, from Telegram @FarmWatchBot. [0 - disable]
 >> %config% ECHO chatid=%chatid%
->> %config% ECHO # Name your Rig. [in English, without special symbols and spaces]
+>> %config% ECHO # Name your Rig. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO rigname=%rigname%
->> %config% ECHO # Name your group of Rigs. [in English, without special symbols and spaces]
+>> %config% ECHO # Name your group of Rigs. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO groupname=%groupname%
 >> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
 >> %config% ECHO reports=%reports%
 >> %config% ECHO # =================================================== [Additional program]
 >> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj, OhGodAnETHlargementPill-r2 etc] [0 - false, 1 - true]
 >> %config% ECHO ap=%ap%
->> %config% ECHO # Process name of additional program. [Press CTRL+ALT+DEL to find the process name]
+>> %config% ECHO # Process name of additional program. [Press CTRL+ALT+DEL to find the process name][in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO approcessname=%approcessname%
->> %config% ECHO # Path to file of additional program. [ie. C:\Program Files\TeamViewer\TeamViewer.exe or move the .exe file in miners folder and use only the .exe file name]
+>> %config% ECHO # Path to file of additional program. [ie. approcesspath=C:\Program Files\TeamViewer\TeamViewer.exe or move the .exe file in miners folder and use only the .exe file name ie. approcesspath=Pill.exe]
 >> %config% ECHO approcesspath=%approcesspath%
 CALL :inform "1" "false" "0" "Default %config% created. Please check it." "2"
 timeout.exe /T 3 /nobreak >NUL
