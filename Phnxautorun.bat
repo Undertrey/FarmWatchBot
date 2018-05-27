@@ -614,7 +614,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=7 delims=. " %%A IN ('findstr.exe /R /C:".*speed: .*/s.* shares.*" %log%') DO (
+FOR /F "tokens=9 delims=. " %%A IN ('findstr.exe /R /C:".*speed: .*/s.* shares.*" %log%') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -705,7 +705,7 @@ ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +============================================================[%Time:~-5,2%]===+
+ECHO +===================================================[%Time%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
 ECHO Rig [%rigname%] group [%groupname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: [%queue%] %curservername%

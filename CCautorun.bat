@@ -62,6 +62,7 @@ SET approcesspath=C:\Program Files (x86)\TeamViewer\TeamViewer.exe
 REM I recommend that you do not touch the options below unless you know what you are doing.
 IF EXIST "ccminer.exe" RENAME ccminer.exe %minerprocess% 2>NUL 1>&2
 IF EXIST "ccminer-x64.exe" RENAME ccminer-x64.exe %minerprocess% 2>NUL 1>&2
+IF EXIST "z-enemy.exe" RENAME z-enemy.exe %minerprocess% 2>NUL 1>&2
 SET ptos=0
 SET hrdiff=00
 SET mediff=00
@@ -592,6 +593,8 @@ IF %ap% EQU 1 (
 )
 IF %firstrun% EQU 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
+	timeout.exe /T 30 /nobreak >NUL
+	ECHO Please wait 30 sec... This wait is needed to properly recognize number of GPUs.
 	FOR /F "tokens=3 delims= " %%A IN ('findstr.exe /R /C:".*miner threads started.*" %log%') DO SET /A gpucount=%%A
 	IF !gpucount! EQU 0 FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*Intensity.*" %log%') DO SET /A gpucount+=1
 	IF !gpucount! EQU 0 SET gpucount=1
@@ -709,7 +712,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
-	FOR /F "tokens=3 delims=: " %%A IN ('findstr.exe /R /C:".*accepted.*yes.*" /C:".*accepted.*yay.*" /C:".*Accepted.*" /C:".*S/A/T.*yes.*" /C:"Shares.*OK.*" %log%') DO SET lastsharemin=1%%A
+	FOR /F "tokens=3 delims=:[]NOTICE " %%A IN ('findstr.exe /R /C:".*accepted.*yes.*" /C:".*accepted.*yay.*" /C:".*Accepted.*" /C:".*S/A/T.*yes.*" /C:".*Shares.*OK.*" %log%') DO SET lastsharemin=1%%A
 	SET /A lastsharemin=!lastsharemin!-100
 	IF !lastsharemin! GEQ 0 IF %me2% GTR 0 (
 		IF !lastsharemin! EQU 0 SET lastsharemin=59
@@ -732,7 +735,7 @@ ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +============================================================[%Time:~-5,2%]===+
+ECHO +===================================================[%Time%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
 ECHO Rig [%rigname%] group [%groupname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: [%queue%] %curservername%

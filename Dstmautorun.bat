@@ -617,13 +617,13 @@ IF %firstrun% EQU 0 (
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=3,4,5,6 delims=AMGPUSolWs上午下午/>#|! " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
-	IF %gpus% EQU 1 IF "%%A" NEQ "==============" (
+	IF %gpus% EQU 1 IF "%%D" NEQ ":" (
 		SET lasthashrate=%%D
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
 	IF %gpus% GEQ 2 IF "%%A" EQU "==============" (
-		IF "%%B" EQU "Sol/s:" SET lasthashrate=%%C
-		IF "%%B" NEQ "Sol/s:" SET lasthashrate=%%B
+		IF "%%B" EQU ":" SET lasthashrate=%%C
+		IF "%%B" NEQ ":" SET lasthashrate=%%B
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
 	IF DEFINED lasthashrate (
@@ -701,7 +701,7 @@ ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
 ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
-ECHO +============================================================[%Time:~-5,2%]===+
+ECHO +===================================================[%Time%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
 ECHO Rig [%rigname%] group [%groupname%] using [%gpucount%/%gpus%] GPUs.
 IF "%curservername%" NEQ "unknown" ECHO Server: [%queue%] %curservername%
