@@ -367,7 +367,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr201 --pass x --logfile --time --temp-target 80
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% --server eu1-zcash.flypool.org --port 3333 --user t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr201 --pass x --logfile --time
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -617,11 +617,16 @@ IF %firstrun% EQU 0 (
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=3,4,5,6 delims=AMGPUSolWs上午下午/>#|! " %%A IN ('findstr.exe /R /C:".*Sol/s.*" %log%') DO (
-	IF %gpus% EQU 1 IF "%%D" NEQ ":" (
+	IF %gpus% EQU 1 IF "%%B" NEQ ":" (
 		SET lasthashrate=%%D
 		SET lasthashrate=!lasthashrate:~0,-2!
 	)
 	IF %gpus% GEQ 2 IF "%%A" EQU "==============" (
+		IF "%%B" EQU ":" SET lasthashrate=%%C
+		IF "%%B" NEQ ":" SET lasthashrate=%%B
+		SET lasthashrate=!lasthashrate:~0,-2!
+	)
+	IF %gpus% GEQ 2 IF "%%A" EQU "==========" (
 		IF "%%B" EQU ":" SET lasthashrate=%%C
 		IF "%%B" NEQ ":" SET lasthashrate=%%B
 		SET lasthashrate=!lasthashrate:~0,-2!
