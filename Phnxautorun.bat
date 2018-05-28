@@ -645,25 +645,32 @@ IF DEFINED curtempcache (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .*/s.*" %log%') DO SET curspeedcache=%%A
-IF DEFINED curspeedcache (
-	FOR /F "tokens=8-26 delims=:" %%a IN ("%curspeedcache%") DO (
-		SET curspeed=Speed:
-		SET gpunum=0
-		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
-			IF !gpunum! LSS %gpus% (
-				FOR /F "tokens=1 delims=. " %%B IN (%%A) DO (
-					IF "%%B" NEQ "" IF %%B GEQ 0 (
-						SET curspeed=!curspeed! G!gpunum! %%B,
-						SET /A gpunum+=1
+IF %gpus% EQU 1 IF DEFINED lasthashrate (
+	SET curspeed=Speed: G0 %lasthashrate%
+	ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+	IF !minhashrate! GEQ 99 GOTO passaveragecheck
+)
+IF %gpus% GEQ 2 (
+	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .*/s.*" %log%') DO SET curspeedcache=%%A
+	IF DEFINED curspeedcache (
+		FOR /F "tokens=8-26 delims=:" %%a IN ("%curspeedcache%") DO (
+			SET curspeed=Speed:
+			SET gpunum=0
+			FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
+				IF !gpunum! LSS %gpus% (
+					FOR /F "tokens=1 delims=. " %%B IN (%%A) DO (
+						IF "%%B" NEQ "" IF %%B GEQ 0 (
+							SET curspeed=!curspeed! G!gpunum! %%B,
+							SET /A gpunum+=1
+						)
 					)
 				)
 			)
+			IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
+			IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
+			ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+			IF !minhashrate! GEQ 99 GOTO passaveragecheck
 		)
-		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
-		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-		ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
-		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
