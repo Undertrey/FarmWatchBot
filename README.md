@@ -92,7 +92,7 @@ For support **find me** on Telegram: http://t.me/acrefawn.
 **[https://vk.com/gpu_mining](https://vk.com/gpu_mining)**
 
 # **Premium:**
-If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /anydesk, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
+If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/config, /exit, /forget, /group, /info, /miner, /ping, /pool, /profile, /remember, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /anydesk, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
 
 **[Detailed documentation about premium commands.](https://docs.google.com/document/d/1LPFG3PbjhT1HyWZgj2aF0sjgqlp7v7lcPEGrj23GIsk/edit?usp=sharing)**
 
