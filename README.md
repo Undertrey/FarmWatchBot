@@ -9,7 +9,7 @@
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 
 # **Files:**
-**Ewbf Equihash** - *Ewbfautorun.bat*, **Dstm Equihash** - *Dstmautorun.bat*, **Claymore Equihash** - *ClayZECautorun.bat*, **Claymore CryptoNote** - *ClayXMRautorun.bat*, **Claymore NeoScrypt** - *ClayNSautorun.bat*, **Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*, **Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*, **Ccminer tpruvot, alexis (palgin), zealot enemy, KlausT** - *CCautorun.bat*
+**Ewbf Equihash** - *Ewbfautorun.bat*, **Dstm Equihash** - *Dstmautorun.bat*, **Claymore Equihash** - *ClayZECautorun.bat*, **Claymore CryptoNote** - *ClayXMRautorun.bat*, **Claymore NeoScrypt** - *ClayNSautorun.bat*, **Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*, **Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*, **Ccminer tpruvot, alexis (palgin), zealot enemy, KlausT** - *CCautorun.bat*, **Cast XMR CryptoNote** - *Castautorun.bat*, **Phoenix Ethash** - *Phnxautorun.bat*
 
 # **About:**
 Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by Acrefawn (me).
