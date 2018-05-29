@@ -9,7 +9,7 @@
 i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 
 # **Files:**
-**Ewbf Equihash** - *Ewbfautorun.bat*, **Dstm Equihash** - *Dstmautorun.bat*, **Claymore Equihash** - *ClayZECautorun.bat*, **Claymore CryptoNote** - *ClayXMRautorun.bat*, **Claymore NeoScrypt** - *ClayNSautorun.bat*, **Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*, **Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*, **Ccminer tpruvot, alexis (palgin), KlausT** - *CCautorun.bat*
+**Ewbf Equihash** - *Ewbfautorun.bat*, **Dstm Equihash** - *Dstmautorun.bat*, **Claymore Equihash** - *ClayZECautorun.bat*, **Claymore CryptoNote** - *ClayXMRautorun.bat*, **Claymore NeoScrypt** - *ClayNSautorun.bat*, **Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*, **Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*, **Ccminer tpruvot, alexis (palgin), zealot enemy, KlausT** - *CCautorun.bat*
 
 # **About:**
 Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by Acrefawn (me).
@@ -75,7 +75,7 @@ If you use this script and find it helpful and it has stabilized your mining pro
 
 
 # **Premium:**
-If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
+If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /anydesk, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
 
 
 # **Donations:**
