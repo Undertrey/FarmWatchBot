@@ -78,12 +78,16 @@ If you use this script and find it helpful and it has stabilized your mining pro
 For support find me on Telegram: http://t.me/acrefawn.
 
 My [topic on bitcointalk](https://bitcointalk.org/index.php?topic=2071108.0) (eng)
+
 My [topic on forum.zcash](https://forum.z.cash/t/cmd-farmwatchbot-autorun-watchdog-for-ewbf-claymore-dstm-ccminer-bminer-ethminer/20640) (eng)
+
 My [topic on bits.media](https://forum.bits.media/index.php?/topic/45680-zcash-miner-autorun/) (rus)
-My [topic on cryptoff](https://forum.cryptoff.org/index.php?/topic/6727-zcash-miner-autorun-autorestart-watchdog-for-ewbf-miner/) (rus)**
+
+My [topic on cryptoff](https://forum.cryptoff.org/index.php?/topic/6727-zcash-miner-autorun-autorestart-watchdog-for-ewbf-miner/) (rus)
 
 Thank you for supporting!
 [https://vk.com/zcash](https://vk.com/zcash)
+
 [https://vk.com/gpu_mining](https://vk.com/gpu_mining)
 
 # **Premium:**
