@@ -75,7 +75,7 @@ If you use this script and find it helpful and it has stabilized your mining pro
 
 
 # **Contacts:**
-For support find me on Telegram: http://t.me/acrefawn.
+For support **find me** on Telegram: http://t.me/acrefawn.
 
 **My [topic on bitcointalk](https://bitcointalk.org/index.php?topic=2071108.0) (eng)**
 
@@ -87,13 +87,16 @@ For support find me on Telegram: http://t.me/acrefawn.
 
 *Thank you for supporting!*
 
-*[https://vk.com/zcash](https://vk.com/zcash)*
+**[https://vk.com/zcash](https://vk.com/zcash)**
 
-*[https://vk.com/gpu_mining](https://vk.com/gpu_mining)*
+**[https://vk.com/gpu_mining](https://vk.com/gpu_mining)**
 
 # **Premium:**
 If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /anydesk, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
 
+**[Detailed documentation about premium commands.](https://docs.google.com/document/d/1LPFG3PbjhT1HyWZgj2aF0sjgqlp7v7lcPEGrj23GIsk/edit?usp=sharing)**
+
+**[Подробная документация о премиум командах.](https://docs.google.com/document/d/1UI1__t-ToZzKf35JCfFgeo1yQcRxwnsQfwXb03Wiv8k/edit?usp=sharing)**
 
 # **Donations:**
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
