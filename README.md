@@ -74,6 +74,18 @@ If you use this script and find it helpful and it has stabilized your mining pro
 10. Attention and lack of desire to put your hands into the code yourself, write to me, I will do everything. Then to disassemble, that there was, and that became, it is long and it is not interesting! **Also, note that I will not help people who have changed the code or have not read the instructions for free**.
 
 
+# **Contacts:**
+For support find me on Telegram: http://t.me/acrefawn.
+
+My [topic on bitcointalk](https://bitcointalk.org/index.php?topic=2071108.0) (eng)
+My [topic on forum.zcash](https://forum.z.cash/t/cmd-farmwatchbot-autorun-watchdog-for-ewbf-claymore-dstm-ccminer-bminer-ethminer/20640) (eng)
+My [topic on bits.media](https://forum.bits.media/index.php?/topic/45680-zcash-miner-autorun/) (rus)
+My [topic on cryptoff](https://forum.cryptoff.org/index.php?/topic/6727-zcash-miner-autorun-autorestart-watchdog-for-ewbf-miner/) (rus)**
+
+Thank you for supporting!
+[https://vk.com/zcash](https://vk.com/zcash)
+[https://vk.com/gpu_mining](https://vk.com/gpu_mining)
+
 # **Premium:**
 If you interested in premium version, price is **20$** equivalent in any cryptocurrency from donations list. The premium version offers the user to use a certain range of commands via a telegram bot. This list includes such commands as:  **/forget, /info, /miner, /ping, /pool, /profile, /remember, /reports, /restart, /server, /shutdown, /startover, /status, /stop, /teamviewer, /anydesk, /online, /update**. And also receive notifications from the bot when the **Rig is offline**. Send **20$** equivalent in cryptocurrency to donation address and [contact me in Telegram](https://t.me/acrefawn) for further instructions.
 
