@@ -645,11 +645,7 @@ IF DEFINED curtempcache (
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-IF %gpus% EQU 1 IF DEFINED lasthashrate (
-	SET curspeed=Speed: G0 %lasthashrate%
-	ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
-	IF !minhashrate! GEQ 99 GOTO passaveragecheck
-)
+IF %gpus% EQU 1 IF DEFINED lasthashrate SET curspeed=Speed: G0 %lasthashrate%
 IF %gpus% GEQ 2 (
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .*/s.*" %log%') DO SET curspeedcache=%%A
 	IF DEFINED curspeedcache (
