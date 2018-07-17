@@ -44,7 +44,7 @@ SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
 SET tempcheck=1
-SET maintempcheck=1
+SET globaltempcheck=1
 SET environments=1
 SET sharetimeout=1
 SET runtimeerrors=5
@@ -96,7 +96,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck maintempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -170,8 +170,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO internetcheck=%internetcheck%
 >> %config% ECHO # Enable 0C - 5C temperature error check. [0 - false, 1 - true]
 >> %config% ECHO tempcheck=%tempcheck%
->> %config% ECHO # Enable main temperature error check. [0 - false, 1 - true]
->> %config% ECHO maintempcheck=%maintempcheck%
+>> %config% ECHO # Enable global temperature error check. [0 - false, 1 - true]
+>> %config% ECHO globaltempcheck=%globaltempcheck%
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> %config% ECHO # GPU_FORCE_64BIT_PTR 1, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
@@ -273,7 +273,7 @@ SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
 IF %tempcheck% EQU 1 SET errorslist=%errorslist% /C:".* [0-5]шC .*"
-IF %maintempcheck% EQU 1 SET warningslist=/C:".*reached.*"
+IF %globaltempcheck% EQU 1 SET warningslist=/C:".*reached.*"
 IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 1" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
 IF %environments% EQU 0 FOR %%a IN ("GPU_FORCE_64BIT_PTR" "GPU_MAX_HEAP_SIZE" "GPU_USE_SYNC_OBJECTS" "GPU_MAX_ALLOC_PERCENT" "GPU_SINGLE_ALLOC_PERCENT") DO REG DELETE HKCU\Environment /F /V %%~a 2>NUL 1>&2 && ECHO %%~a successfully removed from environments.
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt1=%%A
