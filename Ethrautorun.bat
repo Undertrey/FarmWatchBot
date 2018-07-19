@@ -486,7 +486,7 @@ IF "%lasterror%" NEQ "0" (
 						CALL :copyright
 						COLOR 4F
 						CALL :kill "0" "0" "1" "1"
-						IF %internetcheck% NEQ 2 SET switchtodefault=1
+						IF %internetcheck% NEQ 2 IF %switchtodefault% NEQ 2 SET switchtodefault=1
 						IF %internetcheck% NEQ 2 SET /A queue+=1
 						SET /A errorscounter+=1
 						ECHO +===================================================================+
