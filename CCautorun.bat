@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.2
+SET ver=2.0.3
 SET mn=Cmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -203,7 +203,7 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO rigname=%rigname%
 >> %config% ECHO # Name your group of Rigs. [in English, without any special symbols and spaces. Please do not use long names]
 >> %config% ECHO groupname=%groupname%
->> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications]
+>> %config% ECHO # Enable hourly statistics through Telegram. [0 - false, 1 - true full, 2 - true full in silent mode, 3 - true short, 4 - true short in silent mode, 5 - disable useless Telegram notifications, 6 - false other notifications in silent mode]
 >> %config% ECHO reports=%reports%
 >> %config% ECHO # =================================================== [Additional program]
 >> %config% ECHO # Enable additional program check on startup. [ie. TeamViewer, Minergate, Storj, OhGodAnETHlargementPill-r2 etc] [0 - false, 1 - true]
@@ -478,16 +478,16 @@ IF %hrdiff% GEQ 96 (
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
-IF "%lasterror%" NEQ "0" (
+IF !lasterror! NEQ 0 (
 	IF %internetcheck% GEQ 1 (
-		ECHO "%lasterror%"| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
+		ECHO !lasterror!| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
 			FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
-			ECHO "!lastinterneterror!"| findstr.exe /I /R %interneterrorslist% >NUL && (
+			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
 				FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
-				ECHO "!lastinterneterror!"| findstr.exe /I /R %interneterrorslist% >NUL && (
-					CALL :inform "1" "false" "%lasterror%" "1" "0"
+				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
+					CALL :inform "1" "false" "!lasterror!" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
 						CALL :copyright
 						COLOR 4F
@@ -519,7 +519,7 @@ IF "%lasterror%" NEQ "0" (
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
 						FOR /F "delims=" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
-						ECHO "!lastinterneterror!"| findstr.exe /I /R %errorscancel% && (
+						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +===================================================================+
 							ECHO                     Connection has been restored...
 							ECHO                           Continue mining...
@@ -543,15 +543,15 @@ IF "%lasterror%" NEQ "0" (
 			)
 		)
 	)
-	ECHO "%lasterror%"| findstr.exe /I /R %errorslist% 2>NUL && (
-		CALL :inform "1" "false" "%lasterror%" "1" "0"
+	ECHO !lasterror!| findstr.exe /I /R %errorslist% 2>NUL && (
+		CALL :inform "1" "false" "!lasterror!" "1" "0"
 		GOTO error
 	)
-	ECHO "%lasterror%"| findstr.exe /I /R %criticalerrorslist% 2>NUL && (
-		CALL :inform "1" "false" "%lasterror%" "1" "0"
+	ECHO !lasterror!| findstr.exe /I /R %criticalerrorslist% 2>NUL && (
+		CALL :inform "1" "false" "!lasterror!" "1" "0"
 		GOTO restart
 	)
-	ECHO "%lasterror%"| findstr.exe /I /R %warningslist% 2>NUL && (
+	ECHO !lasterror!| findstr.exe /I /R %warningslist% 2>NUL && (
 		CALL :copyright
 		COLOR 4F
 		ECHO +===================================================================+
@@ -817,7 +817,8 @@ IF "%~5" EQU "2" ECHO %~4
 IF "%~4" NEQ "0" IF "%~4" NEQ "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~4
 IF "%~4" EQU "1" >> %~n0.log ECHO [%Date%][%Time:~-11,8%] %~3
 IF "%reports%" EQU "5" IF "%~1" EQU "0" EXIT /b
-IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('%link%/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%reports%" NEQ "6" IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('%link%/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=%~2&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
+IF "%reports%" EQU "6" IF "%~3" NEQ "0" IF "%~3" NEQ "" IF "%chatid%" NEQ "0" powershell.exe -command "(new-object net.webclient).DownloadString('%link%/bot%num%:%prt%-%rtp%dp%tpr%/sendMessage?parse_mode=markdown&disable_notification=false&chat_id=%chatid%&text=*%rigname%:* %~3')" 2>NUL 1>&2
 EXIT /b
 :copyright
 CLS
