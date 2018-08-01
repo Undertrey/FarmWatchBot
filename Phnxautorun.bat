@@ -78,7 +78,7 @@ SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET errorscancel=/C:".*Connected.*"
-SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*unable to get fan speed.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*CUDA error.*"
 SET errorslist=/C:".*GPU .* hangs.*"
 SET interneterrorslist=/C:"Can.*t resolve.*" /C:".*Unable to read pool response.*" /C:".*Reconnecting.*" /C:".*Connection closed.*"
 IF %cmddoubleruncheck% EQU 1 (
