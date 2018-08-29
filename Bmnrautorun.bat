@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.3
+SET ver=2.0.4
 SET mn=Bmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -28,11 +28,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=bminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver2=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver3=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver4=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
-SET commandserver5=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver1=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver2=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver3=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver4=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+SET commandserver5=%minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
 SET ocprogram=0
 SET profile=0
 SET octimeout=120
@@ -370,7 +370,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr203@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -uri stratum://t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv.fr204@eu1-zcash.flypool.org:3333 -logfile miner.log -max-temperature 80
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -471,7 +471,10 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=4 delims=[]" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
+FOR /F "tokens=4 delims=[]" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO (
+	SET "lasterror=%%N"
+	SET lasterror=!lasterror:"=!
+)
 IF !lasterror! NEQ 0 (
 	IF %internetcheck% GEQ 1 (
 		ECHO !lasterror!| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (

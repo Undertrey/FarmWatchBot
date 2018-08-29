@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.3
+SET ver=2.0.4
 SET mn=Cmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -477,7 +477,10 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO (
+	SET "lasterror=%%N"
+	SET lasterror=!lasterror:"=!
+)
 IF !lasterror! NEQ 0 (
 	IF %internetcheck% GEQ 1 (
 		ECHO !lasterror!| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (

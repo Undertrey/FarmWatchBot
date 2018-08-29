@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.3
+SET ver=2.0.4
 SET mn=Phnx
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -15,7 +15,7 @@ CALL :copyright
 ECHO +===================================================================+
 REM Attention. Change the options below only if you really need to.
 REM Name miner .log file. [in English, without any special symbols and spaces. Please do not use long names]
-SET log=log*.txt
+SET log=miner.log
 REM Name config .ini file. [in English, without any special symbols and spaces. Please do not use long names]
 SET config=Config_e%mn%.ini
 REM Check to see if autorun.bat has already been started. [0 - false, 1 - true]
@@ -28,11 +28,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=PhoenixMiner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
-SET commandserver2=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
-SET commandserver3=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
-SET commandserver4=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
-SET commandserver5=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
+SET commandserver1=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
+SET commandserver2=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
+SET commandserver3=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
+SET commandserver4=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
+SET commandserver5=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
 SET ocprogram=0
 SET profile=0
 SET octimeout=120
@@ -370,7 +370,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr203 -coin eth -log 1
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204 -coin eth -log 1 -logfile miner.log
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -391,8 +391,8 @@ START "%bat%" "%bat%" && (
 IF %lauchocprogram% EQU 1 CALL :oclauch
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	findstr.exe /R /C:".*-log 1.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "%log% is missing. Ensure *-log 1* option is added to the miners command line in *%config%* file." "%log% is missing. Ensure -log 1 option is added to the miners command line in %config% file." "2"
+	findstr.exe /R /C:".*-log 1 -logfile %log%.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "%log% is missing. Ensure *-log 1 -logfile %log%* option is added to the miners command line in *%config%* file." "%log% is missing. Ensure -log 1 -logfile %log% option is added to the miners command line in %config% file." "2"
 		PAUSE
 		EXIT
 	)
@@ -471,7 +471,10 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO SET "lasterror=%%N"
+FOR /F "delims=" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO (
+	SET "lasterror=%%N"
+	SET lasterror=!lasterror:"=!
+)
 IF !lasterror! NEQ 0 (
 	IF %internetcheck% GEQ 1 (
 		ECHO !lasterror!| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
@@ -617,7 +620,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=9 delims=. " %%A IN ('findstr.exe /R /C:".*speed: .*/s.* shares.*" %log%') DO (
+FOR /F "tokens=8 delims=. " %%A IN ('findstr.exe /R /C:".*speed: .*/s.* shares.*" %log%') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -652,7 +655,7 @@ IF %gpus% EQU 1 IF DEFINED lasthashrate SET curspeed=Speed: G0 %lasthashrate%
 IF %gpus% GEQ 2 (
 	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* .*/s.*" %log%') DO SET curspeedcache=%%A
 	IF DEFINED curspeedcache (
-		FOR /F "tokens=8-26 delims=:" %%a IN ("%curspeedcache%") DO (
+		FOR /F "tokens=7-25 delims=:" %%a IN ("%curspeedcache%") DO (
 			SET curspeed=Speed:
 			SET gpunum=0
 			FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
@@ -688,7 +691,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
-	FOR /F "tokens=4 delims=:" %%A IN ('findstr.exe /R /C:".*Share accepted.*" %log%') DO SET lastsharemin=1%%A
+	FOR /F "tokens=3 delims=:" %%A IN ('findstr.exe /R /C:".*Share accepted.*" %log%') DO SET lastsharemin=1%%A
 	SET /A lastsharemin=!lastsharemin!-100
 	IF !lastsharemin! GEQ 0 IF %me2% GTR 0 (
 		IF !lastsharemin! EQU 0 SET lastsharemin=59
