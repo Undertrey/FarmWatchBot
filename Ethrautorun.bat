@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.4
+SET ver=2.0.5
 SET mn=Ethr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -28,11 +28,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=ethminer.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
-SET commandserver2=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
-SET commandserver3=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
-SET commandserver4=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
-SET commandserver5=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
+SET commandserver1=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.dn199@eu1.ethermine.org:5555 -U --HWMON 0 -R
+SET commandserver2=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr205@eu1.ethermine.org:5555 -U --HWMON 0 -R
+SET commandserver3=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr205@eu1.ethermine.org:5555 -U --HWMON 0 -R
+SET commandserver4=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr205@eu1.ethermine.org:5555 -U --HWMON 0 -R
+SET commandserver5=%minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr205@eu1.ethermine.org:5555 -U --HWMON 0 -R
 SET ocprogram=0
 SET profile=0
 SET octimeout=120
@@ -77,9 +77,9 @@ SET prt=AAFWKz6wv7
 SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
-SET errorscancel=/C:".*Received new job.*"
+SET errorscancel=/C:".*ew job.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*"
-SET errorslist=/C:".*CUDA.*error.*" /C:".*unspecified launch failure.*" /C:".*bad allocation.*" /C:".*Unknown exception.*"
+SET errorslist=/C:".*CUDA.*error.*" /C:".*OpenCL init failed.*" /C:".*OpenCL Error.*" /C:".*unspecified launch failure.*" /C:".*bad allocation.*" /C:".*Unknown exception.*" /C:".*must be specified.*" /C:".*Invalid argument.*"
 SET interneterrorslist=/C:".*not-connected.*" /C:".*not resolve.*" /C:".*Disconnected.*" /C:".*Unknown URI scheme unspecified.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
@@ -377,12 +377,12 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO +===============================================================================================================+
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr204@eu1.ethermine.org:5555 -X --HWMON 0 -R
+IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.fr205@eu1.ethermine.org:5555 -U --HWMON 0 -R
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
 	CALL :inform "1" "false" "Miner was started." "Miner was started. Script v.%ver%." "Miner was started at %Time:~-11,8%"
-	FOR /F "tokens=6,7 delims=/:=@ " %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
+	FOR /F "tokens=3,4 delims=/@:" %%a IN ('findstr.exe /R /C:".*%minerprocess%" %bat%') DO (
 		ECHO %%b| findstr.exe /V /I /R /C:".*stratum.*ssl.*" /C:".*stratum.*tcp.*" /C:".*stratum.*tls.*" /C:".*http.*" /C:".*https.*" /C:".*log.*"| findstr.exe /R /C:".*\..*" >NUL && (
 			SET curservername=%%b
 		)
@@ -630,9 +630,9 @@ FOR /F "tokens=5 delims=.| " %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%'
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=3 delims=|[]" %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO SET curcache=%%A
+FOR /F "tokens=2 delims=d" %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO SET curcache=%%A
 IF DEFINED curcache (
-	FOR /F "tokens=3-21 delims=gpu/" %%a IN ("!curcache!") DO (
+	FOR /F "tokens=2-20 delims=gpu/" %%a IN ("!curcache!") DO (
 		SET curtemp=Temp:
 		SET curspeed=Speed:
 		SET gpunum=0
