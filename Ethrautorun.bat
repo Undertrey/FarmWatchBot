@@ -620,7 +620,7 @@ IF %firstrun% EQU 0 (
 	SET firstrun=1
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=5 delims=.| " %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO (
+FOR /F "tokens=5 delims=.|, " %%A IN ('findstr.exe /R /C:".*Speed.*Mh/s.*" %log%') DO (
 	SET lasthashrate=%%A
 	IF %%A LSS %hashrate% SET /A minhashrate+=1
 	IF %%A EQU 0 SET /A minhashrate+=1
@@ -638,7 +638,7 @@ IF DEFINED curcache (
 		SET gpunum=0
 		FOR %%A IN ("%%a" "%%b" "%%c" "%%d" "%%e" "%%f" "%%g" "%%h" "%%i" "%%j" "%%k" "%%l" "%%m" "%%n" "%%o" "%%p" "%%q" "%%r" "%%s") DO (
 			IF !gpunum! LSS %gpus% (
-				FOR /F "tokens=2,4 delims=C. " %%B IN (%%A) DO (
+				FOR /F "tokens=2,4 delims=C., " %%B IN (%%A) DO (
 					IF "%%B" NEQ "" IF %%B GEQ 0 SET curspeed=!curspeed! G!gpunum! %%B,
 					IF "%%C" NEQ "" IF %%C GEQ 0 (
 						IF %%C LSS 70 SET curtemp=!curtemp! G!gpunum! %%CC,
