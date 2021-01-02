@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.6
+SET ver=2.0.8
 SET mn=Phnx
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -78,8 +78,8 @@ SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET errorscancel=/C:".*Connected.*"
-SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*CUDA error.*"
-SET errorslist=/C:".*GPU .* hangs.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*CUDA error.*" /C:".*Fatal error detected.*"
+SET errorslist=/C:".*GPU .* hangs.*" /C:".*Thread.*not.*responding.*"
 SET interneterrorslist=/C:"Can.*t resolve.*" /C:".*Unable to read pool response.*" /C:".*Reconnecting.*" /C:".*Connection closed.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
