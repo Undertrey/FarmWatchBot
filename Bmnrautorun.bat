@@ -4,7 +4,7 @@ REM I recommend that you do not touch the options below unless you know what you
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.0.9
+SET ver=2.1.0
 SET mn=Bmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -35,6 +35,7 @@ SET commandserver4=%minerpath% -uri ethash://0x4a98909270621531dda26de63679c1c6f
 SET commandserver5=%minerpath% -uri ethash://0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver%@eu1.ethermine.org:4444 -logfile miner.log -max-temperature 80
 SET ocprogram=0
 SET profile=0
+SET additionalprofile=0
 SET octimeout=120
 SET restartocprogram=0
 SET lauchocprogram=0
@@ -148,7 +149,9 @@ IF %serversamount% GTR 1 FOR /L %%A IN (2,1,%serversamount%) DO (
 >> %config% ECHO ocprogram=%ocprogram%
 >> %config% ECHO # Additional option to auto-enable Overclock Profile for MSI Afterburner. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
 >> %config% ECHO profile=%profile%
->> %config% ECHO # Set MSI Afterburner wait timer after start. Important on weak processors. [default - 120 sec, min value - 1 sec]
+>> %config% ECHO # Extra option to enable OC Profile for MSI Afterburner second time. Please, do not use this option if it is not needed. [0 - false, 1 - Profile 1, 2 - Profile 2, 3 - Profile 3, 4 - Profile 4, 5 - Profile 5]
+>> %config% ECHO additionalprofile=%additionalprofile%
+>> %config% ECHO # Set MSI Afterburner wait timer after start. Important on weak processors. This option is also used to delay extra profile activation by default. [default - 120 sec, min value - 1 sec]
 IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO octimeout=%octimeout%
 >> %config% ECHO # Allow Overclock program to be restarted when miner is restarted. Please, do not use this option if it is not needed. [0 - false, 1 - true]
@@ -269,6 +272,7 @@ CALL :inform "1" "false" "Miner restarting, please wait... Miner ran for *%hrdif
 CALL :screenshot
 timeout.exe /T 3 /nobreak >NUL
 :start
+SET secondoclaunch=0
 SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
@@ -389,6 +393,7 @@ START "%bat%" "%bat%" && (
 	GOTO error
 )
 IF %lauchocprogram% EQU 1 CALL :oclauch
+IF %additionalprofile% GEQ 1 IF %additionalprofile% LEQ 5 IF !secondoclaunch! EQU 1 CALL :oclauch
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
 	findstr.exe /R /C:".*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
@@ -717,7 +722,12 @@ ECHO +===================================================================+
 IF DEFINED ocprocessname IF DEFINED ocprocesspath ( 
 	IF %ocprogram% NEQ 0 IF %ocprogram% NEQ 2 ECHO Process %ocprocessname%.exe is running...
 	IF %ocprogram% EQU 2 (
-		IF %profile% GEQ 1 IF %profile% LEQ 5 ECHO Process %ocprocessname%.exe [Profile %profile%] is running...
+		IF %profile% GEQ 1 IF %profile% LEQ 5 IF %additionalprofile% EQU 0 (
+			ECHO Process %ocprocessname%.exe [Profile %profile%] is running...
+		)
+		IF %profile% GEQ 1 IF %profile% LEQ 5 IF %additionalprofile% GEQ 1 IF %additionalprofile% LEQ 5 (
+			ECHO Process %ocprocessname%.exe [Profile %profile% and %additionalprofile%] is running...
+		)
 		IF %profile% LSS 1 IF %profile% GTR 5 ECHO Process %ocprocessname%.exe is running...
 	)
 )
@@ -802,7 +812,17 @@ IF DEFINED ocprocessname IF DEFINED ocprocesspath IF %ocprogram% NEQ 0 (
 			GOTO error
 		)
 	)
-	timeout.exe /T 5 /nobreak >NUL
-	IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
+	IF %profile% GEQ 1 IF %profile% LEQ 5 IF %ocprogram% EQU 2 (
+		IF %secondoclaunch% EQU 1 (
+			ECHO Waiting %octimeout% sec. MSI Afterburner to fully load the extra profile for each GPU or press any key to continue...
+			timeout.exe /T %octimeout% >NUL
+			IF %additionalprofile% GEQ 1 IF %additionalprofile% LEQ 5 "%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%additionalprofile% >NUL && ECHO MSI Afterburner extra profile %additionalprofile% activated.
+			SET secondoclaunch=0
+		) ELSE (
+			timeout.exe /T 5 /nobreak >NUL
+			"%programfiles(x86)%%ocprocesspath%%ocprocessname%.exe" -Profile%profile% >NUL && ECHO MSI Afterburner profile %profile% activated.
+			SET secondoclaunch=1
+		)
+	)
 )
 EXIT /b
