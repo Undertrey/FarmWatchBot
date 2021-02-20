@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.1
+SET ver=2.1.2
 SET mn=Ethr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -98,7 +98,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -380,9 +380,9 @@ IF EXIST "%log%" (
 >> %bat% ECHO ECHO This script will ONLY work if the information is written in the .log file, making "on screen output" impossible.
 >> %bat% ECHO ECHO Do not worry, the miner working OK.
 >> %bat% ECHO ECHO +===============================================================================================================+
-IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> miner.log 2^>^&1 !commandserver%queue%!
+IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO ^>^> %log% 2^>^&1 !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO ^>^> miner.log 2^>^&1 %minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver%@eu1.ethermine.org:5555 -U --HWMON 0 -R
+IF %queue% EQU 0 >> %bat% ECHO ^>^> %log% 2^>^&1 %minerpath% -P stratum+ssl://0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver%@eu1.ethermine.org:5555 -U --HWMON 0 -R
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -404,7 +404,7 @@ IF %lauchocprogram% EQU 1 CALL :oclauch
 IF %additionalprofile% GEQ 1 IF %additionalprofile% LEQ 5 IF !secondoclaunch! EQU 1 CALL :oclauch
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
-	CALL :inform "1" "false" "%log% is missing. Ensure *^>^> miner.log 2^>^&1* option is added to the miners command line in *%config%* file." "%log% is missing. Ensure ^>^> miner.log 2^>^&1 option is added to the miners command line in %config% file." "2"
+	CALL :inform "1" "false" "%log% is missing. Ensure *^>^> %log% 2^>^&1* option is added to the miners command line in *%config%* file." "%log% is missing. Ensure ^>^> %log% 2^>^&1 option is added to the miners command line in %config% file." "2"
 	PAUSE
 	EXIT
 ) ELSE (
@@ -658,7 +658,7 @@ IF DEFINED curcache (
 		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-		ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+		ECHO !curspeed!| findstr.exe /R /C:".* 0\..*" 2>NUL 1>&2 && SET /A minhashrate+=1
 		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )

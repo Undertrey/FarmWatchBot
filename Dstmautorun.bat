@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.1
+SET ver=2.1.2
 SET mn=Dstm
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -45,7 +45,7 @@ SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
-SET tempcheck=1
+SET tempcheck=0
 SET globaltempcheck=1
 SET environments=0
 SET sharetimeout=1
@@ -98,7 +98,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -478,18 +478,18 @@ IF %hrdiff% GEQ 96 (
 	GOTO hardstart
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=2 delims=>|" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO (
+FOR /F "tokens=2 delims=>|#" %%N IN ('findstr.exe /I /R %criticalerrorslist% %errorslist% %warningslist% %interneterrorslist% %log%') DO (
 	SET "lasterror=%%N"
 	SET lasterror=!lasterror:"=!
 )
 IF !lasterror! NEQ 0 (
 	IF %internetcheck% GEQ 1 (
 		ECHO !lasterror!| findstr.exe /I /R %interneterrorslist% 2>NUL 1>&2 && (
-			FOR /F "tokens=2 delims=>|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+			FOR /F "tokens=2 delims=>|#" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
 			ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 				ECHO Something is wrong with your Internet connection. Waiting for confirmation of connection error in case miner cannot automatically reconnect...
 				timeout.exe /T 120 >NUL
-				FOR /F "tokens=2 delims=>|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+				FOR /F "tokens=2 delims=>|#" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
 				ECHO !lastinterneterror!| findstr.exe /I /R %interneterrorslist% >NUL && (
 					CALL :inform "1" "false" "!lasterror!" "1" "0"
 					ping.exe %pingserver%| find.exe /I "TTL=" >NUL && (
@@ -522,7 +522,7 @@ IF !lasterror! NEQ 0 (
 						IF %hrdiff% GTR 0 IF %interneterrorscount% GTR 15 GOTO restart
 						ECHO Attempt %interneterrorscount% to restore Internet connection.
 						SET /A interneterrorscount+=1
-						FOR /F "tokens=2 delims=>|" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
+						FOR /F "tokens=2 delims=>|#" %%n IN ('findstr.exe /I /R %interneterrorslist% %errorscancel% %log%') DO SET "lastinterneterror=%%n"
 						ECHO !lastinterneterror!| findstr.exe /I /R %errorscancel% && (
 							ECHO +===================================================================+
 							ECHO                     Connection has been restored...

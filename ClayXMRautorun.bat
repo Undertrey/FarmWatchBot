@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.1
+SET ver=2.1.2
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -29,11 +29,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=NsGpuCNMiner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver2=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver3=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver4=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
-SET commandserver5=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+SET commandserver1=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
+SET commandserver2=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
+SET commandserver3=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
+SET commandserver4=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
+SET commandserver5=%minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
 SET ocprogram=0
 SET profile=0
 SET additionalprofile=0
@@ -45,7 +45,7 @@ SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
-SET tempcheck=1
+SET tempcheck=0
 SET globaltempcheck=1
 SET environments=1
 SET sharetimeout=1
@@ -98,7 +98,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -375,7 +375,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile miner.log -wd 0
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -xpool stratum+ssl://xmr-eu1.nanopool.org:14433 -xwal 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J.%ver% -xpsw x -allpools 1 -tstop 80 -logfile %log% -wd 0
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -674,7 +674,7 @@ IF DEFINED curspeedcache (
 		)
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-		ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+		ECHO !curspeed!| findstr.exe /R /C:".* 0\..*" 2>NUL 1>&2 && SET /A minhashrate+=1
 		IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	)
 )

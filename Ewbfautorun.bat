@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.1
+SET ver=2.1.2
 SET mn=Ewbf
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -45,7 +45,7 @@ SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
-SET tempcheck=1
+SET tempcheck=0
 SET globaltempcheck=1
 SET environments=0
 SET sharetimeout=1
@@ -98,7 +98,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig

@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.1
+SET ver=2.1.2
 SET mn=Phnx
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -29,11 +29,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=PhoenixMiner.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
-SET commandserver2=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
-SET commandserver3=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
-SET commandserver4=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
-SET commandserver5=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
+SET commandserver1=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
+SET commandserver2=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
+SET commandserver3=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
+SET commandserver4=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
+SET commandserver5=%minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
 SET ocprogram=0
 SET profile=0
 SET additionalprofile=0
@@ -45,7 +45,7 @@ SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
 SET internetcheck=1
-SET tempcheck=1
+SET tempcheck=0
 SET globaltempcheck=1
 SET environments=1
 SET sharetimeout=1
@@ -98,7 +98,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -375,7 +375,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile miner.log
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -pool eu1.ethermine.org:4444 -wal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -coin eth -log 1 -logfile %log%
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
@@ -405,8 +405,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% -pool.*-log 1.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% -pool -log 1* options added to the miners command line in this order." "Ensure %minerpath% -pool -log 1 options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% -pool.*-log 1 -logfile %log%.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% -pool -log 1 -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -pool -log 1 -logfile %log% options added to the miners command line in this order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -676,7 +676,7 @@ IF %gpus% GEQ 2 (
 			)
 			IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
 			IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-			ECHO !curspeed!| findstr.exe /R /C:".* 0 .*" 2>NUL 1>&2 && SET /A minhashrate+=1
+			ECHO !curspeed!| findstr.exe /R /C:".* 0\..*" 2>NUL 1>&2 && SET /A minhashrate+=1
 			IF !minhashrate! GEQ 99 GOTO passaveragecheck
 		)
 	)
