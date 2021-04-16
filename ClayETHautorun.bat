@@ -29,11 +29,11 @@ SET gpurestart=1
 SET hashrate=0
 SET minerprocess=EthDcrMiner64.exe
 SET minerpath=%minerprocess%
-SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
-SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
-SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
-SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
-SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+SET commandserver1=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+SET commandserver2=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+SET commandserver3=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+SET commandserver4=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+SET commandserver5=%minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
 SET ocprogram=0
 SET profile=0
 SET additionalprofile=0
@@ -375,7 +375,7 @@ IF EXIST "%log%" (
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 IF %queue% GEQ 1 IF %queue% LEQ %serversamount% >> %bat% ECHO !commandserver%queue%!
 REM Default pool server settings for debugging. Will be activated only in case of mining failed on all user pool servers, to detect errors in the configuration file. Will be deactivated automatically in 30 minutes and switched back to settings of main pool server. To be clear, this will mean you are mining to my address for 30 minutes, at which point the script will then iterate through the pools that you have configured in the configuration file. I have used this address because I know these settings work. If the script has reached this point, CHECK YOUR CONFIGURATION FILE or all pools you have specified are offline. You can also change the address here to your own.
-IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
+IF %queue% EQU 0 >> %bat% ECHO %minerpath% -epool eu1.ethermine.org:4444 -ewal 0x4a98909270621531dda26de63679c1c6fdcf32ea.%ver:.=% -epsw x -allpools 1 -tstop 80 -logfile %log% -wd 0 -mode 1 -platform 2
 >> %bat% ECHO EXIT
 timeout.exe /T 3 /nobreak >NUL
 START "%bat%" "%bat%" && (
