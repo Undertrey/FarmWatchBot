@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.2
+SET ver=2.1.3
 SET mn=Trex
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -599,7 +599,7 @@ IF %ap% EQU 1 (
 )
 IF %firstrun% EQU 0 (
 	timeout.exe /T %cputimeout% /nobreak >NUL
-	FOR /F "delims=" %%A IN ('findstr.exe /R /C:".*GPU.* using .*" %log%') DO SET /A gpucount+=1
+	FOR /F "tokens=6 delims= " %%A IN ('findstr.exe /R /C:".*CUDA devices available. [0-9]*.*" %log%') DO SET gpucount=%%A
 	IF !gpucount! EQU 0 SET gpucount=1
 	IF %gpus% EQU 0 SET gpus=!gpucount!
 )
@@ -636,23 +636,20 @@ FOR /F "tokens=5 delims=.[]- " %%A IN ('findstr.exe /R /C:".*OK.*MH/s.*GPU.*" %l
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=2 delims=-" %%A IN ('findstr.exe /R /C:".*GPU.*MH/s.*" %log%') DO SET curcache=%%A
-IF DEFINED curcache (
+FOR /F "tokens=2,3 delims=#-" %%A IN ('findstr.exe /R /C:".*GPU.*MH/s.*" %log%') DO (
+	SET gpunum=%%A
+	SET gpunum=!gpunum:~0,2%!
+	SET gpunum=!gpunum::=!
+	SET curcache=%%B
+)
+IF DEFINED gpunum IF DEFINED curcache (
 	FOR /F "tokens=1,3 delims=.,MH/s[]:TCPWFEkR " %%a IN ("!curcache!") DO (
 		SET curtemp=Temp:
 		SET curspeed=Speed:
-		SET gpunum=0
-		FOR %%A IN ("%%a %%b") DO (
-			IF !gpunum! LSS %gpus% (
-				FOR /F "tokens=1,2 delims= " %%B IN (%%A) DO (
-					IF "%%B" NEQ "" IF %%B GEQ 0 SET curspeed=!curspeed! G!gpunum! %%B,
-					IF "%%C" NEQ "" IF %%C GEQ 0 (
-						IF %%C LSS 70 SET curtemp=!curtemp! G!gpunum! %%CC,
-						IF %%C GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%CC*,
-					)
-					SET /A gpunum+=1
-				)
-			)
+		IF "%%a" NEQ "" IF %%a GEQ 0 SET curspeed=!curspeed! G!gpunum! %%a,
+		IF "%%b" NEQ "" IF %%b GEQ 0 (
+			IF %%b LSS 70 SET curtemp=!curtemp! G!gpunum! %%bC,
+			IF %%b GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%bC*,
 		)
 		IF "!curtemp!" EQU "Temp:" SET curtemp=unknown
 		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
