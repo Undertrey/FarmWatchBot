@@ -636,27 +636,32 @@ FOR /F "tokens=5 delims=.[]- " %%A IN ('findstr.exe /R /C:".*OK.*MH/s.*GPU.*" %l
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
-FOR /F "tokens=2,3 delims=#-" %%A IN ('findstr.exe /R /C:".*GPU.*MH/s.*" %log%') DO (
-	SET gpunum=%%A
-	SET gpunum=!gpunum:~0,2%!
-	SET gpunum=!gpunum::=!
-	SET curcache=%%B
-)
-IF DEFINED gpunum IF DEFINED curcache (
-	FOR /F "tokens=1,3 delims=.,MH/s[]:TCPWFEkR " %%a IN ("!curcache!") DO (
-		SET curtemp=Temp:
+FOR /L %%A IN (0,1,%gpus%) DO (
+	IF %%A EQU 0 (
 		SET curspeed=Speed:
-		IF "%%a" NEQ "" IF %%a GEQ 0 SET curspeed=!curspeed! G!gpunum! %%a,
-		IF "%%b" NEQ "" IF %%b GEQ 0 (
-			IF %%b LSS 70 SET curtemp=!curtemp! G!gpunum! %%bC,
-			IF %%b GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%bC*,
-		)
-		IF "!curtemp!" EQU "Temp:" SET curtemp=unknown
-		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
+		SET curtemp=Temp:
+	)
+	SET tempdata=null
+	SET speeddata=null
+	FOR /F "tokens=2,4 delims=-.," %%a IN ('findstr.exe /R /C:".*GPU #%%A.*MH/s.*" %log%') DO (
+		SET speeddata=%%a
+		SET speeddata=!speeddata:~1!
+		SET tempdata=%%b
+		SET tempdata=!tempdata:~4!
+		IF !tempdata! GEQ 0 IF !tempdata! LSS 70 SET tempdata=%%A !tempdata!
+		IF !tempdata! GEQ 70 SET tempdata=%%A *!tempdata!*
+	)
+	IF "!speeddata!" NEQ "null" (
+		IF !speeddata! EQU 0 SET /A minhashrate+=1
+		SET curspeed=!curspeed! G%%A !speeddata!,
+	)
+	IF "!tempdata!" NEQ "null" SET curtemp=!curtemp! G!tempdata!,
+	IF !minhashrate! GEQ 99 GOTO passaveragecheck
+	IF %%A EQU %gpus% (
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
 		IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-		ECHO !curspeed!| findstr.exe /R /C:".* 0\..*" 2>NUL 1>&2 && SET /A minhashrate+=1
-		IF !minhashrate! GEQ 99 GOTO passaveragecheck
+		IF "!curtemp!" EQU "Temp:" SET curtemp=unknown
+		IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
 	)
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
