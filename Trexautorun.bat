@@ -80,7 +80,7 @@ SET rtp=%rtpt%eV6i
 SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET errorscancel=/C:".*OK.*" /C:".*Authorized successfully.*"
-SET criticalerrorslist=/C:".*CUDA-capable.*"
+SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*cuda exception.*" /C:".*T-Rex does not exist anymore.*" /C:".*GPU CRASH LIST.*"
 SET errorslist=/C:".*ERROR.*" /C:".*has a problem with GPU, terminating.*"
 SET interneterrorslist=/C:".*instance wasn.*t validated.*" /C:".*No connection.*" /C:".*failed to.*subscribe.*" /C:".*Connection with pool timed out.*"
 IF %cmddoubleruncheck% EQU 1 (
