@@ -677,7 +677,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
-	FOR /F "tokens=3 delims=:" %%A IN ('findstr.exe /R /C:".*Share.*accepted.*" %log%') DO SET lastsharemin=1%%A
+	FOR /F "tokens=2 delims=:" %%A IN ('findstr.exe /R /C:".*Share.*accepted.*" %log%') DO SET lastsharemin=1%%A
 	SET /A lastsharemin=!lastsharemin!-100
 	IF !lastsharemin! GEQ 0 IF %me2% GTR 0 (
 		IF !lastsharemin! EQU 0 SET lastsharemin=59
