@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.4
+SET ver=2.1.5
 SET mn=Gmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -179,7 +179,7 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> %config% ECHO # GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
->> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than 15 minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true]
+>> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than sharetimeout value [2 - 59] in minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true, default value is 15]
 >> %config% ECHO sharetimeout=%sharetimeout%
 >> %config% ECHO # Number of errors before computer restart. Once the threshold is reached, the computer will restart. [5 - default, only numeric values]
 >> %config% ECHO runtimeerrors=%runtimeerrors%
@@ -405,8 +405,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% -s .* -u .* --logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% -s -u --logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -s -u --logfile %log% options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% -s .* --logfile %log%.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% -s --logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -s --logfile %log% options added to the miners command line in this order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -628,8 +628,8 @@ IF %firstrun% EQU 0 (
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=4 delims=. " %%A IN ('findstr.exe /R /C:".*Pool Hashrate:.*/s.*" %log%') DO (
 	SET lasthashrate=%%A
-	IF %%A LSS %hashrate% SET /A minhashrate+=1
-	IF %%A EQU 0 SET /A minhashrate+=1
+	IF !lasthashrate! NEQ 0 IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+	IF !lasthashrate! EQU 0 SET /A minhashrate+=1
 	SET /A hashcount+=1
 	SET /A sumhash=sumhash+%%A
 	SET /A sumresult=sumhash/hashcount
@@ -638,28 +638,26 @@ FOR /F "tokens=4 delims=. " %%A IN ('findstr.exe /R /C:".*Pool Hashrate:.*/s.*" 
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=1,3,5 delims=|%%. " %%A IN ('findstr.exe /R /C:".*%%.*/s.*/.*/.*" %log%') DO (
 	IF %%A EQU 0 (
-		SET gpunum=0
 		SET curtemp=Temp:
 		SET curspeed=Speed:
 	)
-	IF DEFINED curtemp IF DEFINED curspeed IF DEFINED gpunum (
-		IF "!gpunum!" LSS "%gpus%" (
-			IF "%%B" NEQ "" IF %%B GEQ 0 (
-				IF %%B LSS 70 SET curtemp=!curtemp! G!gpunum! %%BC,
-				IF %%B GEQ 70 SET curtemp=!curtemp! G!gpunum! *%%BC*,
-				IF "%%B" EQU "N/A" SET curtemp=!curtemp! G!gpunum! *Unknown*,
-			)
-			IF %gpus% EQU 1 IF DEFINED lasthashrate SET curspeed=Speed: G0 %lasthashrate%
-			IF %gpus% GEQ 2 IF "%%C" NEQ "" IF %%C GEQ 0 SET curspeed=!curspeed! G!gpunum! %%C,
-			IF %%C EQU 0 SET /A minhashrate+=1
-			IF "!curtemp!" EQU "Temp:" SET curtemp=unknown
-			IF "!curspeed!" EQU "Speed:" SET curspeed=unknown
-			IF "!curtemp!" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
-			IF "!curspeed!" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
-			SET /A gpunum+=1
+	IF DEFINED curtemp IF DEFINED curspeed (
+		IF "%%B" NEQ "" IF %%B GEQ 0 (
+			IF %%B LSS 70 SET curtemp=!curtemp! G%%A %%BC,
+			IF %%B GEQ 70 SET curtemp=!curtemp! G%%A *%%BC*,
+			IF "%%B" EQU "N/A" SET curtemp=!curtemp! G%%A *Unknown*,
 		)
+		IF %gpus% EQU 1 IF DEFINED lasthashrate SET curspeed=Speed: G0 %lasthashrate%
+		IF %gpus% GEQ 2 IF "%%C" NEQ "" IF %%C GEQ 0 SET curspeed=!curspeed! G%%A %%C,
+		IF %%C EQU 0 SET /A minhashrate+=1
 	)
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
+)
+IF DEFINED curtemp IF DEFINED curspeed (
+	IF "%curtemp%" EQU "Temp:" SET curtemp=unknown
+	IF "%curspeed%" EQU "Speed:" SET curspeed=unknown
+	IF "%curtemp%" NEQ "unknown" SET curtemp=!curtemp:~0,-1!
+	IF "%curspeed%" NEQ "unknown" SET curspeed=!curspeed:~0,-1!
 )
 timeout.exe /T %cputimeout% /nobreak >NUL
 IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %hashrate% (
@@ -672,8 +670,9 @@ IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %ha
 	SET /A hashrateerrorscount+=1
 )
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
-IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
+IF %sharetimeout% GEQ 1 IF %sharetimeout% LEQ 59 IF %ptos% LSS %me2% (
 	timeout.exe /T %cputimeout% /nobreak >NUL
+	IF %sharetimeout% EQU 1 SET sharetimeout=15
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
@@ -685,7 +684,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 		IF !lastsharemin! GTR %me2% SET /A lastsharediff=!lastsharemin!-%me2%
 		IF !lastsharemin! GTR 50 IF %me2% LEQ 10 SET /A lastsharediff=60-!lastsharemin!+%me2%
 		IF !lastsharemin! LEQ 10 IF %me2% GTR 50 SET /A lastsharediff=60-%me2%+!lastsharemin!
-		IF !lastsharediff! GTR 15 (
+		IF !lastsharediff! GTR !sharetimeout! (
 			CALL :inform "0" "false" "Long share timeout... *!lastsharemin!/%me2%*." "Long share timeout... !lastsharemin!/%me2%." "2"
 			GOTO error
 		)

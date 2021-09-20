@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.4
+SET ver=2.1.5
 SET mn=Clay
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -179,7 +179,7 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO # Enable additional environments. Please do not use this option if it is not needed, or if you do not understand its function. [0 - false, 1 - true]
 >> %config% ECHO # GPU_FORCE_64BIT_PTR 0, GPU_MAX_HEAP_SIZE 100, GPU_USE_SYNC_OBJECTS 1, GPU_MAX_ALLOC_PERCENT 100, GPU_SINGLE_ALLOC_PERCENT 100
 >> %config% ECHO environments=%environments%
->> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than 15 minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true]
+>> %config% ECHO # Enable last share timeout check. Your miner sends and receives shares - if there is a delay of more than sharetimeout value [2 - 59] in minutes between the send/receive, the script will think that the miner is stuck and restart the miner. [0 - false, 1 - true, default value is 15]
 >> %config% ECHO sharetimeout=%sharetimeout%
 >> %config% ECHO # Number of errors before computer restart. Once the threshold is reached, the computer will restart. [5 - default, only numeric values]
 >> %config% ECHO runtimeerrors=%runtimeerrors%
@@ -628,8 +628,8 @@ IF %firstrun% EQU 0 (
 timeout.exe /T %cputimeout% /nobreak >NUL
 FOR /F "tokens=5 delims=. " %%A IN ('findstr.exe /R /C:".*- Total Speed: .*/s.*" %log% ^| findstr.exe /V /R /C:".*DevFee.*" /C:".*mining mode is enabled.*" /C:".*DCR.*" /C:".*SC.*" /C:".*LBC.*" /C:".*PASC.*" /C:".*B2S.*" /C:".*KC.*"') DO (
 	SET lasthashrate=%%A
-	IF %%A LSS %hashrate% SET /A minhashrate+=1
-	IF %%A EQU 0 SET /A minhashrate+=1
+	IF !lasthashrate! NEQ 0 IF !lasthashrate! LSS %hashrate% SET /A minhashrate+=1
+	IF !lasthashrate! EQU 0 SET /A minhashrate+=1
 	SET /A hashcount+=1
 	SET /A sumhash=sumhash+%%A
 	SET /A sumresult=sumhash/hashcount
@@ -689,8 +689,9 @@ IF "%sumresult%" NEQ "0" IF %sumresult% LSS %oldhashrate% IF %sumresult% LSS %ha
 	SET /A hashrateerrorscount+=1
 )
 IF "%sumresult%" NEQ "0" IF %sumresult% NEQ %oldhashrate% SET oldhashrate=%sumresult%
-IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
+IF %sharetimeout% GEQ 1 IF %sharetimeout% LEQ 59 IF %ptos% LSS %me2% (
 	timeout.exe /T %cputimeout% /nobreak >NUL
+	IF %sharetimeout% EQU 1 SET sharetimeout=15
 	SET /A ptos=%me2%+7
 	SET lastsharediff=0
 	SET lastsharemin=1%dt1:~10,2%
@@ -702,7 +703,7 @@ IF %sharetimeout% EQU 1 IF %ptos% LSS %me2% (
 		IF !lastsharemin! GTR %me2% SET /A lastsharediff=!lastsharemin!-%me2%
 		IF !lastsharemin! GTR 50 IF %me2% LEQ 10 SET /A lastsharediff=60-!lastsharemin!+%me2%
 		IF !lastsharemin! LEQ 10 IF %me2% GTR 50 SET /A lastsharediff=60-%me2%+!lastsharemin!
-		IF !lastsharediff! GTR 15 (
+		IF !lastsharediff! GTR !sharetimeout! (
 			CALL :inform "0" "false" "Long share timeout... *!lastsharemin!/%me2%*." "Long share timeout... !lastsharemin!/%me2%." "2"
 			GOTO error
 		)
