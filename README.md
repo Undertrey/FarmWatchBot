@@ -1,4 +1,5 @@
 # **Donations:**
+* **USDT: TDwbaARpdsoD36RpLPSyqxcF3JY8KncajY**
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
 * **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
@@ -98,6 +99,7 @@ If you interested in premium version, price is **10$** equivalent in any cryptoc
 **[Подробная документация о премиум командах.](https://docs.google.com/document/d/1UI1__t-ToZzKf35JCfFgeo1yQcRxwnsQfwXb03Wiv8k/edit?usp=sharing)**
 
 # **Donations:**
+* **USDT: TDwbaARpdsoD36RpLPSyqxcF3JY8KncajY**
 * **ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv**
 * **BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB**
 * **LTC: LMQXFoKT5Y7me76Z7jF4rM7C8giQvzdBEs**
