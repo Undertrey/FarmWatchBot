@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.5
+SET ver=2.1.6
 SET mn=Ewbf
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -54,6 +54,7 @@ SET hashrateerrors=5
 SET bat=%mn%_miner.bat
 SET pingserver=google.com
 SET cputimeout=5
+SET logfilesize=70000000
 SET rigname=%COMPUTERNAME%
 SET groupname=%mn%
 SET link=https://api.telegram.org
@@ -195,6 +196,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO pingserver=%pingserver%
 >> %config% ECHO # Slowdown script for weak CPUs. Increase this value incrementally [1 by 1] if your hashrate drops because of script. This may slow down the responsiveness of the script. [5 - default, only numeric values]
 >> %config% ECHO cputimeout=%cputimeout%
+>> %config% ECHO # Maximum allowable log file size. [default - 70000000 bytes]
+>> %config% ECHO logfilesize=%logfilesize%
 >> %config% ECHO # =================================================== [Telegram notifications]
 >> %config% ECHO # To enable Telegram proxy or mirror use this option. [https://api.telegram.org - default, http://api.telegram.org.https.s93.wbprx.com - example]
 >> %config% ECHO link=%link%
@@ -467,7 +470,7 @@ IF %hrdiff% GEQ 1 IF %hr2% EQU 12 (
 )
 IF %switchtodefault% EQU 1 IF %hrdiff% EQU 0 IF %mediff% GEQ 30 GOTO switch
 FOR %%A IN (%log%) DO (
-	IF %%~ZA GTR 70000000 (
+	IF %%~ZA GTR %logfilesize% (
 		CALL :inform "0" "true" "Miner must be restarted, large log file size, please wait..." "1" "1"
 		GOTO hardstart
 	)
