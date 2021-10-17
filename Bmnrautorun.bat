@@ -704,7 +704,7 @@ COLOR 1F
 ECHO +===================================================================+
 ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
-ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO                USDT: TDwbaARpdsoD36RpLPSyqxcF3JY8KncajY
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 ECHO +===================================================[%Time%]===+
 ECHO Process %minerprocess% is running for %hrdiff%:%mediff%:%ssdiff% [%errorscounter%/%runtimeerrors%].
@@ -798,7 +798,7 @@ CLS
 ECHO +===================================================================+
 ECHO              AutoRun v.%ver% for %mn% Miner - by Acrefawn
 ECHO             ETH: 0x4a98909270621531dda26de63679c1c6fdcf32ea
-ECHO                ZEC: t1S8HRoMoyhBhwXq6zY5vHwqhd9MHSiHWKv
+ECHO                USDT: TDwbaARpdsoD36RpLPSyqxcF3JY8KncajY
 ECHO                 BTC: 1wdJBYkVromPoiYk82JfSGSSVVyFJnenB
 EXIT /b
 :oclauch
