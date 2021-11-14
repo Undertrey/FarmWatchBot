@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.6
+SET ver=2.1.7
 SET mn=Cmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -379,6 +379,7 @@ IF EXIST "%log%" (
 > %bat% ECHO @ECHO off
 >> %bat% ECHO MODE CON cols=113 lines=10
 >> %bat% ECHO TITLE %bat%
+>> %bat% ECHO pushd "%~dp0" 
 >> %bat% ECHO ECHO +===============================================================================================================+
 >> %bat% ECHO REM Configure the miners command line in %config% file. Not in %bat% - any values in %bat% will not be used.
 >> %bat% ECHO ECHO Miner is currently running and all output from the miner is redirected into the %log% file.
