@@ -82,7 +82,7 @@ SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*CUDA error.*" /C:".*Fatal error detected.*"
-SET errorslist=/C:".*GPU .* hangs.*" /C:".*Thread.*not.*responding.*" /C:"Incorrect.*share from.*"
+SET errorslist=/C:".*GPU .* hangs.*" /C:".*Thread.*not.*responding.*"
 SET interneterrorslist=/C:"Can.*t resolve.*" /C:".*Unable to read pool response.*" /C:".*Reconnecting.*" /C:".*Connection closed.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
