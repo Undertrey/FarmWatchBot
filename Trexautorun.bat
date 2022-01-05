@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.7
+SET ver=2.1.8
 SET mn=Trex
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -280,8 +280,8 @@ SET secondoclaunch=0
 SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
-IF %tempcheck% EQU 1 SET errorslist=%errorslist% /C:".* [0-5]C .*"
-IF %globaltempcheck% EQU 1 SET warningslist=/C:".*reached.*"
+IF %tempcheck% EQU 1 SET errorslist=%errorslist% /C:".* [0-5]C.*"
+IF %globaltempcheck% EQU 1 SET warningslist=/C:".*is overheated.*"
 IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 0" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
 IF %environments% EQU 0 FOR %%a IN ("GPU_FORCE_64BIT_PTR" "GPU_MAX_HEAP_SIZE" "GPU_USE_SYNC_OBJECTS" "GPU_MAX_ALLOC_PERCENT" "GPU_SINGLE_ALLOC_PERCENT") DO REG DELETE HKCU\Environment /F /V %%~a 2>NUL 1>&2 && ECHO %%~a successfully removed from environments.
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt1=%%A
@@ -409,8 +409,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% -o.*-l %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% -o -l %log%* options added to the miners command line in this order." "Ensure %minerpath% -o -l %log% options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% -o.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% -o* option added to the miners command line in first order." "Ensure %minerpath% -o option added to the miners command line in first order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
@@ -650,20 +650,52 @@ FOR /L %%A IN (!startcount!,1,!gpus!) DO (
 		SET curtemp=Temp:
 	)
 	SET tempdata=null
+	SET tempdatae=null
 	SET speeddata=null
-	FOR /F "tokens=2,4 delims=-.," %%a IN ('findstr.exe /R /C:".*GPU .*%%A:.*-.*MH/s.*" %log%') DO (
+	FOR /F "tokens=2,5,6,7,8 delims=-,/[]" %%a IN ('findstr.exe /R /C:"GPU .*%%A:.*-.*MH/s.*" %log%') DO (
 		SET speeddata=%%a
-		SET speeddata=!speeddata:~1!
 		SET tempdata=%%b
-		SET tempdata=!tempdata:~4,-1!
-		IF "!tempdata!" NEQ "null" IF !tempdata! GEQ 0 IF !tempdata! LSS 70 SET tempdata=!tempdata!
-		IF "!tempdata!" NEQ "null" IF !tempdata! GEQ 70 SET tempdata=*!tempdata!*
+		SET tempdatae=%%e
+		SET tempdata=!tempdata:~0,3!
+		SET tempdatae=!tempdatae:~2,1!
+		IF "!speeddata!" NEQ "null" (
+			IF !speeddata!==DISABLED (
+				SET speeddata=Disabled
+				SET tempdata=Disabled
+			) ELSE (
+				SET speeddata=!speeddata:~1,-6!
+			)
+		)
+		IF "!tempdata!" NEQ "null" IF "!tempdata!" NEQ "Disabled" (
+			IF !tempdata!==LHR (
+				IF !tempdatae!==C (
+					SET tempdata=%%e
+					SET tempdata=!tempdata:~0,-1!
+				) ELSE (
+					SET tempdata=%%d
+					SET tempdata=!tempdata:~2,-1!
+				)
+			) ELSE (
+				SET tempdata=%%b
+				SET tempdata=!tempdata:~-1!
+				IF !tempdata!==C (
+					SET tempdata=%%b
+					SET tempdata=!tempdata:~2,-1!
+				) ELSE (
+					SET tempdata=%%c
+					SET tempdata=!tempdata:~0,-1!
+				)
+			)
+			IF "!tempdata!" NEQ "null" IF !tempdata! GEQ 0 IF !tempdata! LSS 70 SET tempdata=!tempdata!
+			IF "!tempdata!" NEQ "null" IF !tempdata! GEQ 70 SET tempdata=*!tempdata!*
+		)
 	)
 	IF "!speeddata!" NEQ "null" (
 		IF !speeddata! EQU 0 SET /A minhashrate+=1
 		SET curspeed=!curspeed! G%%A !speeddata!,
 	)
-	IF "!tempdata!" NEQ "null" SET curtemp=!curtemp! G%%A !tempdata!C,
+	IF "!tempdata!" NEQ "null" IF "!tempdata!" NEQ "Disabled" SET curtemp=!curtemp! G%%A !tempdata!C,
+	IF "!tempdata!" EQU "Disabled" SET curtemp=!curtemp! G%%A !tempdata!,
 	IF !minhashrate! GEQ 99 GOTO passaveragecheck
 	IF %%A EQU !gpus! (
 		IF "!curspeed!" EQU "Speed:" SET curspeed=unknown

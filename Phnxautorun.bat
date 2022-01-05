@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.7
+SET ver=2.1.8
 SET mn=Phnx
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -82,7 +82,7 @@ SET tpr=C8go_jp8%tprt%
 SET /A num=(3780712+3780711)*6*9
 SET errorscancel=/C:".*Connected.*"
 SET criticalerrorslist=/C:".*CUDA-capable.*" /C:".*CUDA error.*" /C:".*Fatal error detected.*"
-SET errorslist=/C:".*GPU .* hangs.*" /C:".*Thread.*not.*responding.*"
+SET errorslist=/C:".*GPU .* hangs.*" /C:".*Thread.*not.*responding.*" /C:"Incorrect.*share from.*"
 SET interneterrorslist=/C:"Can.*t resolve.*" /C:".*Unable to read pool response.*" /C:".*Reconnecting.*" /C:".*Connection closed.*"
 IF %cmddoubleruncheck% EQU 1 (
 	tasklist.exe /V /NH /FI "imagename eq cmd.exe"| findstr.exe /V /R /C:".*%mn%_autorun(%dt0%)"| findstr.exe /R /C:".*%mn%_autorun.*" 2>NUL 1>&2 && (
@@ -281,7 +281,7 @@ SET chatid=%chatid: =%
 SET gpus=%gpus: =%
 SET hashrate=%hashrate: =%
 IF %tempcheck% EQU 1 SET errorslist=%errorslist% /C:".* [0-5]C .*"
-IF %globaltempcheck% EQU 1 SET warningslist=/C:".*reached.*"
+IF %globaltempcheck% EQU 1 SET warningslist=/C:".*is stopped because it has temperature.*"
 IF %environments% EQU 1 FOR %%a IN ("GPU_FORCE_64BIT_PTR 0" "GPU_MAX_HEAP_SIZE 100" "GPU_USE_SYNC_OBJECTS 1" "GPU_MAX_ALLOC_PERCENT 100" "GPU_SINGLE_ALLOC_PERCENT 100") DO SETX %%~a 2>NUL 1>&2 && ECHO %%~a.
 IF %environments% EQU 0 FOR %%a IN ("GPU_FORCE_64BIT_PTR" "GPU_MAX_HEAP_SIZE" "GPU_USE_SYNC_OBJECTS" "GPU_MAX_ALLOC_PERCENT" "GPU_SINGLE_ALLOC_PERCENT") DO REG DELETE HKCU\Environment /F /V %%~a 2>NUL 1>&2 && ECHO %%~a successfully removed from environments.
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt1=%%A
@@ -409,8 +409,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% -pool.*-log 1 -logfile %log%.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% -pool -log 1 -logfile %log%* options added to the miners command line in this order." "Ensure %minerpath% -pool -log 1 -logfile %log% options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% -pool.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% -pool* option added to the miners command line in first order." "Ensure %minerpath% -pool option added to the miners command line in first order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...

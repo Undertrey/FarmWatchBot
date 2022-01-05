@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.7
+SET ver=2.1.8
 SET mn=Ewbf
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -409,8 +409,8 @@ IF NOT EXIST "%log%" (
 	CALL :inform "1" "false" "%log% is missing. Probably %minerprocess% hangs..." "1" "1"
 	GOTO restart
 ) ELSE (
-	findstr.exe /R /C:".*%minerprocess% --server.*--log 2.*--templimit.*" %bat% 2>NUL 1>&2 || (
-		CALL :inform "1" "false" "Ensure *%minerpath% --server --log 2 --templimit* options added to the miners command line in this order." "Ensure %minerpath% --server --log 2 --templimit options added to the miners command line in this order." "2"
+	findstr.exe /R /C:".*%minerprocess% --server.*" %bat% 2>NUL 1>&2 || (
+		CALL :inform "1" "false" "Ensure *%minerpath% --server* option added to the miners command line in first order." "Ensure %minerpath% --server option added to the miners command line in first order." "2"
 	)
 	ECHO log monitoring started.
 	ECHO Collecting information. Please wait...
