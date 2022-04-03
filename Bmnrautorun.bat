@@ -5,7 +5,7 @@ pushd "%~dp0"
 SETLOCAL EnableExtensions EnableDelayedExpansion
 MODE CON cols=70 lines=40
 shutdown.exe /A 2>NUL 1>&2
-SET ver=2.1.9
+SET ver=2.2.0
 SET mn=Bmnr
 SET firstrun=0
 FOR /F "tokens=1 delims=." %%A IN ('wmic.exe OS GET localdatetime^|Find "."') DO SET dt0=%%A
@@ -44,6 +44,7 @@ SET restartminer=48
 SET restartpc=0
 SET noonrestart=0
 SET midnightrestart=0
+SET afterstarttimeout=0
 SET internetcheck=1
 SET tempcheck=0
 SET globaltempcheck=1
@@ -99,7 +100,7 @@ IF NOT EXIST "%config%" (
 	GOTO createconfig
 )
 FOR /F "eol=# delims=" %%a IN (%config%) DO SET "%%a"
-FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
+FOR %%A IN (gpus gpurestart hashrate commandserver1 ocprogram profile additionalprofile octimeout restartocprogram lauchocprogram restartminer restartpc noonrestart noonrestart midnightrestart afterstarttimeout internetcheck tempcheck globaltempcheck environments sharetimeout runtimeerrors hashrateerrors minerprocess minerpath bat pingserver cputimeout rigname groupname link chatid reports ap approcessname approcesspath) DO IF NOT DEFINED %%A GOTO corruptedconfig
 FOR /F "eol=# delims=" %%A IN ('findstr.exe /R /C:"commandserver.*" %config%') DO SET /A serversamount+=1
 FOR /L %%A IN (1,1,%serversamount%) DO (
 	FOR %%B IN (commandserver%%A) DO IF NOT DEFINED %%B GOTO corruptedconfig
@@ -169,6 +170,8 @@ IF %octimeout% EQU 120 IF %gpus% GEQ 1 SET /A octimeout=%gpus%*15
 >> %config% ECHO noonrestart=%noonrestart%
 >> %config% ECHO # Restart miner or computer every day at 00:00. [1 - true miner, 2 - true computer, 0 - false]
 >> %config% ECHO midnightrestart=%midnightrestart%
+>> %config% ECHO # Timeout after miner was started [min value - 1 sec]
+>> %config% ECHO afterstarttimeout=%afterstarttimeout%
 >> %config% ECHO # =================================================== [Other]
 >> %config% ECHO # Enable Internet connectivity check. [0 - false, 1 - true full, 2 - true without server switching]
 >> %config% ECHO # Disable Internet connectivity check only if you have difficulties with your connection. [ie. high latency, intermittent connectivity]
@@ -399,6 +402,10 @@ START "%bat%" "%bat%" && (
 )
 IF %lauchocprogram% EQU 1 CALL :oclauch
 IF %additionalprofile% GEQ 1 IF %additionalprofile% LEQ 5 IF !secondoclaunch! EQU 1 CALL :oclauch
+IF %afterstarttimeout% GEQ 1 (
+	ECHO Please wait %afterstarttimeout% seconds or press any key to continue...
+	timeout.exe /T %afterstarttimeout% >NUL
+)
 IF NOT DEFINED curservername SET curservername=unknown
 IF NOT EXIST "%log%" (
 	findstr.exe /R /C:".*-logfile %log%.*" %bat% 2>NUL 1>&2 || (
