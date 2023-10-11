@@ -12,7 +12,7 @@ i5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbS5VF8ypv8VF3GUiS1J**
 **Ewbf Equihash** - *Ewbfautorun.bat*, **Dstm Equihash** - *Dstmautorun.bat*, **Claymore Equihash** - *ClayZECautorun.bat*, **Claymore CryptoNote** - *ClayXMRautorun.bat*, **Claymore NeoScrypt** - *ClayNSautorun.bat*, **Claymore Dagger-Hashimoto** - *ClayETHautorun.bat*, **Ethminer Dagger-Hashimoto** - *Ethrautorun.bat*, **Ccminer tpruvot, alexis (palgin), zealot enemy, KlausT** - *CCautorun.bat*, **Cast XMR CryptoNote** - *Castautorun.bat*, **Phoenix Ethash** - *Phnxautorun.bat*, **T-Rex Ethash** - *Trexautorun.bat*, **Gminer Ethash** - *Gmnrautorun.bat*
 
 # **About:**
-Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by Acrefawn (me).
+Hello, guys! FarmWatchBot (Miner autorestart, autorun, watchdog) by me.
 Opensource CMD/BAT file. **If you found or corrected an error, please contact me immediately!** Together we can work out any bugs as well as add features and functionality to further automate the process of mining.
 
 First of all I have to say, this script was developed for me and for my friends to make mining process easy and stable. This script monitors mining process for errors and takes some corrective measures depending on the issue that arises from the miner or hardware. After running this script personally to ensure stability, I decided to share this script with the community.
